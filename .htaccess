@@ -20,6 +20,10 @@ Options -Indexes
 # Route API requests to api.php on Apache servers
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # Pass Authorization header to PHP
+    RewriteCond %{HTTP:Authorization} ^(.*)
+    RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+    
     # Rewrite /api/something to api.php
     RewriteRule ^api(/.*)?$ api.php [L,QSA]
 </IfModule>
