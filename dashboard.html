@@ -854,6 +854,7 @@ const rubrikSkoring = {
         };
 
         window.setActiveSidebar = function(navId) {
+            sessionStorage.setItem('wlc_active_nav', navId);
             const links = document.querySelectorAll('#ownerSidebar .sidebar-nav a');
             links.forEach(link => {
                 if (link.getAttribute('data-nav') === navId) {
@@ -2259,7 +2260,29 @@ window.saveNewSoal = async function() {
                 document.getElementById('loggedRole').textContent = escapeHtml(role);
                 document.getElementById('userInfo').classList.remove('hidden');
                 document.getElementById('loginScreen').classList.add('hidden');
-                showRoleDashboard(role);
+                
+                const activeNav = sessionStorage.getItem('wlc_active_nav');
+                const navMap = {
+                    'manageUsersDashboard': window.manageUsers,
+                    'manageSiswaDashboard': window.manageSiswa,
+                    'manageSekolahDashboard': window.manageSekolah,
+                    'manageSoalDashboard': window.manageSoal,
+                    'manageJadwalDashboard': window.manageJadwal,
+                    'manageGrupDashboard': window.openManageGrup,
+                    'printSiswaDashboard': window.openPrintSiswa,
+                    'manageCertDashboard': window.openManageCert,
+                    'viewReportsDashboard': window.viewReports,
+                    'growthCheckDashboard': window.openGrowthCheck,
+                    'parentReflectionsDashboard': window.openParentReflections,
+                    'manageSettingsDashboard': window.openManageSettings,
+                    'analyticsDashboard': window.analyticsOverview
+                };
+                
+                if (activeNav && navMap[activeNav]) {
+                    navMap[activeNav]();
+                } else {
+                    showRoleDashboard(role);
+                }
             }
             await loadSettings();
         };
@@ -2584,7 +2607,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        kegiatan ini didukung oleh KUMON Jl dr Wahidin CIlacap - www.wlc.kumonwahidincilacap.com
+                        Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
                     </div>
                 </div>
             `;
@@ -2626,7 +2649,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        kegiatan ini didukung oleh KUMON Jl dr Wahidin CIlacap - www.wlc.kumonwahidincilacap.com
+                        Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
                     </div>
                 </div>
             `;

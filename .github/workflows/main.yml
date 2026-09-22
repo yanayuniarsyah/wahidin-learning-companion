@@ -25,6 +25,7 @@ jobs:
           **/.git*
           **/.git*/**
           wlc.db
+          .jwt_secret
           deploy_ke_idwebhost.ps1
           update_wlc.zip
           wlc_app_siap_upload.zip
