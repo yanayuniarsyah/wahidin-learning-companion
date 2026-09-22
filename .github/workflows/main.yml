@@ -1,0 +1,32 @@
+name: Deploy to Idwebhost
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Sync files to Idwebhost via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ftp.kumonwahidincilacap.com
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /wlc.kumonwahidincilacap.com/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          wlc.db
+          deploy_ke_idwebhost.ps1
+          update_wlc.zip
+          wlc_app_siap_upload.zip
+          scratch/**
+          scratchpad*
