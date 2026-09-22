@@ -113,7 +113,7 @@ erDiagram
 
 ### Penjelasan Detil Kolom Tambahan:
 * **`bank_soal` (Komponen Observasi)**: "Bank WLC" diubah namanya menjadi Komponen Observasi untuk merefleksikan proses pendampingan daripada ujian. Kolom `wlc` merepresentasikan tingkatan atau modul kuesioner.
-* **`parent_reflections`**: Menampung data umpan balik dari orang tua terkait aspek kesiapan, fokus, kemandirian, ketekunan, emosional, dan minat belajar anak di rumah.
+* **`parent_reflections`**: Menampung data umpan balik dari orang tua terkait aspek perilaku yang dapat diamati di rumah: Kesiapan Belajar, Keterlibatan & Fokus, Kemandirian Belajar, Ketekunan terhadap Tantangan, Respons terhadap Kesulitan, dan Engagement Pembelajaran anak.
 
 ---
 

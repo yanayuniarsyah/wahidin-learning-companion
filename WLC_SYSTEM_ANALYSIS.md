@@ -39,44 +39,43 @@ Sistem WLC App sengaja didesain dengan prinsip **Ringan, Portabel, dan Independe
 
 ## 3. Analisis Substansi Psikologi dan Perilaku
 
-WLC berfungsi sebagai instrumen diagnostik observasional. Indikator di dalamnya dioperasionalkan dari teori kognitif dan perilaku anak. Pendekatan ini menggeser fokus dari **Penilaian Sumatif** ke **Penilaian Formatif dan Observasional** (memantau proses, bukan sekadar menghakimi hasil).
+WLC berfungsi sebagai **sistem observasi dan pendampingan kebiasaan belajar anak berbasis perilaku yang dapat diamati**. Indikator di dalamnya dioperasionalkan dari perilaku nyata anak di lingkungan belajar. Pendekatan ini menggeser fokus dari **Penilaian Sumatif** ke **Penilaian Formatif dan Observasional** (memantau proses, bukan sekadar menghakimi hasil), dan secara sadar menghindari klaim diagnosis klinis.
 
-### 3.1. 7 Dimensi Psikologis yang Diobservasi
+### 3.1. WLC Learning Habit Framework (7 Dimensi Observasi)
 
-Setiap komponen dirancang untuk menerjemahkan atribut mental abstrak menjadi perilaku nyata (*observable behaviors*):
+Setiap komponen dirancang murni untuk menerjemahkan perilaku nyata (*observable behaviors*), bukan menyimpulkan profil neurobiologis atau kognitif secara sepihak:
 
-| Dimensi | Indikator Utama | Landasan Teori Psikologi |
+| Dimensi | Fokus Observasi | Indikator Perilaku Utama |
 | :--- | :--- | :--- |
-| **1. Kesiapan** | Transisi dari aktivitas bermain; postur awal. | **Executive Function**: Mengukur *task switching* dan regulasi diri di fase awal. |
-| **2. Fokus** | Durasi bertahan, rentan distraksi atau tidak. | **Sustained Attention**: Relevan mendeteksi dini perilaku rentan distraksi yang perlu intervensi khusus. |
-| **3. Instruksi** | Pemahaman lisan, inisiatif bertanya. | **Receptive Language & Working Memory**: Kapasitas memproses bahasa. |
-| **4. Kemandirian**| Inisiatif mencoba sendiri tanpa *scaffolding*. | **Self-Regulated Learning (SRL)**: Mencegah sindrom *learned helplessness*. |
-| **5. Ketekunan** | Reaksi saat soal sulit atau salah (mencoba ulang). | **Grit & Growth Mindset (Duckworth/Dweck)**: Resiliensi anak terhadap kegagalan. |
-| **6. Emosi** | Respons gagal/berhasil, tingkat frustrasi. | **Emotional Regulation (EQ)**: Kemampuan *self-soothing* saat amigdala terpicu. |
-| **7. Minat** | Antusiasme, motivasi melanjutkan tanpa paksaan. | **Intrinsic Motivation (Deci & Ryan)**: Dorongan belajar dari dalam diri. |
+| **1. Kesiapan Belajar** | Transisi dan kesiapan memulai aktivitas. | Beralih dari aktivitas sebelumnya, menyiapkan alat belajar, merespons rutinitas awal. |
+| **2. Keterlibatan & Fokus** | Kemampuan mempertahankan keterlibatan terhadap tugas. | Rentang durasi mengerjakan tugas tanpa mengalihkan pandangan atau aktivitas secara berlebihan. |
+| **3. Respons Instruksi** | Kemampuan memahami dan menjalankan instruksi. | Kemampuan memulai langkah yang diminta setelah instruksi diberikan tanpa pengulangan berlebih. |
+| **4. Kemandirian Belajar**| Kemampuan mencoba tugas tanpa bantuan berlebihan. | Mencoba sebelum meminta bantuan, merujuk pada contoh, dan inisiatif mengevaluasi kerja sendiri. |
+| **5. Ketekunan Tantangan**| Respons ketika menghadapi kesulitan. | Upaya untuk tetap mencoba kembali setelah melakukan kesalahan atau menemukan soal sulit. |
+| **6. Respons Kesulitan** | Cara anak merespons frustrasi dan dukungan. | Reaksi emosional saat terhambat (tetap lanjut, minta tolong, atau berhenti sementara), serta respons terhadap dorongan. |
+| **7. Engagement Belajar** | Keterlibatan dan kemauan mengikuti aktivitas belajar. | Bersedia memulai, menunjukkan ketertarikan pada tugas, dan kemauan menyelesaikan sesi. |
 
 ### 3.2. Jembatan Ekologis: Parent Reflection
 Mengacu pada teori *Ecological Systems* (Bronfenbrenner), WLC memetakan **Mesosystem** dengan menghubungkan mikrosistem Kumon dan mikrosistem rumah.
-- Data ini memungkinkan konselor melihat disparitas perilaku (misal: mandiri di kelas, manja di rumah).
-- Temuan digunakan sebagai amunisi komunikasi konseling secara objektif dan kolaboratif, tanpa menyudutkan orang tua.
+- Data ini memungkinkan konselor melihat disparitas perilaku (misal: mandiri di kelas, butuh banyak dorongan di rumah).
+- Temuan ini diposisikan sebagai sumber data berbeda (*complementary*) yang digunakan sebagai amunisi komunikasi konseling secara objektif, tanpa menyudutkan orang tua.
 
 ---
 
-## 4. Metodologi Diagnostik & Peta Jalan Validasi
+## 4. Metodologi Observasi & Peta Jalan Validasi
 
-Untuk memastikan WLC App beroperasi sebagai instrumen ukur psikologi yang andal dan bukan sekadar asumsi, sistem ini menerapkan standar metodologi yang ketat melalui **Dua Jalur Validasi**:
+Untuk memastikan WLC App beroperasi sebagai instrumen ukur yang andal, sistem ini menerapkan standar metodologi observasi perilaku yang ketat:
 
 ### 4.1. Membangun Reliabilitas Antar-Rater (BARS)
 Masalah terbesar dalam observasi lapangan adalah subjektivitas (bias pengamat). Untuk menekan hal ini, WLC App tidak lagi menggunakan skala numerik bebas, melainkan **Behaviorally Anchored Rating Scale (BARS)**. 
-- Alih-alih menebak skor 1–4, Asisten Kumon disuguhkan dengan UI berupa **kartu deskriptor perilaku konkret** pada setiap dimensi (Kesiapan, Fokus, Ketekunan, dll). 
-- Asisten hanya perlu mencocokkan apa yang mereka lihat secara riil dengan teks di aplikasi. Pendekatan ini membuat hasil skor Asisten A dan Asisten B akan sangat konsisten terhadap anak yang sama (*High Inter-Rater Reliability*).
+- Alih-alih menebak skor 1–4, Asisten Kumon disuguhkan dengan deskriptor perilaku konkret pada setiap dimensi. 
+- Asisten mencocokkan apa yang mereka lihat secara riil. Namun, BARS saja tidak otomatis menghasilkan reliabilitas tinggi tanpa definisi operasional yang ketat dan pelatihan.
 - **Kalibrasi**: Secara berkala, perlu diadakan sesi *Rater Calibration*, di mana asisten menonton rekaman video yang sama dan menyamakan persepsi observasi mereka.
 
-### 4.2. Peta Jalan Validasi Kriterion (*Criterion Validity Roadmap*)
-Validasi dilakukan tidak secara teoritis, tapi dibuktikan melalui korelasi data empiris (*Longitudinal Data*).
-1. **Fase Pengumpulan (Bulan 1-6)**: Asisten menggunakan instrumen BARS untuk menghimpun data murni tanpa bias diagnostik.
-2. **Fase Korelasi (Bulan 7)**: Melakukan analisis korelasi silang (misal menggunakan Pearson `CORREL()` di Excel) antara *Rerata Skor Ketekunan & Kemandirian* dengan data objektif *Kecepatan Kenaikan Level Kumon* (lembar/level per bulan).
-3. **Standar Etika Klaim (Pembatasan)**: Sebelum korelasi tersebut terbukti kuat secara statistik (dengan $n \ge 30$ sampel kontinu), materi laporan sistem ini diposisikan murni sebagai **"Alat Observasi dan Pendampingan"**, bukan "Alat Diagnostik Psikometri Klinis". Hal ini menjaga kehati-hatian etis terhadap subjek anak.
+### 4.2. Batasan Klaim dan Etika Data
+1. **Fase Pengumpulan**: Asisten menghimpun data murni tanpa bias atau asumsi klinis.
+2. **Standar Etika Klaim**: Materi laporan sistem ini diposisikan murni sebagai **"Alat Observasi dan Pendampingan"**, dan secara tegas dilarang disebut sebagai "Alat Diagnostik Psikometri Klinis", "Tes IQ", atau alat pembuat profil kepribadian individual. Hal ini menjaga kehati-hatian etis terhadap subjek anak.
+3. **Privasi Anak**: Data observasi perilaku wajib dikelola dengan sistem *legal/ethical governance* yang menjamin kerahasiaan anak.
 
 ---
 
@@ -84,4 +83,4 @@ Validasi dilakukan tidak secara teoritis, tapi dibuktikan melalui korelasi data 
 
 **WLC App** membuktikan bahwa teknologi konvensional (*Vanilla JS, PHP, SQLite*) bila diarsiteki dengan cermat (SPA, JWT, WAL), mampu menghasilkan platform kelas *enterprise* yang berbiaya rendah dan sangat responsif.
 
-Lebih dari itu, WLC bukan sekadar "perekam data akademis", melainkan **Instrumen Profiling Perilaku Anak**. Dengan memadukan 7 Dimensi Psikologis dan pendekatan kolaboratif, sistem ini mempersenjatai tenaga pendidik dengan pemahaman mendalam tentang *Learning Profile* tiap anak, demi mewujudkan pendidikan yang benar-benar berpusat pada perkembangan mental anak (*Child-Centered Education*).
+Lebih dari itu, WLC bukan instrumen diagnosa, melainkan **Sistem Pendampingan Kebiasaan Belajar**. Dengan memadukan 7 Dimensi Perilaku yang dapat diamati dan pendekatan kolaboratif, sistem ini mempersenjatai tenaga pendidik dengan pemahaman objektif tentang *Learning Habit Profile* tiap anak, demi mewujudkan pendidikan yang benar-benar berpusat pada perkembangan positif (*Child-Centered Education*).

@@ -24,7 +24,9 @@
             font-family: 'Outfit', sans-serif;
             margin: 0;
             padding: 0;
-            background: var(--bg);
+            background: linear-gradient(135deg, #050505, #141414, #0f0a05);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: var(--text);
             display: flex;
             flex-direction: column;
@@ -32,18 +34,36 @@
             min-height: 100vh;
         }
 
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
         /* Web Interface Viewer styling */
         .viewer-header {
             width: 100%;
-            background: linear-gradient(135deg, #141414, #0a0a0a);
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: white;
             padding: 1.5rem;
             box-sizing: border-box;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1.5px solid var(--border);
-            box-shadow: var(--shadow-md);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -108,13 +128,30 @@
         }
 
         .btn-accent {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #e6c875);
             color: #0a0a0a;
-            border-color: var(--primary);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-accent::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-20deg) translateX(-150%);
+            transition: all 0.5s ease;
         }
 
         .btn-accent:hover {
-            background: #a17d50;
+            background: linear-gradient(135deg, #e6c875, var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-accent:hover::before {
+            transform: skewX(-20deg) translateX(150%);
         }
 
         .content-container {
@@ -129,13 +166,25 @@
         }
 
         .welcome-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
             border-radius: var(--radius-md);
             padding: 2rem;
             width: 100%;
             box-sizing: border-box;
-            box-shadow: var(--shadow-md);
-            border-left: 5px solid var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-left: 5px solid var(--primary);
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; width: 100px; height: 100px;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
         }
 
         .welcome-card h2 {
@@ -151,10 +200,11 @@
         }
 
         .cert-preview-wrapper {
-            background: #475569;
-            padding: 1.5rem;
+            background: #2a2a2a;
+            background-image: radial-gradient(circle at 50% 0%, #3a3a3a 0%, #1a1a1a 100%);
+            padding: 2rem 1.5rem;
             border-radius: var(--radius-md);
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: inset 0 5px 20px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.6);
             width: 100%;
             box-sizing: border-box;
             overflow-x: auto;
@@ -162,6 +212,9 @@
             flex-direction: column;
             gap: 1.5rem;
             align-items: center;
+            animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+            opacity: 0;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         /* Certificate page dimensions (standard A4 landscape at 96dpi) */
@@ -469,30 +522,43 @@
         /* PRINT STYLE RULES */
         @media print {
             body {
-                background: white;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
             }
             .viewer-header, .welcome-card, .sponsor-footer {
                 display: none !important;
             }
+            .content-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
             .cert-preview-wrapper {
                 background: transparent !important;
                 padding: 0 !important;
+                margin: 0 !important;
                 box-shadow: none !important;
                 display: block !important;
+                border: none !important;
             }
             .cert-page {
                 box-shadow: none !important;
                 page-break-after: always;
+                page-break-inside: avoid;
                 margin: 0 !important;
                 padding: 6mm 10mm !important;
-                width: 297mm !important;
-                height: 200mm !important;
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
+                width: 100% !important;
+                height: 100% !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                box-sizing: border-box !important;
             }
             @page {
                 size: A4 landscape;
-                margin: 0;
+                margin: 5mm; /* Small margin so the printer hardware doesn't clip the edges */
             }
         }
     </style>
@@ -525,7 +591,7 @@
         <div class="welcome-card" id="webWelcome">
             <h2>Laporan Observasi WLC Anak</h2>
             <p>
-                Selamat datang! Halaman ini menampilkan lembar <strong>Achievement Snapshot</strong> dan 
+                Selamat datang! Halaman ini menampilkan lembar <strong>Learning Habit Profile</strong> dan 
                 <strong>Observation Report</strong> untuk putra/putri Anda. Tautan ini bersifat permanen dan digital, 
                 dapat disimpan atau dicetak kapan saja sebagai dokumentasi resmi perkembangan belajar mandiri anak.
             </p>
@@ -630,36 +696,49 @@
         // Natural recommendation generator
         function generateNaturalRecommendation(scores) {
             let list = [];
-            if (scores.kesiapan === 'langsung') list.push("Pertahankan rutinitas belajar mandiri secara konsisten di rumah.");
-            if (scores.kesiapan === 'diingatkan') list.push("Buat alarm atau jadwal visual untuk transisi belajar.");
-            if (scores.kesiapan === 'menolak') list.push("Berikan waktu jeda tenang 5-10 menit sebelum mulai belajar.");
+            
+            // Kesiapan
+            if (scores.kesiapan === 'langsung') list.push("Ananda telah memiliki rutinitas mandiri yang mengesankan. Pertahankan kebiasaan emas ini dengan terus memberikan apresiasi yang tulus setiap kali ia berinisiatif memulai belajar tanpa perlu diminta.");
+            if (scores.kesiapan === 'diingatkan') list.push("Untuk membangun kesadaran waktunya, cobalah membuat jadwal visual atau menyetel alarm khusus bersama Ananda. Transisi yang jelas akan sangat membantunya beralih ke mode belajar dengan lebih ikhlas.");
+            if (scores.kesiapan === 'menolak') list.push("Sediakan waktu jeda transisi (cooling down) sekitar 10-15 menit sebelum jadwal belajar tiba. Memberikan ruang bagi Ananda untuk bersiap secara mental terbukti efektif mengurangi penolakan.");
 
-            if (scores.fokus === 'stabil') list.push("Berikan tantangan bertahap untuk memperpanjang daya konsentrasi.");
-            if (scores.fokus === 'naikturun') list.push("Batasi distraksi suara dan gadget di area belajar.");
-            if (scores.fokus === 'distraksi') list.push("Gunakan metode belajar singkat dengan jeda (pomodoro sederhana).");
+            // Fokus
+            if (scores.fokus === 'stabil') list.push("Daya konsentrasi Ananda sudah terbentuk dengan baik. Orang tua dapat mulai memberikan tantangan belajar yang sedikit lebih panjang atau kompleks secara bertahap untuk terus merangsang ketahanannya.");
+            if (scores.fokus === 'naikturun') list.push("Bantu Ananda menjaga fokusnya dengan meminimalkan distraksi di area belajar, seperti mematikan televisi atau menjauhkan gadget. Lingkungan yang tenang adalah kunci utama untuk mempertahankan rentang perhatiannya.");
+            if (scores.fokus === 'distraksi') list.push("Terapkan metode belajar interval (seperti teknik Pomodoro singkat). Biarkan Ananda belajar fokus selama 10-15 menit, diikuti dengan 3 menit istirahat, untuk mencegah kelelahan kognitif yang memicu hilangnya fokus.");
 
-            if (scores.respons === 'paham') list.push("Latih anak membaca petunjuk sendiri terlebih dahulu.");
-            if (scores.respons === 'ulang') list.push("Gunakan bahasa instruksi yang singkat, jelas, dan satu per satu.");
-            if (scores.respons === 'bingung') list.push("Bimbing anak dengan pertanyaan penuntun, bukan langsung memberi jawaban.");
+            // Respons Instruksi
+            if (scores.respons === 'paham') list.push("Kemandirian Ananda dalam memahami instruksi sangat baik. Latih terus kemampuannya dengan mendorongnya untuk selalu membaca dan menyimpulkan sendiri petunjuk soal sebelum mulai mengerjakan.");
+            if (scores.respons === 'ulang') list.push("Saat memberikan arahan, gunakan kalimat instruksi yang singkat, padat, dan bertahap (satu per satu). Memecah instruksi kompleks menjadi langkah-langkah kecil akan sangat memudahkan Ananda untuk memprosesnya.");
+            if (scores.respons === 'bingung') list.push("Hindari kebiasaan langsung memberikan jawaban jadi saat Ananda kebingungan. Gunakan pertanyaan-pertanyaan penuntun (probing questions) agar ia terlatih untuk berpikir kritis dan menemukan solusinya sendiri.");
 
-            if (scores.kemandirian === 'mandiri') list.push("Apresiasi inisiatif belajarnya tanpa menunggu diminta.");
-            if (scores.kemandirian === 'terbatas') list.push("Kurangi pendampingan secara bertahap (duduk agak menjauh).");
-            if (scores.kemandirian === 'bergantung') list.push("Temani anak di awal halaman, lalu biarkan mencoba sendiri di baris terakhir.");
+            // Kemandirian
+            if (scores.kemandirian === 'mandiri') list.push("Kepercayaan diri Ananda dalam belajar mandiri sudah luar biasa. Peran orang tua kini cukup sebagai fasilitator yang mengawasi dari jauh dan siap berdiskusi saat ia sudah selesai mengerjakan tugasnya.");
+            if (scores.kemandirian === 'terbatas') list.push("Mulailah menerapkan strategi 'tarik-ulur' pendampingan. Temani Ananda di awal proses belajar, dan perlahan menjauhlah saat ia mulai asyik mengerjakan, agar ia tidak terus-menerus bergantung pada kehadiran fisik orang tua.");
+            if (scores.kemandirian === 'bergantung') list.push("Untuk membangun kemandiriannya, berikan kesepakatan: temani ia mengerjakan 2 soal pertama, lalu berikan kepercayaan padanya untuk mencoba 1 soal berikutnya secara mandiri sebelum Anda mengeceknya kembali.");
 
-            if (scores.ketekunan === 'ulang') list.push("Apresiasi usaha kerasnya ketika mencoba soal sulit.");
-            if (scores.ketekunan === 'berhenti') list.push("Semangati anak untuk mencoba satu baris lagi sebelum beristirahat.");
-            if (scores.ketekunan === 'menolak') list.push("Hargai usahanya dan hindari memaksakan penyelesaian saat ia lelah.");
+            // Ketekunan
+            if (scores.ketekunan === 'ulang') list.push("Sikap pantang menyerah Ananda adalah modal yang sangat berharga. Teruslah memvalidasi dan memuji 'usaha kerasnya' (bukan sekadar hasil akhirnya) agar mental berkembangnya (growth mindset) semakin kokoh.");
+            if (scores.ketekunan === 'berhenti') list.push("Saat Ananda ingin menyerah pada soal sulit, semangati ia untuk mencoba bertahan 'satu baris lagi' atau 'satu soal lagi' sebelum beristirahat. Hal ini melatih daya lentingnya secara perlahan tanpa membuatnya stres.");
+            if (scores.ketekunan === 'menolak') list.push("Sangat penting untuk menghargai usahanya dan tidak memaksakan penyelesaian saat ia sudah tampak sangat kelelahan secara mental. Terkadang, istirahat sejenak adalah strategi terbaik sebelum mencoba kembali dengan pikiran yang lebih segar.");
 
-            if (scores.emosional === 'stabil') list.push("Pertahankan dukungan positif saat ia menghadapi tingkat yang lebih tinggi.");
-            if (scores.emosional === 'dorongan') list.push("Berikan pelukan hangat atau kata penyemangat saat ia mulai tegang.");
-            if (scores.emosional === 'frustrasi') list.push("Validasi emosinya ('Iya, bagian ini memang menantang ya') lalu ajak istirahat sejenak.");
+            // Emosional
+            if (scores.emosional === 'stabil') list.push("Kecerdasan emosional Ananda dalam mengelola tantangan sudah sangat matang. Pertahankan lingkungan rumah yang positif dan suportif agar ia terus merasa aman untuk mengeksplorasi kemampuannya.");
+            if (scores.emosional === 'dorongan') list.push("Ananda membutuhkan validasi bahwa melakukan kesalahan adalah bagian normal dari belajar. Berikan pelukan hangat atau sentuhan menenangkan di pundaknya saat ia mulai terlihat tegang atau tidak percaya diri.");
+            if (scores.emosional === 'frustrasi') list.push("Validasi emosinya terlebih dahulu ('Ibu/Ayah tahu soal ini memang terlihat susah dan bikin kesal'). Setelah emosinya mereda dan divalidasi, barulah ajak ia berdiskusi mencari jalan keluarnya dengan kepala dingin.");
 
-            if (scores.minat === 'antusias') list.push("Eksplorasi buku bacaan atau topik pendukung di luar materi wajib.");
-            if (scores.minat === 'netral') list.push("Hubungkan materi belajar dengan benda atau aktivitas favoritnya sehari-hari.");
-            if (scores.minat === 'kurang') list.push("Fokuskan pada kesenangan prosesnya terlebih dahulu, bukan kecepatan.");
+            // Minat
+            if (scores.minat === 'antusias') list.push("Pelihara semangat belajarnya dengan menyediakan bahan bacaan ekstra atau fasilitas eksplorasi yang berkaitan dengan topik favoritnya di luar materi wajib sekolah atau kursus.");
+            if (scores.minat === 'netral') list.push("Untuk memantik percikan minatnya, cobalah menghubungkan materi pelajaran yang sedang ia hadapi dengan hobi, tokoh idola, atau aktivitas favoritnya sehari-hari.");
+            if (scores.minat === 'kurang') list.push("Jangan terlalu berfokus pada kecepatan atau nilai sempurna terlebih dahulu. Temukan satu saja bagian dari proses belajar yang ia nikmati, dan gunakan itu sebagai 'pintu masuk' untuk membangun kembali minat belajarnya.");
 
-            if (list.length === 0) return "Pertahankan pendampingan belajar yang konsisten, hangat, dan suportif di rumah.";
-            return list.slice(0, 3).join(' ');
+            if (list.length === 0) return "<p>Pertahankan pendampingan belajar yang konsisten, penuh kehangatan, dan suportif di rumah. Kehadiran orang tua yang positif adalah kunci utama keberhasilan anak.</p>";
+            
+            // Ambil maksimal 4 rekomendasi, lalu format sebagai bullet points HTML
+            const selectedList = list.slice(0, 4);
+            const htmlList = selectedList.map(item => `<li style="margin-bottom: 8px;">${item}</li>`).join('');
+            
+            return `<ul style="margin: 0; padding-left: 20px; text-align: justify;">${htmlList}</ul>`;
         }
 
         async function initViewer() {
@@ -735,20 +814,20 @@
                                 
                                 <div class="cert-header">
                                     <div class="wlc-crest" style="margin-bottom: 2mm;">
-                                        <img src="logo_wahidin.png" alt="WAHIDIN Learning Companion" style="width: 250px; height: auto;">
+                                        <img src="logo_wahidin.png?v=20260923" alt="WAHIDIN Learning Companion" style="width: 250px; height: auto; background: transparent;">
                                     </div>
                                 </div>
                                 
                                 <div class="cert-body-snapshot">
-                                    <h1 class="cert-main-title">ACHIEVEMENT SNAPSHOT</h1>
+                                    <h1 class="cert-main-title">LEARNING HABIT PROFILE</h1>
                                     <h2 class="cert-main-subtitle">WLC ${cert.wlc_tipe ? cert.wlc_tipe : '1'} - WAHIDIN LEARNING COMPANION</h2>
                                     
                                     <p class="recipient-intro">diberikan kepada:</p>
                                     <h3 class="recipient-name-snapshot">${escapeHtml(siswaName)}</h3>
                                     
                                     <p class="dedication-text">
-                                        Atas dedikasi dan pencapaian yang luar biasa dalam kegiatan Wahidin Learning Companion. 
-                                        Achievement Snapshot ini mengakui perkembangan kebiasaan belajar yang telah ditunjukkan.
+                                        Atas proses dan partisipasi aktif dalam kegiatan Wahidin Learning Companion. 
+                                        Learning Habit Profile ini mendokumentasikan kebiasaan belajar yang dapat diamati selama sesi pendampingan berlangsung.
                                     </p>
                                 </div>
                                 
@@ -768,6 +847,9 @@
                                         <div class="sig-title">${escapeHtml(cert.org_name || 'WLC Management')}</div>
                                         <div class="sig-line"></div>
                                     </div>
+                                </div>
+                                <div style="text-align: center; margin-top: 4mm; font-size: 0.65rem; color: #64748b; font-family: 'Poppins', sans-serif;">
+                                    kegiatan ini didukung oleh KUMON Jl dr Wahidin CIlacap - www.wlc.kumonwahidincilacap.com
                                 </div>
                             </div>
                         </div>
@@ -793,8 +875,8 @@
                                     </div>
                                     
                                     <div class="section-title" style="margin-top: 2.5mm;"><i class="fas fa-lightbulb"></i> REKOMENDASI PENDAMPINGAN</div>
-                                    <div class="report-box recommendation-box">
-                                        "${escapeHtml(recommendation)}"
+                                    <div class="report-box recommendation-box" style="font-style: normal;">
+                                        ${recommendation}
                                     </div>
                                     
                                     <p class="report-note">
@@ -805,6 +887,9 @@
                                 <div class="report-footer">
                                     <div class="footer-left">Wahidin Learning Companion | Professional Insight</div>
                                     <div class="footer-right">Diterbitkan pada: ${escapeHtml(formattedDate)}</div>
+                                </div>
+                                <div style="text-align: center; margin-top: 4mm; font-size: 0.65rem; color: #64748b; font-family: 'Poppins', sans-serif;">
+                                    kegiatan ini didukung oleh KUMON Jl dr Wahidin CIlacap - www.wlc.kumonwahidincilacap.com
                                 </div>
                             </div>
                         </div>

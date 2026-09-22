@@ -729,15 +729,15 @@ MASUK SEKARANG <i class="fas fa-arrow-right" style="margin-left:0.5rem;"></i>
         <hr style="margin:2rem 0; border:0; border-top:1px solid var(--border);">
         <h3 style="margin-bottom:1.5rem; color:var(--primary);"><i class="fas fa-tasks"></i> Input Skor Analisa Observasi</h3>
         <div class="form-row">
-            <div class="form-group"><label class="form-label">Kesiapan</label><select id="certKesiapan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="langsung">Kesiapan Langsung</option><option value="diingatkan">Perlu Diingatkan</option><option value="menolak">Menolak/Enggan</option></select></div>
-            <div class="form-group"><label class="form-label">Fokus</label><select id="certFokus" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Fokus Stabil</option><option value="naikturun">Naik Turun</option><option value="distraksi">Mudah Distraksi</option></select></div>
-            <div class="form-group"><label class="form-label">Respon Instruksi</label><select id="certRespons" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="paham">Paham Langsung</option><option value="ulang">Perlu Pengulangan</option><option value="bingung">Tampak Bingung</option></select></div>
+            <div class="form-group"><label class="form-label">Kesiapan Belajar</label><select id="certKesiapan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="langsung">Kesiapan Langsung</option><option value="diingatkan">Perlu Diingatkan</option><option value="menolak">Menolak/Enggan</option></select></div>
+            <div class="form-group"><label class="form-label">Keterlibatan & Fokus</label><select id="certFokus" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Fokus Stabil</option><option value="naikturun">Naik Turun</option><option value="distraksi">Mudah Distraksi</option></select></div>
+            <div class="form-group"><label class="form-label">Respons terhadap Instruksi</label><select id="certRespons" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="paham">Paham Langsung</option><option value="ulang">Perlu Pengulangan</option><option value="bingung">Tampak Bingung</option></select></div>
         </div>
         <div class="form-row" style="margin-top:1rem;">
-            <div class="form-group"><label class="form-label">Kemandirian</label><select id="certKemandirian" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="mandiri">Sangat Mandiri</option><option value="terbatas">Bantuan Terbatas</option><option value="bergantung">Sangat Bergantung</option></select></div>
-            <div class="form-group"><label class="form-label">Ketekunan</label><select id="certKetekunan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="ulang">Mau Mencoba Ulang</option><option value="berhenti">Cepat Berhenti</option><option value="menolak">Menolak Mencoba</option></select></div>
-            <div class="form-group"><label class="form-label">Emosional</label><select id="certEmosional" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Emosi Stabil</option><option value="dorongan">Butuh Dorongan</option><option value="frustrasi">Mudah Frustrasi</option></select></div>
-            <div class="form-group"><label class="form-label">Minat</label><select id="certMinat" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="antusias">Sangat Antusias</option><option value="netral">Biasa Saja/Netral</option><option value="kurang">Kurang Berminat</option></select></div>
+            <div class="form-group"><label class="form-label">Kemandirian Belajar</label><select id="certKemandirian" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="mandiri">Sangat Mandiri</option><option value="terbatas">Bantuan Terbatas</option><option value="bergantung">Sangat Bergantung</option></select></div>
+            <div class="form-group"><label class="form-label">Ketekunan Tantangan</label><select id="certKetekunan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="ulang">Mau Mencoba Ulang</option><option value="berhenti">Cepat Berhenti</option><option value="menolak">Menolak Mencoba</option></select></div>
+            <div class="form-group"><label class="form-label">Respons Kesulitan</label><select id="certEmosional" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Emosi Stabil</option><option value="dorongan">Butuh Dorongan</option><option value="frustrasi">Mudah Frustrasi</option></select></div>
+            <div class="form-group"><label class="form-label">Engagement Belajar</label><select id="certMinat" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="antusias">Sangat Antusias</option><option value="netral">Biasa Saja/Netral</option><option value="kurang">Kurang Berminat</option></select></div>
         </div>
         <button class="btn btn-primary" onclick="previewCertificate()" style="width:100%; margin-top:2rem; height:55px; font-size:1.1rem;"><i class="fas fa-save"></i> Simpan & Generate Sertifikat</button>
         
@@ -2553,14 +2553,8 @@ window.executePrintSiswa = function() {
                         <div class="cert-border-decor"></div>
                         
                         <div class="cert-header">
-                            <div class="wlc-crest">
-                                <svg width="60" height="28" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2" fill="none"/>
-                                    <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.5" fill="none"/>
-                                    <circle cx="50" cy="5" r="3" fill="#b38e5d"/>
-                                    <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
-                                </svg>
-                                <div class="crest-text-main">WAHIDIN</div>
+                            <div class="wlc-crest" style="margin-bottom: 2mm;">
+                                <img src="${appLogo || 'logo_wahidin.png?v=20260923'}" alt="WAHIDIN Learning Companion" style="width: 250px; height: auto; background: transparent;">
                             </div>
                         </div>
                         
@@ -2590,7 +2584,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        KUMON Jl. Dr. Wahidin No. 24, Cilacap &nbsp;&bull;&nbsp; <i class="fab fa-whatsapp"></i> 0813-9233-3033 &nbsp;&bull;&nbsp; www.wlc-indonesia.com
+                        kegiatan ini didukung oleh KUMON Jl dr Wahidin CIlacap - www.wlc.kumonwahidincilacap.com
                     </div>
                 </div>
             `;
@@ -2632,7 +2626,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        KUMON Jl. Dr. Wahidin No. 24, Cilacap &nbsp;&bull;&nbsp; <i class="fab fa-whatsapp"></i> 0813-9233-3033 &nbsp;&bull;&nbsp; www.wlc-indonesia.com
+                        kegiatan ini didukung oleh KUMON Jl dr Wahidin CIlacap - www.wlc.kumonwahidincilacap.com
                     </div>
                 </div>
             `;

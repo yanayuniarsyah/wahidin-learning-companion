@@ -75,15 +75,38 @@ function jwt_decode($token, $secret) {
 }
 
 function getBearerToken() {
-    $headers = getallheaders();
-    // Case insensitive headers check
-    foreach ($headers as $name => $value) {
-        if (strcasecmp($name, 'Authorization') === 0) {
-            if (preg_match('/Bearer\s(\S+)/', $value, $matches)) {
-                return $matches[1];
+    $authHeader = null;
+    
+    // Check multiple potential locations for the Authorization header
+    if (isset($_SERVER['Authorization'])) {
+        $authHeader = trim($_SERVER['Authorization']);
+    } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+        $authHeader = trim($_SERVER['HTTP_AUTHORIZATION']);
+    } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $authHeader = trim($_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
+    } elseif (function_exists('apache_request_headers')) {
+        $requestHeaders = apache_request_headers();
+        $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+        if (isset($requestHeaders['Authorization'])) {
+            $authHeader = trim($requestHeaders['Authorization']);
+        }
+    }
+    
+    // Fallback to getallheaders() if available
+    if (!$authHeader && function_exists('getallheaders')) {
+        $headers = getallheaders();
+        foreach ($headers as $name => $value) {
+            if (strcasecmp($name, 'Authorization') === 0) {
+                $authHeader = trim($value);
+                break;
             }
         }
     }
+
+    if (!empty($authHeader) && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+        return $matches[1];
+    }
+    
     return null;
 }
 

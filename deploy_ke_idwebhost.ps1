@@ -13,10 +13,10 @@ $ftpUser = "kumonwah"
 $ftpPass = "V75]XBJu7:juj6"
 $webUrl = "https://wlc.kumonwahidincilacap.com/unzipper.php"
 
-Write-Host "🚀 Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
+Write-Host "Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
 
 # 1. Bikin file ZIP lokal (TANPA wlc.db)
-Write-Host "📦 Sedang mengemas file update (wlc.db diabaikan agar aman)..."
+Write-Host "Sedang mengemas file update dan file wlc diabaikan agar aman"
 $filesToZip = @(
     ".htaccess", ".jwt_secret", "api.php", "router.php", 
     "index.html", "index_awal.html", "dashboard.html", 
@@ -26,49 +26,51 @@ $filesToZip = @(
 Compress-Archive -Path $filesToZip -DestinationPath "update_wlc.zip" -Force
 
 # 2. Bikin script unzipper
-Write-Host "📝 Membuat script penyusup (unzipper.php)..."
-$phpScript = @"
+Write-Host "Membuat script penyusup (unzipper.php)..."
+$phpScript = @'
 <?php
-`$zipFile = 'update_wlc.zip';
-`$path = __DIR__;
-`$zip = new ZipArchive;
-if (`$zip->open(`$zipFile) === TRUE) {
-    `$zip->extractTo(`$path);
-    `$zip->close();
+$zipFile = 'update_wlc.zip';
+$path = __DIR__;
+$zip = new ZipArchive;
+if ($zip->open($zipFile) === TRUE) {
+    $zip->extractTo($path);
+    $zip->close();
     echo 'SUCCESS';
-    unlink(`$zipFile);
+    unlink($zipFile);
     unlink(__FILE__);
 } else {
     echo 'FAILED';
 }
 ?>
-"@
+'@
 Set-Content -Path "unzipper.php" -Value $phpScript
 
 # 3. Upload via FTP
-Write-Host "☁️ Mengupload file ke server FTP ($ftpUser)..." -ForegroundColor Yellow
+Write-Host "Mengupload file ke server FTP ($ftpUser)..." -ForegroundColor Yellow
 $webClient = New-Object System.Net.WebClient
 $webClient.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
 
 try {
-    $webClient.UploadFile($ftpHost + "update_wlc.zip", "update_wlc.zip")
-    $webClient.UploadFile($ftpHost + "unzipper.php", "unzipper.php")
+    $zipPath = Join-Path $PWD "update_wlc.zip"
+    $unzipperPath = Join-Path $PWD "unzipper.php"
+    $webClient.UploadFile($ftpHost + "update_wlc.zip", $zipPath)
+    $webClient.UploadFile($ftpHost + "unzipper.php", $unzipperPath)
 } catch {
-    Write-Host "❌ GAGAL UPLOAD FTP: $_" -ForegroundColor Red
+    Write-Host "GAGAL UPLOAD FTP: $_" -ForegroundColor Red
     exit
 }
 
 # 4. Trigger Extract
-Write-Host "⚡ Memicu pengekstrakan jarak jauh..." -ForegroundColor Yellow
+Write-Host "Memicu pengekstrakan jarak jauh..." -ForegroundColor Yellow
 try {
     $result = Invoke-RestMethod -Uri $webUrl
     if ($result -match "SUCCESS") {
-        Write-Host "✅ UPDATE BERHASIL 100%! Semua jejak sudah dihapus." -ForegroundColor Green
+        Write-Host "UPDATE BERHASIL 100%! Semua jejak sudah dihapus." -ForegroundColor Green
     } else {
-        Write-Host "⚠️ Ekstrak Gagal! Output: $result" -ForegroundColor Red
+        Write-Host "Ekstrak Gagal! Output: $result" -ForegroundColor Red
     }
 } catch {
-    Write-Host "❌ GAGAL MEMICU UNZIPPER: $_" -ForegroundColor Red
+    Write-Host "GAGAL MEMICU UNZIPPER: $_" -ForegroundColor Red
 }
 
 # 5. Cleanup lokal
