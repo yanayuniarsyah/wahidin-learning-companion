@@ -1,0 +1,2452 @@
+o    <!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="./manifest.json">
+<title>WLC - Komponen Observasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--primary:#d4af37;--primary-soft:rgba(212, 175, 55, 0.15);--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--secondary:#a0a0a0;--secondary-soft:#1e1e1e;--background:#0a0a0a;--surface:#141414;--text-main:#f5f5f5;--text-muted:#a0a0a0;--border:rgba(212, 175, 55, 0.2);--radius-md:12px;--radius-lg:20px;--shadow-sm:0 1px 3px rgba(0,0,0,0.5);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.5);--shadow-lg:0 20px 25px -5px rgba(0,0,0,0.8);}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;}
+body{background-color:var(--background);color:var(--text-main);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:2rem 1rem;transition: background 0.3s ease;}
+.container{width:100%;max-width:1200px;margin:0 auto;transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);}
+.container:has(#loginScreen:not(.hidden)){max-width:fit-content;}
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+[id$='Dashboard'],#quizApp{background:var(--surface);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:2.5rem;min-height:80vh;animation:fadeInUp 0.5s ease-out;border: 1px solid var(--border);position: relative;}
+[id$='FormContainer']{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4000;background:#141414;color:#f5f5f5;padding:2rem;border-radius:var(--radius-lg);box-shadow:0 0 0 100vw rgba(0,0,0,0.8),var(--shadow-lg);width:90%;max-width:550px;max-height:85vh;overflow-y:auto;display:block;border:1px solid var(--border);}
+[id$='FormContainer'].hidden{display:none !important;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
+.panel-header h1{font-size:1.75rem;margin:0;color:var(--primary);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1.5rem;font-weight:700;font-size:0.9rem;border-radius:var(--radius-md);cursor:pointer;transition:all 0.2s;border:none;background-color:var(--primary);color:#0a0a0a;box-shadow:var(--shadow-sm);}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);filter:brightness(1.1);}
+.btn-primary{background-color:var(--primary);color:#0a0a0a;}
+.btn-secondary{background-color:var(--secondary-soft);color:var(--text-main);border:1px solid var(--border);}
+.btn-secondary:hover{background-color:var(--primary);color:#0a0a0a;border-color:var(--primary);}
+.btn-danger{background-color:var(--danger);color:white;}
+.data-table{width:100%;border-collapse:collapse;margin:1.5rem 0;}
+.data-table th{text-align:left;padding:1.25rem 1rem;background:#1e1e1e;color:var(--primary);font-weight:700;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.075em;border-bottom:2px solid var(--border);}
+.data-table td{padding:1rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text-main);}
+.data-table tr:hover td{background-color:#1a1a1a;}
+.form-group{margin-bottom:1.5rem;}
+.form-label{display:block;margin-bottom:0.6rem;font-weight:700;font-size:0.95rem;color:var(--primary);letter-spacing:0.01em;}
+.form-input{width:100%;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:0.95rem;transition:border-color 0.2s;background:#1e1e1e;color:#f5f5f5;}
+.form-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(212,175,55,0.2);}
+.form-row{display:flex;gap:1.5rem;flex-wrap:wrap;}
+.form-row .form-group{flex:1;min-width:200px;}
+.menu-buttons{display:grid;grid-template-columns:repeat(3, 1fr);gap:1.5rem;margin-top:2rem;}
+.menu-btn{background:var(--surface);backdrop-filter: blur(5px);border:1px solid var(--border);padding:2.5rem;border-radius:var(--radius-lg);text-align:center;cursor:pointer;transition:all 0.3s ease;display:flex;flex-direction:column;align-items:center;gap:1.2rem;color:var(--text-main);font-weight:600;box-shadow:var(--shadow-sm);}
+.menu-btn:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:var(--primary);background: #1a1a1a;}
+.form-group{margin-bottom:1.5rem;}
+.login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0a0a;z-index:10000;padding:1rem;}
+.login-card{background:#141414;padding:clamp(1.5rem,4vw,3rem);border-radius:clamp(1rem,3vw,2rem);box-shadow:0 25px 50px -12px rgba(0,0,0,0.8);width:100%;max-width:min(90vw,420px);border:1px solid var(--border);text-align:center;}
+.hidden{display:none !important;}
+.sidebar{width:260px;background:var(--surface);backdrop-filter: blur(15px);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:fixed;left:-260px;top:0;height:100vh;z-index:1000;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:var(--shadow-lg);}
+.sidebar.open{left:0;}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;visibility:hidden;transition:all 0.35s ease;}
+.sidebar-overlay.open{opacity:1;visibility:visible;}
+.sidebar-nav{list-style:none;padding:0;margin:0;flex:1;overflow-y:auto;}
+.sidebar-nav a{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;font-size:0.9rem;transition:all 0.2s ease;border-left:3px solid transparent;}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);}
+.sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
+@media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
+@media(min-width:1025px){body.has-sidebar .sidebar{left:0;}body.has-sidebar .container{margin-left:260px;max-width:calc(100% - 260px);}.sidebar-overlay{display:none!important;}}
+.notification{position:fixed;bottom:2rem;right:2rem;background:#27272a;color:white;padding:1rem 1.5rem;border-radius:8px;font-weight:500;box-shadow:var(--shadow-lg);z-index:2000;}
+.soal-counter{text-align:center;margin-bottom:2rem;}
+.soal-number{font-size:3rem;color:var(--primary);font-weight:800;line-height:1;}
+.soal-text{font-size:1.25rem;line-height:1.6;margin:1rem auto;max-width:800px;color:var(--text-main);background:#f1f5f9;padding:1.5rem;border-radius:var(--radius-md);text-align:center;}
+.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;margin:1.5rem auto;max-width:100%;overflow:hidden;}
+.progress-fill{height:100%;background:var(--primary);transition:width 0.3s ease;}
+.rating-dots{display:flex;gap:0.6rem;justify-content:flex-start;flex-wrap:nowrap;}
+.rating-dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.3s;background:#ffffff;color:var(--text-muted);}
+.rating-dot:hover{border-color:var(--primary);color:var(--primary);transform:scale(1.1);background:var(--primary-soft);}
+.rating-dot.active{background-color:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 10px rgba(37, 99, 235, 0.3);transform:scale(1.05);}
+.murid-card{display:flex;align-items:center;justify-content:space-between;background:#fff;padding:1rem 1.5rem;border-radius:var(--radius-md);margin-bottom:1rem;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.murid-header{display:flex;align-items:center;gap:1rem;}
+.murid-avatar{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:1.1rem;}
+.murid-name{font-weight:600;font-size:1.1rem;}
+.menu-btn i { font-size: 3.5rem; color: var(--primary); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.menu-btn:hover i { transform: scale(1.15); }
+.sidebar-nav a i { font-size: 1.25rem; width: 28px; text-align: center; transition: transform 0.2s ease; }
+.sidebar-nav a:hover i { transform: scale(1.1); }
+.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:3000;opacity:0;visibility:hidden;transition:all 0.3s;}
+.edit-modal-overlay.show{opacity:1;visibility:visible;}
+.edit-modal-card{background:white;padding:2rem;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:var(--shadow-lg);transform:translateY(20px);transition:all 0.3s;max-height:90vh;overflow-y:auto;}
+.edit-modal-overlay.show .edit-modal-card{transform:translateY(0);}
+.action-dropdown{position:relative;display:inline-block;}
+.action-menu{position:absolute;right:0;top:110%;background:white;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);border:1px solid var(--border);z-index:100;min-width:180px;display:none;flex-direction:column;overflow:hidden;}
+.action-menu.show{display:flex;}
+.action-item{padding:0.8rem 1.2rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;gap:0.75rem;color:var(--text-main);font-weight:500;font-size:0.9rem;border:none;background:none;width:100%;text-align:left;}
+.action-item:hover{background:var(--primary-soft);color:var(--primary);}
+.action-item i{color:var(--primary);width:20px;text-align:center;}
+.btn-action{padding:0.5rem;border-radius:var(--radius-md);border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;font-size:0.9rem;}
+.btn-edit-alt{background:var(--primary-soft);color:var(--primary);}
+.btn-edit-alt:hover{background:var(--primary);color:white;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.btn-delete-alt{background:#fee2e2;color:#ef4444;}
+.btn-delete-alt:hover{background:#ef4444;color:white;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.action-group{display:flex;gap:0.5rem;align-items:center;}
+.sort-header{cursor:pointer;position:relative;user-select:none;transition:all 0.2s;}
+.sort-header:hover{background:var(--primary-soft) !important;color:var(--primary);}
+.sort-header::after{content:' \f0dc';font-family:'Font Awesome 5 Free';font-weight:900;font-size:0.7rem;opacity:0.3;margin-left:0.5rem;vertical-align:middle;}
+.sort-header.asc::after{content:' \f0de';opacity:1;color:var(--primary);}
+.sort-header.desc::after{content:' \f0dd';opacity:1;color:var(--primary);}
+.bars-container { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+.bars-option { display: flex; align-items: center; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; background: var(--surface); transition: all 0.2s; }
+.bars-option:hover { border-color: var(--primary); background: var(--primary-soft); }
+.bars-option.active { background: var(--primary); color: white; border-color: var(--primary); }
+.bars-number { font-weight: bold; font-size: 1.2rem; margin-right: 1rem; min-width: 24px; }
+.bars-text { font-size: 0.95rem; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div id="protocolWarning" class="hidden" style="background:#fee2e2;color:#b91c1c;padding:1rem;text-align:center;font-weight:bold;border-bottom:2px solid #ef4444;position:sticky;top:0;z-index:9999;">
+⚠️ PERINGATAN: Anda membuka aplikasi via FILE. Fitur Database TIDAK AKAN JALAN.<br>
+Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:underline;color:#b91c1c;">http://localhost:3000</a><br>
+<span style="font-size:0.8rem; font-weight:normal;">Jika sudah membuka via localhost tapi tidak ada perubahan, tekan <b>CTRL + F5</b> untuk Hard Refresh.</span>
+</div>
+
+<!-- FORM CONTAINERS AS TOP-LEVEL MODALS -->
+<div id="usersFormContainer" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
+    <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******"></div>
+    <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
+    <button class="btn btn-primary" onclick="saveNewUser()" style="width:100%;margin-top:1rem;"><i class="fas fa-save"></i> Simpan User</button>
+</div>
+
+<div id="sekolahFormContainer" class="hidden">
+    <div style="background:var(--surface); padding:1rem; border-radius:var(--radius-md);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="margin:0;">Tambah Sekolah Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('sekolahFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+        <div class="form-group"><label class="form-label">Nama Sekolah</label><input type="text" class="form-input" id="sekolahNama" placeholder="Contoh: SD Negeri 01"></div>
+        <div class="form-group"><label class="form-label">Alamat</label><input type="text" class="form-input" id="sekolahAlamat" placeholder="Jl. Merdeka No. 123"></div>
+        <div class="form-group"><label class="form-label">Kota</label><input type="text" class="form-input" id="sekolahKota" placeholder="Contoh: Jakarta"></div>
+        <button class="btn btn-primary" onclick="tambahSekolah()" style="width:100%;"><i class="fas fa-plus"></i> Simpan Sekolah</button>
+    </div>
+</div>
+
+<div id="kelasFormContainer" class="hidden">
+    <div style="background:var(--surface); padding:1rem; border-radius:var(--radius-md);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="margin:0;">Tambah Kelas Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('kelasFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+        <div class="form-group"><label class="form-label">Nama Kelas</label><input type="text" class="form-input" id="kelasNama" placeholder="Contoh: Kelas 1-A"></div>
+        <div class="form-group"><label class="form-label">Tingkat</label><input type="text" class="form-input" id="kelasTingkat" placeholder="Contoh: SD / SMP"></div>
+        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="kelasSekolahId"></select></div>
+        <button class="btn btn-primary" onclick="tambahKelas()" style="width:100%;"><i class="fas fa-plus"></i> Simpan Kelas</button>
+    </div>
+</div>
+
+<div id="siswaFormContainer" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;font-size:1.5rem;margin:0;"><i class="fas fa-user-plus"></i> Tambah Siswa Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('siswaFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+    <div class="form-row">
+        <div class="form-group"><label class="form-label">Nama Lengkap Siswa</label><input type="text" class="form-input" id="newSiswaNama" placeholder="Contoh: Budi Santoso"></div>
+        <div class="form-group"><label class="form-label">NISN / Nomor Induk</label><input type="text" class="form-input" id="newSiswaNisn" placeholder="Contoh: 12345678"></div>
+    </div>
+    <div class="form-row">
+        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newSiswaSekolah" onchange="updateKelasDropdownSiswa()"></select></div>
+        <div class="form-group"><label class="form-label">Kelas</label><select class="form-input" id="newSiswaKelas"></select></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveNewSiswa()" style="width:100%;margin-top:1.5rem;height:50px;font-weight:700;"><i class="fas fa-save"></i> Simpan Siswa</button>
+</div>
+
+<div id="soalFormContainer" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div class="form-row">
+        <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
+            <option value="Kesiapan">Kesiapan</option>
+            <option value="Fokus">Fokus</option>
+            <option value="Instruksi">Instruksi</option>
+            <option value="Kemandirian">Kemandirian</option>
+            <option value="Ketekunan">Ketekunan</option>
+            <option value="Emosi">Emosi</option>
+            <option value="Minat">Minat</option>
+        </select></div>
+        <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
+    </div>
+    <div class="form-group"><label class="form-label">Pertanyaan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pertanyaan lengkap..."></div>
+    <button class="btn btn-primary" onclick="saveNewSoal()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Soal</button>
+</div>
+
+<div id="jadwalFormContainer" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;margin:0;"><i class="fas fa-calendar-plus"></i> Tambah Jadwal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('jadwalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div class="form-row">
+        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newJadwalSekolah"></select></div>
+        <div class="form-group"><label class="form-label">Tanggal</label><input type="date" class="form-input" id="newJadwalTanggal"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Catatan</label><input type="text" class="form-input" id="newJadwalCatatan" placeholder="Kunjungan rutin / Observasi khusus"></div>
+    <button class="btn btn-primary" onclick="tambahJadwal()" style="width:100%;"><i class="fas fa-calendar-check"></i> Simpan Jadwal</button>
+</div>
+
+<!-- EDIT MODAL OVERLAY (ESSENTIAL FOR EDITING) -->
+<div id="editModalOverlay" class="edit-modal-overlay">
+    <div class="edit-modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1rem;">
+            <h3 id="editModalTitle" style="margin:0;color:var(--primary);">Edit Data</h3>
+            <button class="btn btn-secondary" style="border-radius:50%;width:34px;height:34px;padding:0;" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="editModalFields"></div>
+        <div style="margin-top:2rem;display:flex;gap:1rem;">
+            <button class="btn btn-secondary" style="flex:1" onclick="closeEditModal()">Batal</button>
+            <button class="btn btn-primary" id="editModalSaveBtn" style="flex:1">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+<nav id="ownerSidebar" class="sidebar hidden">
+<div class="sidebar-brand" style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;">
+<div style="background:transparent;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+    <svg width="100%" height="100%" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
+        <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.8" fill="none"/>
+        <circle cx="50" cy="5" r="3.5" fill="#b38e5d"/>
+        <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
+    </svg>
+</div>
+<div style="display:flex;flex-direction:column;line-height:1.1;">
+<h2 style="font-family:'Playfair Display',serif;font-size:0.85rem;font-weight:700;letter-spacing:1px;color:#b38e5d;margin:0;">WLC Admin</h2>
+</div>
+</div>
+<ul class="sidebar-nav">
+<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> Beranda</a></li>
+<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> Users</a></li>
+<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> Sekolah & Kelas</a></li>
+<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> Jadwal</a></li>
+<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
+<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Bagi Grup</a></li>
+<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Komponen Observasi</a></li>
+<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat WLC</a></li>
+<li><a href="#" onclick="openPrintSiswa();return false;" data-nav="printSiswaDashboard"><i class="fas fa-print"></i> Cetak Siswa</a></li>
+<li><a href="#" onclick="openManageSettings();return false;" data-nav="manageSettingsDashboard"><i class="fas fa-cog"></i> Pengaturan</a></li>
+</ul>
+<div class="sidebar-footer" style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center;">
+<button class="btn" onclick="logout()" style="width:auto;min-width:120px;border-radius:8px;height:34px;padding:0 1rem;font-size:0.8rem;background:linear-gradient(135deg, #d4af37, #aa7c11);color:#0a0a0a;font-weight:700;border:none;box-shadow:0 3px 8px rgba(212, 175, 55, 0.2);letter-spacing:0.5px;transition:all 0.2s ease;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</div>
+</nav>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<button id="sidebarToggle" class="sidebar-toggle hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<div id="loginScreen" class="login-screen">
+<div class="login-card">
+<div style="background:transparent;width:70px;height:70px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+    <svg width="100%" height="100%" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
+        <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.8" fill="none"/>
+        <circle cx="50" cy="5" r="3.5" fill="#b38e5d"/>
+        <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
+    </svg>
+</div>
+<h2 style="font-family:'Poppins',sans-serif;font-size:1.1rem;color:var(--primary);margin-bottom:0.5rem;font-weight:700;">Login WLC</h2>
+<p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:0.85rem;">Masuk ke Dashboard Kumon Wahidin</p>
+<div style="text-align:left;margin-bottom:1.5rem;">
+<label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginUsername">Username</label>
+<input type="text" id="loginUsername" class="form-input" placeholder="Masukkan username" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
+</div>
+<div style="text-align:left;margin-bottom:2.5rem;">
+<label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginPassword">Password</label>
+<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
+</div>
+<button class="btn btn-primary" onclick="doLogin()" style="width:100%;height:60px;font-weight:700;font-size:1.2rem;border-radius:1rem;background:var(--primary);color:#0a0a0a;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 10px 15px -3px rgba(212, 175, 55, 0.4);">
+MASUK SEKARANG <i class="fas fa-arrow-right" style="margin-left:0.5rem;"></i>
+</button>
+</div>
+</div>
+<div class="container">
+<div id="userInfo" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; background: var(--surface); padding: 1rem 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+<div style="font-weight: bold; color: var(--text-main);">Role Anda: <span id="loggedRole" style="color: var(--primary); text-transform: uppercase;"></span></div>
+<div id="quizUserInfo" style="font-weight: 600; color: var(--secondary);"></div>
+</div>
+
+<div id="manageSettingsDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSettings()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Pengaturan Aplikasi</h1><div style="width:100px;"></div></header>
+<div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
+    <div class="form-group">
+        <label class="form-label">Nama Aplikasi</label>
+        <input type="text" id="setAppName" class="form-input" placeholder="Contoh: WLC Kumon Wahidin">
+    </div>
+    <div class="form-group">
+        <label class="form-label">Logo Aplikasi</label>
+        <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
+            <div id="setLogoPreview" style="width:80px; height:80px; border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f8fafc; overflow:hidden;">
+                <i class="fas fa-image" style="font-size:2rem; color:var(--border);"></i>
+            </div>
+            <div style="flex:1;">
+                <input type="text" id="setAppLogo" class="form-input" placeholder="URL Logo (Opsional)" style="margin-bottom:0.5rem;">
+                <input type="file" id="uploadLogoInput" class="hidden" accept="image/*" onchange="handleLogoFileSelect(this)">
+                <button class="btn btn-secondary" onclick="document.getElementById('uploadLogoInput').click()" style="width:100%; font-size:0.8rem;">
+                    <i class="fas fa-upload"></i> Unggah Gambar
+                </button>
+            </div>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted);">Pilih salah satu: Masukkan URL atau unggah file gambar.</p>
+    </div>
+    <div style="margin-top:2rem;">
+        <button class="btn btn-primary" onclick="saveSettings()" style="width:100%; height:50px; font-weight:700;">
+            <i class="fas fa-save"></i> SIMPAN PENGATURAN
+        </button>
+    </div>
+</div>
+</div>
+<div id="asistenDashboard" class="hidden">
+<header class="panel-header"><h1>Asisten Dashboard</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
+<div style="margin-bottom:2rem;"><h3 style="color:var(--text-main);margin-bottom:0.5rem;"><i class="fas fa-clipboard-list"></i> Jadwal Tugas Anda</h3><p style="color:var(--text-muted);font-size:0.9rem;">Daftar sekolah dan siswa yang harus Anda observasi hari ini.</p></div>
+<div id="asistenGroupList" class="menu-buttons" style="grid-template-columns:1fr;">
+<button class="menu-btn" onclick="startQuiz()" style="background:var(--primary-soft); border-color:var(--primary); color:var(--primary);">
+<i class="fas fa-play-circle" style="font-size:2rem;"></i> Mulai Sesi Observasi
+</button>
+</div>
+</div>
+<div id="quizApp" class="hidden">
+<header class="panel-header" style="margin-bottom: 1rem; padding-bottom: 1rem;">
+<div>
+<h2 style="font-size: 1.5rem; margin:0;"><i class="fas fa-list-check"></i> Form Observasi Siswa</h2>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Berikan skor 1 (Kurang) s/d 5 (Sangat Baik)</p>
+</div>
+<button class="btn btn-secondary" onclick="showMenu()"><i class="fas fa-home"></i> Kembali</button>
+</header>
+<div class="soal-counter">Soal <span id="soalCounter" class="soal-number">1</span></div>
+<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%;"></div></div>
+<div id="progressText" style="text-align: center; margin-bottom: 1rem; font-weight:600;">0%</div>
+<div class="soal-text" id="soalText">Memuat pertanyaan...</div>
+<div id="muridContainer" style="margin-top: 2rem;"></div>
+<div style="display:flex; justify-content:space-between; margin-top:3rem;">
+<button class="btn btn-secondary" onclick="prevSoal()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
+<button class="btn btn-primary" onclick="nextSoal()">Selanjutnya <i class="fas fa-arrow-right"></i></button>
+</div>
+<div style="margin-top:2rem; text-align:center; padding-top: 2rem; border-top: 1px solid var(--border);">
+<button class="btn btn-danger" onclick="saveScores()"><i class="fas fa-cloud-upload-alt"></i> Simpan Hasil Observasi</button>
+</div>
+</div>
+<div id="evaluatorDashboard" class="hidden">
+<header class="panel-header"><h1>Evaluator Mode</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
+<p style="color:var(--text-muted);margin-bottom:2rem;">Analisis & Laporan Hasil Observasi.</p>
+<div class="menu-buttons">
+<button class="menu-btn" onclick="viewReports()"><i class="fas fa-chart-bar"></i> Lihat Laporan</button>
+<button class="menu-btn" onclick="analyticsOverview()"><i class="fas fa-analytics"></i> Analitik Siswa</button>
+<button class="menu-btn" onclick="exportAllReports()"><i class="fas fa-download"></i> Export Data</button>
+</div>
+</div>
+<div id="ownerDashboard" class="hidden">
+<header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
+<div class="menu-buttons">
+<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> Users</button>
+<button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah</button>
+<button class="menu-btn" onclick="manageJadwal()"><i class="fas fa-calendar-alt"></i> Jadwal</button>
+<button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
+<button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Bagi Grup</button>
+<button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Komponen Observasi</button>
+<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat WLC</button>
+<button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
+<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
+</div>
+</div>
+<div id="manageUsersDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageUsers()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Users & Asisten</h1><div style="width:100px;"></div></header>
+<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('usersFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Akun</button></div>
+<table class="data-table" id="usersTable"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('users', 'role')">Role Akses</th><th class="sort-header" onclick="sortAndRender('users', 'username')">Username Login</th><th>Aksi</th></tr></thead><tbody id="usersTableBody"><tr><td colspan="4" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
+</div>
+<div id="viewReportsDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitViewReports()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Laporan Observasi</h1><div style="width:100px;"></div></header>
+<table class="data-table" id="reportsTable" style="margin-top:0;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('reports', 'timestamp')">Waktu Input</th><th class="sort-header" onclick="sortAndRender('reports', 'asistenId')">Asisten</th><th class="sort-header" onclick="sortAndRender('reports', 'nama')">Data Siswa</th><th class="sort-header" onclick="sortAndRender('reports', 'skor')">Skor Observasi</th></tr></thead><tbody id="reportsTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
+</div>
+<div id="analyticsDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitAnalytics()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Analitik Performa Siswa</h1></header>
+<div class="menu-buttons" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:2rem;">
+<div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Total Observasi</h4><p id="statTotalObs" style="font-size:2.5rem;font-weight:800;color:var(--primary);">0</p></div>
+<div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Rata-rata Skor</h4><p id="statAvgScore" style="font-size:2.5rem;font-weight:800;color:var(--success);">0.0</p></div>
+</div>
+<div style="background:white;padding:2rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:2rem;"><h3 style="margin-bottom:1.5rem;"><i class="fas fa-chart-line"></i> Grafik Progress Skor Murid</h3><canvas id="analyticsChart" height="150"></canvas></div>
+</div>
+<div id="manageSekolahDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSekolah()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Sekolah</h1><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary" onclick="document.getElementById('sekolahFormContainer').classList.toggle('hidden')"><i class="fas fa-school"></i> Sekolah</button><button class="btn btn-primary" onclick="document.getElementById('kelasFormContainer').classList.toggle('hidden')"><i class="fas fa-door-open"></i> Kelas</button></div></header>
+<h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Sekolah</h3>
+<table class="data-table" id="tableSekolah"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('sekolah', 'nama')">Nama Sekolah</th><th class="sort-header" onclick="sortAndRender('sekolah', 'kota')">Kota</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+<h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Kelas</h3>
+<table class="data-table" id="tableKelas"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('kelas', 'nama')">Nama Kelas</th><th class="sort-header" onclick="sortAndRender('kelas', 'namaSekolah')">Sekolah</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+</div>
+
+<div id="manageSiswaDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Data Siswa</h1><div style="width:100px;"></div></header>
+
+<!-- Filter & Search -->
+<div style="background:var(--secondary-soft); padding:1.5rem; border-radius:var(--radius-md); margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
+    <div class="form-group" style="margin:0; flex:1; min-width:200px;">
+        <label class="form-label" style="font-size:0.8rem;">Cari Nama/NISN</label>
+        <input type="text" id="siswaSearchInput" class="form-input" placeholder="Ketik nama..." onkeyup="filterSiswaTable()">
+    </div>
+    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
+        <label class="form-label" style="font-size:0.8rem;">Sekolah</label>
+        <select id="siswaFilterSekolah" class="form-input" onchange="filterSiswaTable()"></select>
+    </div>
+    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
+        <label class="form-label" style="font-size:0.8rem;">Kelas</label>
+        <select id="siswaFilterKelas" class="form-input" onchange="filterSiswaTable()"></select>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+        <button class="btn btn-primary" onclick="document.getElementById('siswaFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button>
+        <button class="btn btn-secondary" onclick="printFilteredSiswa()"><i class="fas fa-print"></i> Cetak</button>
+    </div>
+</div>
+
+<table class="data-table" id="tableSiswa">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th class="sort-header" onclick="sortAndRender('siswa', 'nama')">Nama Siswa</th>
+            <th class="sort-header" onclick="sortAndRender('siswa', 'nisn')">NISN</th>
+            <th class="sort-header" onclick="sortAndRender('siswa', 'namaSekolah')">Sekolah</th>
+            <th class="sort-header" onclick="sortAndRender('siswa', 'namaKelas')">Kelas</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody id="siswaTableBody"></tbody>
+</table>
+</div>
+
+<div id="manageJadwalDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageJadwal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Jadwal WLC</h1><div style="width:100px;"></div></header>
+<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('jadwalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Jadwal / Observasi</button></div>
+<table class="data-table" id="jadwalTable" style="margin-top:2rem;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('jadwal', 'tanggal')">TANGGAL</th><th class="sort-header" onclick="sortAndRender('jadwal', 'namaSekolah')">NAMA SEKOLAH</th><th class="sort-header" onclick="sortAndRender('jadwal', 'status')">STATUS</th><th class="sort-header" onclick="sortAndRender('jadwal', 'catatan')">CATATAN</th><th>AKSI</th></tr></thead><tbody id="jadwalTableBody"><tr><td colspan="6" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
+</div>
+<div id="manageGrupDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageGrup()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Bagi Grup Observasi</h1><div style="width:100px;"></div></header>
+<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('grupFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Grup Baru</button></div>
+<div id="grupFormContainer" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="color: #1e293b; font-family: 'Poppins', sans-serif; margin: 0;"><i class="fas fa-users-cog"></i> Tambah Grup Asisten</h3>
+        <button class="btn btn-secondary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;" onclick="document.getElementById('grupFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;"></i></button>
+    </div>
+    <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">0. Nama Grup Asisten</label>
+        <input type="text" class="form-input" id="newGrupNama" placeholder="Contoh: Grup A - Kelas 4A" style="width: 100%;">
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">1. Pilih Jadwal Pelaksanaan</label>
+            <select class="form-input" id="newGrupJadwal" style="width: 100%;" onchange="onJadwalGrupChange()"><option value="">-- Pilih Jadwal --</option></select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">2. Pilih Asisten Pendamping</label>
+            <select class="form-input" id="newGrupAsisten" style="width: 100%;"><option value="">-- Pilih Asisten --</option></select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">3. Filter Kelas (Opsional)</label>
+            <select class="form-input" id="newGrupKelas" style="width: 100%;" onchange="onKelasGrupChange()">
+                <option value="">-- Semua Kelas --</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">4. Jumlah Siswa Terfilter</label>
+            <input type="text" class="form-input" id="grupSiswaCounter" value="0 siswa tersedia" readonly style="width: 100%; background: var(--secondary-soft);">
+        </div>
+    </div>
+    <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">5. Pilih Siswa (Pilih Max 7 Orang) - Tahan Ctrl/Cmd untuk pilih multiple</label>
+        <select class="form-input" id="newGrupSiswa" multiple style="width: 100%; height: 150px; padding: 0.5rem;"></select>
+    </div>
+    <button class="btn" onclick="tambahGrup()" style="width: 100%; margin-top: 1rem;">
+        <i class="fas fa-save"></i> Simpan Grup Observasi
+    </button>
+</div>
+<table class="data-table" id="grupTable">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th class="sort-header" onclick="sortAndRender('grup', 'nama')">NAMA GRUP</th>
+            <th class="sort-header" onclick="sortAndRender('grup', 'namaSekolah')">JADWAL (SEKOLAH)</th>
+            <th class="sort-header" onclick="sortAndRender('grup', 'asistenId')">ASISTEN PIC</th>
+            <th>JUMLAH SISWA</th>
+            <th>AKSI</th>
+        </tr>
+    </thead>
+    <tbody id="grupTableBody"><tr><td colspan="6" style="text-align:center;">Memuat data grup...</td></tr></tbody>
+</table>
+</div>
+<div id="manageSoalDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
+<table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
+</div>
+<div id="manageCertDashboard" class="hidden">
+    <header class="panel-header">
+        <button class="btn btn-secondary" onclick="exitManageCert()"><i class="fas fa-arrow-left"></i> Kembali</button>
+        <h1>Cetak Sertifikat WLC</h1>
+        <div style="width:100px;"></div>
+    </header>
+    <!-- Filter Massal -->
+    <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
+        <h3 style="margin:0 0 1rem 0; color:var(--primary);"><i class="fas fa-filter"></i> Filter Cetak Massal</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Tipe Cetak</label>
+                <select id="certPrintType" class="form-input" onchange="onCertPrintTypeChange()">
+                    <option value="single">Satu Siswa</option>
+                    <option value="kelas">Per Kelas</option>
+                    <option value="sekolah">Per Sekolah</option>
+                    <option value="grup">Per Grup</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pilih Sekolah</label>
+                <select id="certFilterSekolah" class="form-input" onchange="onCertSekolahChange()"></select>
+            </div>
+            <div class="form-group hidden" id="certFilterKelasGroup">
+                <label class="form-label">Pilih Kelas</label>
+                <select id="certFilterKelas" class="form-input" onchange="onCertKelasChange()"></select>
+            </div>
+            <div class="form-group hidden" id="certFilterGrupGroup">
+                <label class="form-label">Pilih Grup</label>
+                <select id="certFilterGrup" class="form-input"></select>
+            </div>
+        </div>
+        <div style="display:flex; gap:1rem; margin-top:1rem;">
+            <button class="btn btn-primary" onclick="previewCertMassal()" style="flex:1;"><i class="fas fa-eye"></i> Preview</button>
+            <button class="btn" onclick="printCertMassal()" id="btnCetakCert" disabled style="flex:1;"><i class="fas fa-print"></i> Cetak Sekarang</button>
+        </div>
+    </div>
+<!-- Filter Single -->
+    <div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
+        <h3 style="margin:0 0 1.5rem 0; color:var(--primary);"><i class="fas fa-user"></i> Cetak Satu Siswa</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Pilih Sekolah</label>
+                <select id="certFilterSekolahSingle" class="form-input" onchange="onCertSekolahSingleChange()"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pilih Kelas</label>
+                <select id="certFilterKelasSingle" class="form-input" onchange="onCertKelasSingleChange()"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pilih Siswa</label>
+                <select id="certSiswaIdSingle" class="form-input" onchange="onCertSiswaSingleChange()"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nama Instansi/Unit</label>
+                <input type="text" id="certOrgNameSingle" class="form-input" value="">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tanggal Sertifikat</label>
+                <input type="date" id="certDateSingle" class="form-input">
+            </div>
+        </div>
+        <hr style="margin:2rem 0; border:0; border-top:1px solid var(--border);">
+        <h3 style="margin-bottom:1.5rem; color:var(--primary);"><i class="fas fa-tasks"></i> Input Skor Analisa Observasi</h3>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Kesiapan</label><select id="certKesiapan" class="form-input"><option value="langsung">Kesiapan Langsung</option><option value="diingatkan">Perlu Diingatkan</option><option value="menolak">Menolak/Enggan</option></select></div>
+            <div class="form-group"><label class="form-label">Fokus</label><select id="certFokus" class="form-input"><option value="stabil">Fokus Stabil</option><option value="naikturun">Naik Turun</option><option value="distraksi">Mudah Distraksi</option></select></div>
+            <div class="form-group"><label class="form-label">Respon Instruksi</label><select id="certRespons" class="form-input"><option value="paham">Paham Langsung</option><option value="ulang">Perlu Pengulangan</option><option value="bingung">Tampak Bingung</option></select></div>
+        </div>
+        <div class="form-row" style="margin-top:1rem;">
+            <div class="form-group"><label class="form-label">Kemandirian</label><select id="certKemandirian" class="form-input"><option value="mandiri">Sangat Mandiri</option><option value="terbatas">Bantuan Terbatas</option><option value="bergantung">Sangat Bergantung</option></select></div>
+            <div class="form-group"><label class="form-label">Ketekunan</label><select id="certKetekunan" class="form-input"><option value="ulang">Mau Mencoba Ulang</option><option value="berhenti">Cepat Berhenti</option><option value="menolak">Menolak Mencoba</option></select></div>
+            <div class="form-group"><label class="form-label">Emosional</label><select id="certEmosional" class="form-input"><option value="stabil">Emosi Stabil</option><option value="dorongan">Butuh Dorongan</option><option value="frustrasi">Mudah Frustrasi</option></select></div>
+            <div class="form-group"><label class="form-label">Minat</label><select id="certMinat" class="form-input"><option value="antusias">Sangat Antusias</option><option value="netral">Biasa Saja/Netral</option><option value="kurang">Kurang Berminat</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="previewCertificate()" style="width:100%; margin-top:2rem; height:55px; font-size:1.1rem;"><i class="fas fa-print"></i> Generate & Preview Sertifikat</button>
+    </div>
+</div>
+<div id="printSiswaDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div></header>
+<div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Tipe Filter</label>
+            <select id="printFilterType" class="form-input" onchange="onPrintFilterTypeChange()">
+                <option value="all">Semua Siswa</option>
+                <option value="sekolah">Per Sekolah</option>
+                <option value="kelas">Per Kelas</option>
+                <option value="grup">Per Group</option>
+            </select>
+        </div>
+        <div id="printFilterSekolahGroup" class="form-group hidden">
+            <label class="form-label">Pilih Sekolah</label>
+            <select id="printFilterSekolah" class="form-input" onchange="onPrintSekolahChange()"></select>
+        </div>
+        <div id="printFilterKelasGroup" class="form-group hidden">
+            <label class="form-label">Pilih Kelas</label>
+            <select id="printFilterKelas" class="form-input"></select>
+        </div>
+        <div id="printFilterGrupGroup" class="form-group hidden">
+            <label class="form-label">Pilih Group</label>
+            <select id="printFilterGrup" class="form-input"></select>
+        </div>
+    </div>
+    <div style="display:flex; gap:1rem; margin-top:1rem;">
+        <button class="btn btn-primary" onclick="previewPrintSiswa()" style="flex:1;"><i class="fas fa-search"></i> Tampilkan Data</button>
+        <button class="btn btn-secondary" onclick="executePrintSiswa()" id="btnCetakSiswa" disabled style="flex:1;"><i class="fas fa-print"></i> Cetak Sekarang</button>
+    </div>
+</div>
+<div id="printPreviewContainer" style="overflow-x:auto; background:white; padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); min-height:200px;">
+    <p style="text-align:center; color:var(--text-muted);">Pilih filter dan klik "Tampilkan Data" untuk preview.</p>
+</div>
+</div>
+</div> <!-- Akhir dari container utama -->
+<script>
+const rubrikSkoring = {
+    'Kesiapan': {
+        1: 'Menolak/tantrum, tidak mau pindah dari bermain.',
+        2: 'Menunda-nunda, baru siap duduk setelah dipaksa/diingatkan berkali-kali.',
+        3: 'Perlu sedikit waktu transisi (lelet), tapi akhirnya siap sendiri.',
+        4: 'Langsung duduk tegak, siap, dan fokus saat diinstruksikan pertama kali.'
+    },
+    'Fokus': {
+        1: 'Berhenti >3 kali dalam 10 menit tanpa diminta, perlu terus diarahkan ulang.',
+        2: 'Berhenti 1–2 kali, baru kembali fokus setelah ditegur/diarahkan.',
+        3: 'Sesekali teralih (lihat sekitar, main alat tulis) tapi kembali fokus sendiri.',
+        4: 'Mengerjakan tuntas secara berkelanjutan tanpa jeda observasional.'
+    },
+    'Instruksi': {
+        1: 'Abaikan instruksi sepenuhnya atau melakukan hal yang sangat berbeda.',
+        2: 'Perlu instruksi diulang/dipecah sangat detail agar mau bergerak.',
+        3: 'Paham instruksi dasar, tapi ragu-ragu dan sesekali bertanya berulang.',
+        4: 'Langsung paham dan mengeksekusi instruksi dengan tepat dan mandiri.'
+    },
+    'Kemandirian': {
+        1: 'Sama sekali tidak mau mencoba jika tidak dituntun per langkah.',
+        2: 'Mencoba sebentar, lalu langsung meminta bantuan sebelum benar-benar buntu.',
+        3: 'Mencoba mandiri, hanya minta bantuan di bagian yang memang sulit/baru.',
+        4: 'Inisiatif penuh mengerjakan sendiri, memecahkan masalah tanpa bergantung.'
+    },
+    'Ketekunan': {
+        1: 'Langsung menyerah, membuang pensil, atau menolak total saat menemui soal sulit.',
+        2: 'Mengeluh/pasif saat salah, baru mau mencoba lagi setelah didorong/dibujuk.',
+        3: 'Kecewa saat salah, tapi mau mencoba ulang tanpa harus dibujuk panjang.',
+        4: 'Gigi persneling tidak turun; salah dianggap biasa, langsung antusias mencoba lagi.'
+    },
+    'Emosi': {
+        1: 'Menangis, marah ekstrem, atau melempar barang saat frustrasi (tantrum).',
+        2: 'Terlihat sangat cemberut/menggerutu berkepanjangan, sulit ditenangkan.',
+        3: 'Sempat kesal/murung sebentar, namun bisa menenangkan diri (*self-soothing*).',
+        4: 'Sangat stabil, ceria, dan merespons kegagalan atau keberhasilan dengan wajar.'
+    },
+    'Minat': {
+        1: 'Terang-terangan menolak ("Aku gak mau ngerjain ini!").',
+        2: 'Mengerjakan semata-mata karena disuruh, tanpa antusiasme (robotik).',
+        3: 'Mengerjakan dengan santai, walau tidak menunjukkan ketertarikan mencolok.',
+        4: 'Menunjukkan rasa ingin tahu, antusias ("Boleh ngerjain halaman selanjutnya gak?").'
+    }
+};
+
+        // Hardcoded fallback (exact match JSON)
+        const fallbackSoal = [];
+        let muridData = [];
+
+        let soalBank = [];
+        let currentIndex = 0;
+        let scores = {};
+        let appSettings = { app_name: 'WLC App', app_logo: '' };
+
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                if (res.ok) {
+                    appSettings = await res.json();
+                    applySettings();
+                }
+            } catch (e) {}
+        }
+
+        function applySettings() {
+            if (!appSettings) return;
+            const name = appSettings.app_name || 'WLC App';
+            const logo = appSettings.app_logo;
+            document.title = name + ' - Management System';
+            const brandTitle = document.querySelector('.sidebar-brand h2');
+            if (brandTitle) brandTitle.textContent = name;
+            
+            const brandIcon = document.querySelector('.sidebar-brand div');
+            if (brandIcon) {
+                if (logo) {
+                    brandIcon.innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:contain;">`;
+                    brandIcon.style.background = 'white';
+                    brandIcon.style.padding = '2px';
+                    brandIcon.style.width = '38px';
+                    brandIcon.style.height = '38px';
+                    brandIcon.style.borderRadius = '6px';
+                } else {
+                    brandIcon.innerHTML = `
+                        <svg width="100%" height="100%" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
+                            <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.8" fill="none"/>
+                            <circle cx="50" cy="5" r="3.5" fill="#b38e5d"/>
+                            <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
+                        </svg>
+                    `;
+                    brandIcon.style.background = 'transparent';
+                    brandIcon.style.padding = '0';
+                    brandIcon.style.width = '38px';
+                    brandIcon.style.height = '38px';
+                }
+            }
+
+            const loginTitle = document.querySelector('.login-card h2');
+            if (loginTitle) loginTitle.textContent = 'Login ' + name;
+            const loginIcon = document.querySelector('.login-card div');
+            if (loginIcon) {
+                if (logo) {
+                    loginIcon.innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:contain;">`;
+                    loginIcon.style.background = 'white';
+                    loginIcon.style.boxShadow = '0 10px 15px -3px rgba(212, 175, 55, 0.2)';
+                    loginIcon.style.padding = '4px';
+                    loginIcon.style.width = '90px';
+                    loginIcon.style.height = '90px';
+                    loginIcon.style.borderRadius = '1.5rem';
+                } else {
+                    loginIcon.innerHTML = `
+                        <div class="wlc-crest" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                            <svg width="85" height="39" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
+                                <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.5" fill="none"/>
+                                <circle cx="50" cy="5" r="3" fill="#b38e5d"/>
+                                <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
+                            </svg>
+                            <div style="font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; letter-spacing: 3px; color: #b38e5d; margin-top: 5px; line-height: 1;">WAHIDIN</div>
+                        </div>
+                    `;
+                    loginIcon.style.background = 'transparent';
+                    loginIcon.style.boxShadow = 'none';
+                    loginIcon.style.padding = '0';
+                    loginIcon.style.width = 'auto';
+                    loginIcon.style.height = 'auto';
+                }
+            }
+
+            const certOrgName = document.getElementById('certOrgName');
+            if (certOrgName && (!certOrgName.value || certOrgName.value === 'Kumon Wahidin')) {
+                certOrgName.value = name;
+            }
+        }
+
+        // Toggle functions
+        window.showMenu = function() {
+            document.getElementById('asistenDashboard').classList.remove('hidden');
+            document.getElementById('quizApp').classList.add('hidden');
+        }
+
+        window.startQuiz = async function() {
+            await loadSiswa();
+            await loadSoal();
+            document.getElementById('quizUserInfo').textContent = 'Asisten Mode';
+            document.getElementById('asistenDashboard').classList.add('hidden');
+            document.getElementById('quizApp').classList.remove('hidden');
+            updateDisplay();
+            showToast(`✅ Loaded ${soalBank.length} soal`);
+        }
+
+        window.showPanduan = function() {
+            showToast('📖 Panduan: Klik dot 1-5 untuk skor murid. ←→ navigasi soal.');
+        }
+
+        window.resetAllData = function() {
+            if (confirm('Reset semua data local?')) {
+                localStorage.removeItem('wlc_bank_soal');
+                scores = {};
+                showMenu();
+                showToast('🗑️ Semua data direset');
+            }
+        }
+
+        async function loadSoal() {
+            try {
+                const res = await fetch('./bank_soal_wlc1.json');
+                const data = await res.json();
+                soalBank = data;
+                soalLoaded = 'local JSON';
+            } catch (e) {
+                try {
+                    const res = await fetch('http://localhost:3000/api/bank-soal?wlc=1');
+                    const data = await res.json();
+                    soalBank = data;
+                    soalLoaded = 'backend API';
+                } catch (e2) {
+                    soalBank = fallbackSoal;
+                    soalLoaded = 'hardcoded';
+                }
+            }
+        }
+
+
+        async function loadSiswa() {
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                if (res.ok) {
+                    const result = await res.json();
+                    const data = result.data || [];
+                    if (data && data.length > 0) {
+                        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+                        muridData = data.map((m, i) => ({
+                            name: m.nama,
+                            id: m.id.toString(),
+                            color: colors[i % colors.length]
+                        }));
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function updateDisplay() {
+            if (soalBank.length === 0) return;
+            document.getElementById('soalCounter').textContent = currentIndex + 1;
+            document.getElementById('soalText').textContent = soalBank[currentIndex].pertanyaan || soalBank[currentIndex];
+
+            const progress = ((currentIndex + 1) / soalBank.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '%';
+
+            let html = '';
+            const soal = soalBank[currentIndex];
+            muridData.forEach(murid => {
+                const score = scores[currentIndex]?.[murid.id] || 0;
+                const safeName = murid.name || 'NN';
+                const nameParts = safeName.split(' ');
+                const initial1 = nameParts[0]?.[0] || 'N';
+                const initial2 = nameParts[1]?.[0] || '';
+                
+                let barsHtml = '';
+                if (soal.komponen && rubrikSkoring[soal.komponen]) {
+                    barsHtml = '<div class="bars-container">';
+                    [1,2,3,4].forEach(num => {
+                        const desc = rubrikSkoring[soal.komponen][num];
+                        barsHtml += `
+                            <div class="bars-option ${score == num ? 'active' : ''}" onclick="setScore('${murid.id}', ${num})">
+                                <div class="bars-number">${num}</div>
+                                <div class="bars-text">${desc}</div>
+                            </div>
+                        `;
+                    });
+                    barsHtml += '</div>';
+                } else {
+                    barsHtml = `
+                        <div class="rating-dots">
+                            ${[1,2,3,4,5].map(num => 
+                                `<div class="rating-dot ${score >= num ? 'active' : ''}" onclick="setScore('${murid.id}', ${num})">${num}</div>`
+                            ).join('')}
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="murid-card" data-murid="${murid.id}">
+                        <div class="murid-header">
+                            <div class="murid-avatar" style="background: ${murid.color};">${initial1}${initial2}</div>
+                            <div class="murid-name">${safeName}</div>
+                        </div>
+                        <div class="rating-container">
+                            ${barsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('muridContainer').innerHTML = html;
+        }
+
+        window.setScore = function(muridId, score) {
+            if (!scores[currentIndex]) scores[currentIndex] = {};
+            scores[currentIndex][muridId] = score;
+            updateDisplay();
+        }
+
+        let currentSort = { table: '', key: '', dir: 'asc' };
+        window.sortAndRender = function(table, key) {
+            if (currentSort.table === table && currentSort.key === key) {
+                currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.table = table;
+                currentSort.key = key;
+                currentSort.dir = 'asc';
+            }
+            if (table === 'sekolah') loadSekolah();
+            else if (table === 'kelas') loadKelas();
+            else if (table === 'siswa') filterSiswaTable();
+            else if (table === 'jadwal') loadJadwal();
+            else if (table === 'users') loadUsersTable();
+            else if (table === 'bank_soal') loadSoalTable();
+            else if (table === 'grup') loadGrupTable();
+            else if (table === 'reports') loadReportsTable();
+        };
+
+        function getSortedData(data) {
+            if (currentSort.table === '' || !currentSort.key) return data;
+            return [...data].sort((a, b) => {
+                let valA = a[currentSort.key] || '';
+                let valB = b[currentSort.key] || '';
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+                if (valA < valB) return currentSort.dir === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.dir === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        window.nextSoal = function() {
+            if (currentIndex < soalBank.length - 1) {
+                currentIndex++;
+                updateDisplay();
+            } else {
+                showToast('🎉 Observasi selesai!');
+            }
+        }
+
+        window.prevSoal = function() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateDisplay();
+            }
+        }
+
+        window.saveScores = async function() {
+            try {
+                const asistenId = localStorage.getItem('wlc_user') || 'asisten';
+                const payload = { totalSoal: soalBank.length, scores, asistenId };
+                localStorage.setItem('wlc_bank_soal', JSON.stringify(scores));
+                const res = await fetch('http://localhost:3000/api/observasi/bulk', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) showToast('💾 Scores tersimpan!');
+                else showToast('⚠️ Tersimpan lokal.');
+            } catch (e) { showToast('💾 Tersimpan lokal browser!'); }
+        }
+
+        window.exportData = function() {
+            const data = { totalSoal: soalBank.length, scores, murids: muridData };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wlc-scores-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'notification';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        window.doLogin = async function() {
+            const username = document.getElementById('loginUsername').value.toLowerCase();
+            const role = username || 'asisten';
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const res = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('wlc_role', data.user.role);
+                    localStorage.setItem('wlc_user', username);
+                    document.getElementById('loggedRole').textContent = data.user.role;
+                    document.getElementById('userInfo').classList.remove('hidden');
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    showRoleDashboard(data.user.role);
+                    showToast('✅ Login berhasil!');
+                } else showToast('❌ Login gagal!');
+            } catch (e) { showToast('⚠️ Backend offline'); }
+        };
+
+        window.logout = function() {
+            localStorage.removeItem('wlc_role');
+            localStorage.removeItem('wlc_user');
+            document.getElementById('loginScreen').classList.remove('hidden');
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('userInfo').classList.add('hidden');
+            showToast('👋 Logout');
+        };
+
+        window.showRoleDashboard = function(role) {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            if (role === 'asisten') document.getElementById('asistenDashboard').classList.remove('hidden');
+            else if (role === 'evaluator') document.getElementById('evaluatorDashboard').classList.remove('hidden');
+            else if (role === 'owner') document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        window.viewReports = async function() { 
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageSiswaDashboard', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'printSiswaDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('viewReportsDashboard').classList.remove('hidden');
+            await loadReportsTable();
+        };
+
+        window.exitViewReports = function() {
+            document.getElementById('viewReportsDashboard').classList.add('hidden');
+            document.getElementById('evaluatorDashboard').classList.remove('hidden');
+        };
+
+        async function loadReportsTable() {
+            try {
+                const res = await fetch('http://localhost:3000/api/observasi');
+                if (res.ok) {
+                    let data = await res.json();
+                    data = getSortedData(data);
+                    const tbody = document.getElementById('reportsTableBody');
+                    if (data.length === 0) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Belum ada data.</td></tr>';
+                    else tbody.innerHTML = data.map((o, i) => `<tr><td>${i+1}</td><td>${new Date(o.timestamp).toLocaleString()}</td><td>${o.asistenId}</td><td>${o.nama}</td><td>${o.skor} / 5</td></tr>`).join('');
+                }
+            } catch (e) {
+                console.error('loadReportsTable failed:', e);
+                showToast('⚠️ Gagal memuat laporan observasi.');
+            }
+        }
+
+        window.manageUsers = async function() { 
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('manageUsersDashboard').classList.remove('hidden');
+            await loadUsersTable();
+        };
+
+        window.exitManageUsers = function() {
+            document.getElementById('manageUsersDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        async function loadUsersTable() {
+            try {
+                const res = await fetch('http://localhost:3000/api/users');
+                if (res.ok) {
+                    let data = await res.json();
+                    data = getSortedData(data);
+                    const tbody = document.getElementById('usersTableBody');
+                    tbody.innerHTML = data.map((u, i) => `<tr><td>${i+1}</td><td>${u.role}</td><td>${u.username}</td><td>
+                        <button class="btn btn-secondary" onclick="editData('users', ${u.id}, [{key:'username', label:'Username', val:'${u.username}'}, {key:'role', label:'Role', val:'${u.role}', type:'select', options:[{label:'Asisten', value:'asisten'}, {label:'Evaluator', value:'evaluator'}, {label:'Owner', value:'owner'}]}, {key:'password', label:'Password Baru (Kosongkan jika tidak diubah)', val:'', type:'password'}], loadUsersTable)"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger" onclick="deleteData('users', ${u.id}, loadUsersTable)"><i class="fas fa-trash"></i></button>
+                    </td></tr>`).join('');
+                }
+            } catch (e) {
+                console.error('loadUsersTable failed:', e);
+                showToast('⚠️ Gagal memuat daftar users.');
+            }
+        }
+
+        window.saveNewUser = async function() {
+            const username = document.getElementById('newUserUsername').value;
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+            if (!username || !password) return showToast('⚠️ Lengkapi form');
+            try {
+                const res = await fetch('http://localhost:3000/api/users', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-user-role': localStorage.getItem('wlc_role')
+                    },
+                    body: JSON.stringify({ username, password, role })
+                });
+                if (res.ok) {
+                    showToast('✅ User ditambah!');
+                    document.getElementById('usersFormContainer').classList.add('hidden');
+                    await loadUsersTable();
+                } else showToast('❌ Gagal');
+            } catch (e) {}
+        }
+
+        window.manageSiswa = async function() { 
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('manageSiswaDashboard').classList.remove('hidden');
+            await loadSiswaTable();
+            await populateSiswaSekolahDropdown();
+        };
+
+        window.manageSoal = async function() {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('manageSoalDashboard').classList.remove('hidden');
+            await loadSoalTable();
+        };
+
+        window.exitManageSoal = function() {
+            document.getElementById('manageSoalDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        async function loadSoalTable() {
+            try {
+                const res = await fetch('http://localhost:3000/api/bank-soal?wlc=1'); 
+                let data = await res.json();
+                data = getSortedData(data);
+const tbody = document.getElementById('soalTableBody');
+                tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${s.komponen}</td><td>${s.indikator || '-'}</td><td>${s.pertanyaan}</td><td>
+                    <div class="action-group">
+                        <button class="btn btn-secondary" onclick="openEditSoal(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-danger" onclick="deleteData('bank_soal', ${s.id}, loadSoalTable)"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td></tr>`).join('');
+            } catch (e) {
+                console.error('loadSoalTable failed:', e);
+                showToast('⚠️ Gagal memuat komponen observasi.');
+            }
+        }
+
+        window.saveNewSoal = async function() {
+            const komponen = document.getElementById('newSoalKomponen').value;
+            const indikator = document.getElementById('newSoalIndikator').value;
+            const pertanyaan = document.getElementById('newSoalPertanyaan').value;
+            if(!komponen || !indikator || !pertanyaan) return showToast('⚠️ Lengkapi form');
+            try {
+                const res = await fetch('http://localhost:3000/api/bank-soal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({komponen, indikator, pertanyaan})
+                });
+                if(res.ok) {
+                    showToast('✅ Soal disimpan!');
+                    document.getElementById('newSoalIndikator').value = '';
+                    document.getElementById('newSoalPertanyaan').value = '';
+                    document.getElementById('soalFormContainer').classList.add('hidden');
+                    await loadSoalTable();
+                }
+            } catch(e) {
+                console.error('saveNewSoal failed:', e);
+                showToast('⚠️ Gagal menyimpan soal.');
+            }
+        };
+
+        window.populateSiswaSekolahDropdown = async function() {
+            try {
+                const res = await fetch('http://localhost:3000/api/sekolah');
+                if (res.ok) {
+                    const data = await res.json();
+                    let sel = document.getElementById('newSiswaSekolah');
+                    if (sel) sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                    document.getElementById('newSiswaKelas').innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                }
+            } catch(e){}
+        };
+
+        window.updateKelasDropdownSiswa = async function(targetId = 'newSiswaKelas', schoolId = null) {
+            const sId = schoolId || document.getElementById(targetId === 'newSiswaKelas' ? 'newSiswaSekolah' : 'edit_sekolahId')?.value;
+            const targetEl = document.getElementById(targetId);
+            if(!sId || !targetEl) {
+                if(targetEl) targetEl.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                return;
+            }
+            try {
+                const res = await fetch('http://localhost:3000/api/kelas');
+                if (res.ok) {
+                    const data = await res.json();
+                    targetEl.innerHTML = '<option value="">-- Pilih Kelas --</option>' + data.filter(k => k.sekolahId == sId).map(k => `<option value="${k.id}">${k.nama}</option>`).join('');
+                }
+            } catch(e){}
+        };
+
+        window.exitManageSiswa = function() {
+            document.getElementById('manageSiswaDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        async function loadSiswaTable() {
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                if (res.ok) {
+                    const result = await res.json();
+                    allSiswaData = result.data || [];
+                    renderSiswaTable();
+                    populateSiswaFilters();
+                }
+            } catch (e) {
+                console.error('Error loading siswa table:', e);
+            }
+        }
+
+        function renderSiswaTable(filteredData) {
+            const data = filteredData || allSiswaData;
+            const tbody = document.getElementById('siswaTableBody');
+            tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${s.nama}</td><td>${s.nisn}</td><td>${s.namaSekolah || '-'}</td><td>${s.namaKelas || '-'}</td><td>
+                <div class="action-group">
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-delete-alt" onclick="deleteData('siswa', ${s.id}, loadSiswaTable)"><i class="fas fa-trash"></i></button>
+                </div>
+            </td></tr>`).join('');
+        }
+
+        function populateSiswaFilters() {
+            const schools = [...new Set(allSiswaData.map(s => s.namaSekolah))].sort();
+            const classes = [...new Set(allSiswaData.map(s => s.namaKelas))].sort();
+            
+            const selSekolah = document.getElementById('siswaFilterSekolah');
+            const selKelas = document.getElementById('siswaFilterKelas');
+            
+            if(selSekolah) selSekolah.innerHTML = '<option value="">Semua Sekolah</option>' + schools.filter(n=>n).map(s => `<option value="${s}">${s}</option>`).join('');
+            if(selKelas) selKelas.innerHTML = '<option value="">Semua Kelas</option>' + classes.filter(n=>n).map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function filterSiswaTable() {
+            const search = document.getElementById('siswaSearchInput').value.toLowerCase();
+            const school = document.getElementById('siswaFilterSekolah').value;
+            const kelas = document.getElementById('siswaFilterKelas').value;
+            
+            const filtered = allSiswaData.filter(s => {
+                const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
+                const matchesSchool = !school || s.namaSekolah === school;
+                const matchesKelas = !kelas || s.namaKelas === kelas;
+                return matchesSearch && matchesSchool && matchesKelas;
+            });
+            renderSiswaTable(filtered);
+        }
+
+        function printFilteredSiswa() {
+            const search = document.getElementById('siswaSearchInput').value.toLowerCase();
+            const school = document.getElementById('siswaFilterSekolah').value;
+            const kelas = document.getElementById('siswaFilterKelas').value;
+            
+            const filtered = allSiswaData.filter(s => {
+                const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
+                const matchesSchool = !school || s.namaSekolah === school;
+                const matchesKelas = !kelas || s.namaKelas === kelas;
+                return matchesSearch && matchesSchool && matchesKelas;
+            });
+
+            const filterText = (school || "Semua Sekolah") + " / " + (kelas || "Semua Kelas");
+            const tableHtml = `
+                <table border="1" style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Siswa</th>
+                            <th>NISN</th>
+                            <th>Sekolah</th>
+                            <th>Kelas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map((s, i) => `
+                            <tr>
+                                <td>${i+1}</td>
+                                <td>${s.nama}</td>
+                                <td>${s.nisn}</td>
+                                <td>${s.namaSekolah}</td>
+                                <td>${s.namaKelas}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Daftar Siswa - WLC</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; }
+                        h1 { text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                        th { background: #f0f0f0; }
+                    </style>
+                </head>
+                <body>
+                    <h1>DAFTAR SISWA WLC</h1>
+                    <p>Filter: ${filterText}</p>
+                    ${tableHtml}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        window.saveNewSiswa = async function() {
+            const nama = document.getElementById('newSiswaNama').value;
+            const nisn = document.getElementById('newSiswaNisn').value;
+            const sekolahId = document.getElementById('newSiswaSekolah').value;
+            const kelasId = document.getElementById('newSiswaKelas').value;
+            if (!nama || !nisn || !sekolahId || !kelasId) return showToast('⚠️ Lengkapi form');
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-user-role': localStorage.getItem('wlc_role')
+                    },
+                    body: JSON.stringify({ nama, nisn, sekolahId: parseInt(sekolahId), kelasId: parseInt(kelasId) })
+                });
+                if (res.ok) {
+                    showToast('✅ Siswa ditambah!');
+                    document.getElementById('newSiswaNama').value = '';
+                    document.getElementById('newSiswaNisn').value = '';
+                    document.getElementById('siswaFormContainer').classList.add('hidden');
+                    await loadSiswaTable();
+                }
+            } catch (e) {}
+        }
+
+        window.manageSekolah = async function() { 
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('manageSekolahDashboard').classList.remove('hidden');
+            await loadSekolah();
+            await loadKelas();
+            await populateSekolahDropdownKelas();
+        };
+
+        window.exitManageSekolah = function() {
+            document.getElementById('manageSekolahDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        window.tambahSekolah = async function() {
+            const nama = document.getElementById('sekolahNama').value;
+            const alamat = document.getElementById('sekolahAlamat').value;
+            const kota = document.getElementById('sekolahKota').value;
+            if (!nama) return showToast('⚠️ Nama wajib!');
+            try {
+                const res = await fetch('http://localhost:3000/api/sekolah', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-user-role': localStorage.getItem('wlc_role')
+                    },
+                    body: JSON.stringify({nama, alamat, kota})
+                });
+                if (res.ok) {
+                    showToast('✅ Sekolah ditambah!');
+                    document.getElementById('sekolahFormContainer').classList.add('hidden');
+                    await loadSekolah();
+                }
+            } catch (e) {}
+        };
+
+        window.tambahKelas = async function() {
+            const nama = document.getElementById('kelasNama').value;
+            const tingkat = document.getElementById('kelasTingkat').value;
+            const sekolahId = parseInt(document.getElementById('kelasSekolahId').value);
+            if (!nama || !sekolahId) return showToast('⚠️ Lengkapi form!');
+            try {
+                const res = await fetch('http://localhost:3000/api/kelas', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-user-role': localStorage.getItem('wlc_role')
+                    },
+                    body: JSON.stringify({nama, tingkat, sekolahId})
+                });
+                if (res.ok) {
+                    showToast('✅ Kelas ditambah!');
+                    document.getElementById('kelasNama').value = '';
+                    document.getElementById('kelasTingkat').value = '';
+                    document.getElementById('kelasSekolahId').value = '';
+                    document.getElementById('kelasFormContainer').classList.add('hidden');
+                    await loadKelas();
+                }
+            } catch (e) {}
+        };
+
+        window.populateSekolahDropdownKelas = async function() {
+            try {
+                const res = await fetch('http://localhost:3000/api/sekolah');
+                if (res.ok) {
+                    const data = await res.json();
+                    let sel = document.getElementById('kelasSekolahId');
+                    if (sel) sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                }
+            } catch(e){}
+        };
+
+        async function loadSekolah() {
+            try {
+                const res = await fetch('http://localhost:3000/api/sekolah');
+                const data = await res.json();
+                renderSekolahTable(data);
+            } catch (e) {}
+        }
+        function renderSekolahTable(data) {
+            const tbody = document.querySelector('#tableSekolah tbody');
+            tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${s.nama}</td><td>${s.kota}</td><td>
+                <div class="action-group">
+                    <button class="btn btn-secondary" onclick="openEditSekolah(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-danger" onclick="deleteData('sekolah', ${s.id}, loadSekolah)"><i class="fas fa-trash"></i></button>
+                </div>
+            </td></tr>`).join('');
+        }
+
+        async function loadKelas() {
+            try {
+                const res = await fetch('http://localhost:3000/api/kelas');
+                const data = await res.json();
+                renderKelasTable(data);
+            } catch (e) {}
+        }
+        function renderKelasTable(data) {
+            const tbody = document.querySelector('#tableKelas tbody');
+            tbody.innerHTML = data.map((k, i) => `<tr><td>${i+1}</td><td>${k.nama}</td><td>${k.namaSekolah || '#'+k.sekolahId}</td><td>
+                <div class="action-group">
+                    <button class="btn btn-secondary" onclick="openEditKelas(${k.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-danger" onclick="deleteData('kelas', ${k.id}, loadKelas)"><i class="fas fa-trash"></i></button>
+                </div>
+            </td></tr>`).join('');
+        }
+
+        window.manageJadwal = async function() { 
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('manageJadwalDashboard').classList.remove('hidden');
+            await loadJadwal();
+            await populateSekolahDropdown();
+        };
+
+        window.exitManageJadwal = function() {
+            document.getElementById('manageJadwalDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        async function loadJadwal() {
+            try {
+                const res = await fetch('http://localhost:3000/api/jadwal');
+                let data = await res.json();
+                data = getSortedData(data);
+                const tbody = document.getElementById('jadwalTableBody');
+                tbody.innerHTML = data.map((j, i) => {
+                    const displayDate = j.tanggal ? new Date(j.tanggal).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-';
+                    return `<tr><td>${i+1}</td><td>${displayDate}</td><td>${j.namaSekolah || '-'}</td><td>${j.status}</td><td>${j.catatan}</td><td>
+                    <button class="btn btn-secondary" onclick="editData('jadwal', ${j.id}, [{key:'tanggal', label:'Tanggal', val:'${j.tanggal}', type:'date'}, {key:'status', label:'Status', val:'${j.status}', type:'select', options:[{label:'Pending', value:'pending'}, {label:'Confirmed', value:'confirmed'}]}, {key:'catatan', label:'Catatan', val:'${j.catatan}'}], loadJadwal)"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger" onclick="deleteData('jadwal', ${j.id}, loadJadwal)"><i class="fas fa-trash"></i></button>
+                </td></tr>`}).join('');
+            } catch (e) {}
+        }
+
+        window.tambahJadwal = async function() {
+            const sekolahId = document.getElementById('newJadwalSekolah').value;
+            const tanggal = document.getElementById('newJadwalTanggal').value;
+            const catatan = document.getElementById('newJadwalCatatan').value;
+            if (!sekolahId || !tanggal) return showToast('⚠️ Lengkapi form');
+            try {
+                const res = await fetch('http://localhost:3000/api/jadwal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({sekolahId, tanggal, catatan})
+                });
+                if (res.ok) {
+                    showToast('✅ Jadwal ditambah!');
+                    document.getElementById('jadwalFormContainer').classList.add('hidden');
+                    await loadJadwal();
+                }
+            } catch (e) {}
+        }
+
+        window.deleteData = async function(table, id, cb) {
+            if (!confirm('Yakin hapus?')) return;
+            try {
+                const res = await fetch(`http://localhost:3000/api/${table}/${id}`, { 
+                    method: 'DELETE',
+                    headers: { 'x-user-role': localStorage.getItem('wlc_role') }
+                });
+                if (res.ok) { showToast('🗑️ Terhapus!'); if (cb) cb(); }
+                else { showToast('❌ Gagal: ' + (await res.json()).error); }
+            } catch (e) {}
+        };
+
+        window.editData = async function(table, id, fields, cb) {
+            const overlay = document.getElementById('editModalOverlay');
+            const fieldsContainer = document.getElementById('editModalFields');
+            const title = document.getElementById('editModalTitle');
+            const saveBtn = document.getElementById('editModalSaveBtn');
+            title.innerText = `Edit Data ${table.toUpperCase()} (#${id})`;
+            fieldsContainer.innerHTML = '';
+            fields.forEach(f => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                group.style.marginBottom = '1rem';
+                group.innerHTML = `<label class="form-label">${f.label}</label>`;
+                let input;
+                if (f.type === 'select') {
+                    input = document.createElement('select');
+                    input.className = 'form-input';
+                    f.options.forEach(opt => {
+                        const o = document.createElement('option');
+                        o.value = opt.value;
+                        o.text = opt.label;
+                        if (opt.value == f.val) o.selected = true;
+                        input.appendChild(o);
+                    });
+                    if (f.onchange) {
+                        input.onchange = (e) => f.onchange(e.target.value);
+                    }
+                } else {
+                    input = document.createElement('input');
+                    input.className = 'form-input';
+                    input.type = f.type || 'text';
+                    input.value = f.val || '';
+                }
+                input.id = `edit_${f.key}`;
+                group.appendChild(input);
+                fieldsContainer.appendChild(group);
+            });
+            overlay.classList.add('show');
+            saveBtn.onclick = async () => {
+                let updates = {};
+                fields.forEach(f => {
+                    const val = document.getElementById(`edit_${f.key}`).value;
+                    if (f.key === 'password' && !val) return;
+                    updates[f.key] = val;
+                });
+                try {
+                    const res = await fetch(`http://localhost:3000/api/${table}/${id}`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'x-user-role': localStorage.getItem('wlc_role')
+                        },
+                        body: JSON.stringify(updates)
+                    });
+                    if (res.ok) { showToast('✏️ Diupdate!'); closeEditModal(); if (cb) cb(); }
+                    else { showToast('❌ Gagal: ' + (await res.json()).error); }
+                } catch (e) {}
+            };
+        };
+
+        window.closeEditModal = function() { document.getElementById('editModalOverlay').classList.remove('show'); };
+        
+        window.openEditSiswa = async function(id) {
+            const s = allSiswaData.find(x => x.id == id);
+            if (!s) return;
+            const resS = await fetch('http://localhost:3000/api/sekolah');
+            const schools = await resS.json();
+            const resK = await fetch('http://localhost:3000/api/kelas');
+            const classes = await resK.json();
+            
+            editData('siswa', id, [
+                {key:'nama', label:'Nama Siswa', val:s.nama},
+                {key:'nisn', label:'NISN', val:s.nisn},
+                {
+                    key:'sekolahId', 
+                    label:'Sekolah', 
+                    val:s.sekolahId, 
+                    type:'select', 
+                    options: schools.map(sch => ({label: sch.nama, value: sch.id})),
+                    onchange: (val) => {
+                        const kSel = document.getElementById('edit_kelasId');
+                        if(kSel) kSel.innerHTML = '<option value="">-- Pilih Kelas --</option>' + classes.filter(k => k.sekolahId == val).map(k => `<option value="${k.id}">${k.nama}</option>`).join('');
+                    }
+                },
+                {
+                    key:'kelasId', 
+                    label:'Kelas', 
+                    val:s.kelasId, 
+                    type:'select', 
+                    options: classes.filter(k => k.sekolahId == s.sekolahId).map(k => ({label: k.nama, value: k.id}))
+                }
+            ], loadSiswaTable);
+        };
+
+        window.openEditKelas = async function(id) {
+            const resK = await fetch('http://localhost:3000/api/kelas');
+            const classes = await resK.json();
+            const k = classes.find(x => x.id == id);
+            if (!k) return;
+            const resS = await fetch('http://localhost:3000/api/sekolah');
+            const schools = await resS.json();
+            editData('kelas', id, [
+                {key:'nama', label:'Nama Kelas', val:k.nama},
+                {key:'tingkat', label:'Tingkat', val:k.tingkat},
+                {key:'sekolahId', label:'Sekolah', val:k.sekolahId, type:'select', options: schools.map(s => ({label: s.nama, value: s.id}))}
+            ], loadKelas);
+        };
+
+        window.openEditSekolah = async function(id) {
+            const resS = await fetch('http://localhost:3000/api/sekolah');
+            const schools = await resS.json();
+            const s = schools.find(x => x.id == id);
+            if (!s) return;
+            editData('sekolah', id, [
+                {key:'nama', label:'Nama Sekolah', val:s.nama},
+                {key:'alamat', label:'Alamat', val:s.alamat},
+                {key:'kota', label:'Kota', val:s.kota}
+            ], loadSekolah);
+        };
+
+        window.openEditSoal = async function(id) {
+            const resSoal = await fetch('http://localhost:3000/api/bank-soal?wlc=1');
+            const questions = await resSoal.json();
+            const s = questions.find(x => x.id == id);
+            if (!s) return;
+            editData('bank_soal', id, [
+                {key:'wlc', label:'WLC', val:s.wlc, type:'select', options:[{label:'WLC 1', value:1}, {label:'WLC 2', value:2}, {label:'WLC 3', value:3}]}, 
+                {key:'komponen', label:'Komponen', val:s.komponen, type:'select', options:[{label:'Kesiapan', value:'Kesiapan'}, {label:'Fokus', value:'Fokus'}, {label:'Instruksi', value:'Instruksi'}, {label:'Kemandirian', value:'Kemandirian'}, {label:'Ketekunan', value:'Ketekunan'}, {label:'Emosi', value:'Emosi'}, {label:'Minat', value:'Minat'}]}, 
+                {key:'indikator', label:'Indikator', val:s.indikator || ''},
+                {key:'pertanyaan', label:'Pertanyaan', val:s.pertanyaan}
+            ], loadSoalTable);
+        };
+
+        window.loadKelasForSiswa = () => updateKelasDropdownSiswa();
+
+        window.populateSekolahDropdown = async function() {
+            try {
+                const res = await fetch('http://localhost:3000/api/sekolah');
+                if (res.ok) {
+                    const data = await res.json();
+                    let sel = document.getElementById('newJadwalSekolah');
+                    if (sel) sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                }
+            } catch(e){}
+        };
+
+        window.onload = async () => {
+            const role = localStorage.getItem('wlc_role');
+            if (role) {
+                document.getElementById('loggedRole').textContent = role;
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('loginScreen').classList.add('hidden');
+                showRoleDashboard(role);
+            }
+            await loadSettings();
+        };
+
+// === LOGIKA MANAGE GRUP ===
+let allSiswaData = [];
+let allJadwalData = [];
+let allKelasData = [];
+
+window.openManageGrup = async function() {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+    document.getElementById('manageGrupDashboard').classList.remove('hidden');
+    await loadJadwalDropdown();
+    await loadAsistenDropdown();
+    await fetchAllSiswaAndKelas();
+    await loadGrupTable();
+};
+
+window.exitManageGrup = function() {
+    document.getElementById('manageGrupDashboard').classList.add('hidden');
+    document.getElementById('ownerDashboard').classList.remove('hidden');
+};
+
+async function loadJadwalDropdown() {
+    const res = await fetch('http://localhost:3000/api/jadwal');
+    if(res.ok) {
+        allJadwalData = await res.json();
+        document.getElementById('newGrupJadwal').innerHTML = '<option value="">-- Pilih Jadwal --</option>' + allJadwalData.map(j => `<option value="${j.id}">${j.tanggal} - ${j.namaSekolah}</option>`).join('');
+    }
+}
+
+async function loadAsistenDropdown() {
+    const res = await fetch('http://localhost:3000/api/users');
+    if(res.ok) {
+        const data = await res.json();
+        document.getElementById('newGrupAsisten').innerHTML = '<option value="">-- Pilih Asisten --</option>' + data.filter(u => u.role === 'asisten').map(u => `<option value="${u.username}">${u.username}</option>`).join('');
+    }
+}
+
+async function fetchAllSiswaAndKelas() {
+    const resS = await fetch('http://localhost:3000/api/siswa');
+    if(resS.ok) allSiswaData = await resS.json();
+    const resK = await fetch('http://localhost:3000/api/kelas');
+    if(resK.ok) allKelasData = await resK.json();
+}
+
+window.onJadwalGrupChange = function() {
+    const jId = document.getElementById('newGrupJadwal').value;
+    const j = allJadwalData.find(x => x.id == jId);
+    if (j) {
+        document.getElementById('newGrupKelas').innerHTML = '<option value="">-- Semua Kelas --</option>' + allKelasData.filter(k => k.sekolahId == j.sekolahId).map(k => `<option value="${k.id}">${k.nama}</option>`).join('');
+    }
+    filterSiswaUntukGrup();
+};
+
+window.onKelasGrupChange = function() { filterSiswaUntukGrup(); };
+
+function filterSiswaUntukGrup() {
+    const jId = document.getElementById('newGrupJadwal').value;
+    const kId = document.getElementById('newGrupKelas').value;
+    const j = allJadwalData.find(x => x.id == jId);
+    if (!j) return;
+    let filtered = allSiswaData.filter(s => s.sekolahId == j.sekolahId);
+    if (kId) filtered = filtered.filter(s => s.kelasId == kId);
+    document.getElementById('newGrupSiswa').innerHTML = filtered.map(s => `<option value="${s.id}">${s.nama} (${s.nisn})</option>`).join('');
+    document.getElementById('grupSiswaCounter').value = `${filtered.length} siswa tersedia`;
+}
+
+window.tambahGrup = async function() {
+    const nama = document.getElementById('newGrupNama').value;
+    const jId = document.getElementById('newGrupJadwal').value;
+    const aId = document.getElementById('newGrupAsisten').value;
+    const sIds = Array.from(document.getElementById('newGrupSiswa').selectedOptions).map(o => parseInt(o.value));
+    if(!nama || !jId || !aId || sIds.length === 0) return showToast('⚠️ Lengkapi form');
+    try {
+        const res = await fetch('http://localhost:3000/api/grup', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({nama, jadwalId: parseInt(jId), asistenId: aId, siswaIds: JSON.stringify(sIds)})
+        });
+        if(res.ok) { showToast('✅ Grup disimpan!'); await loadGrupTable(); document.getElementById('grupFormContainer').classList.add('hidden'); }
+            } catch(e) {
+                console.error('populateSekolahDropdown failed:', e);
+                showToast('⚠️ Terjadi kesalahan sistem saat memuat daftar sekolah.');
+            }
+};
+
+async function loadGrupTable() {
+    const res = await fetch('http://localhost:3000/api/grup');
+    if(res.ok) {
+        let data = await res.json();
+        data = getSortedData(data);
+        document.getElementById('grupTableBody').innerHTML = data.map((g, i) => `<tr><td>${i+1}</td><td>${g.nama}</td><td>${g.tanggal} - ${g.namaSekolah}</td><td>${g.asistenId}</td><td>${JSON.parse(g.siswaIds).length} Siswa</td><td>
+            <button class="btn btn-danger" onclick="deleteData('grup', ${g.id}, loadGrupTable)"><i class="fas fa-trash"></i></button>
+        </td></tr>`).join('');
+    }
+}
+
+// === LOGIKA PRINT SISWA ===
+window.openPrintSiswa = async function() {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageGrupDashboard'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+    document.getElementById('printSiswaDashboard').classList.remove('hidden');
+    
+    // Load dropdowns
+    await populatePrintSekolahDropdown();
+    await populatePrintGrupDropdown();
+};
+
+window.exitPrintSiswa = function() {
+    document.getElementById('printSiswaDashboard').classList.add('hidden');
+    document.getElementById('ownerDashboard').classList.remove('hidden');
+};
+
+async function populatePrintSekolahDropdown() {
+    try {
+        const res = await fetch('http://localhost:3000/api/sekolah');
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById('printFilterSekolah').innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+        }
+    } catch(e){}
+}
+
+async function populatePrintGrupDropdown() {
+    try {
+        const res = await fetch('http://localhost:3000/api/grup');
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById('printFilterGrup').innerHTML = '<option value="">-- Pilih Group --</option>' + data.map(g => `<option value="${g.id}">${g.nama}</option>`).join('');
+        }
+    } catch(e){}
+}
+
+window.onPrintFilterTypeChange = function() {
+    const type = document.getElementById('printFilterType').value;
+    document.getElementById('printFilterSekolahGroup').classList.add('hidden');
+    document.getElementById('printFilterKelasGroup').classList.add('hidden');
+    document.getElementById('printFilterGrupGroup').classList.add('hidden');
+    
+    if (type === 'sekolah') {
+        document.getElementById('printFilterSekolahGroup').classList.remove('hidden');
+    } else if (type === 'kelas') {
+        document.getElementById('printFilterSekolahGroup').classList.remove('hidden');
+        document.getElementById('printFilterKelasGroup').classList.remove('hidden');
+    } else if (type === 'grup') {
+        document.getElementById('printFilterGrupGroup').classList.remove('hidden');
+    }
+};
+
+window.onPrintSekolahChange = async function() {
+    const sId = document.getElementById('printFilterSekolah').value;
+    const type = document.getElementById('printFilterType').value;
+    if (type === 'kelas' && sId) {
+        try {
+            const res = await fetch('http://localhost:3000/api/kelas');
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('printFilterKelas').innerHTML = '<option value="">-- Pilih Kelas --</option>' + data.filter(k => k.sekolahId == sId).map(k => `<option value="${k.id}">${k.nama}</option>`).join('');
+            }
+        } catch(e){}
+    }
+};
+
+window.previewPrintSiswa = async function() {
+    const type = document.getElementById('printFilterType').value;
+    const sId = document.getElementById('printFilterSekolah').value;
+    const kId = document.getElementById('printFilterKelas').value;
+    const gId = document.getElementById('printFilterGrup').value;
+    
+    try {
+        const res = await fetch('http://localhost:3000/api/siswa');
+        let students = await res.json();
+        
+        if (type === 'sekolah') {
+            if (!sId) return showToast('⚠️ Pilih sekolah dulu');
+            students = students.filter(s => s.sekolahId == sId);
+        } else if (type === 'kelas') {
+            if (!kId) return showToast('⚠️ Pilih kelas dulu');
+            students = students.filter(s => s.kelasId == kId);
+        } else if (type === 'grup') {
+            if (!gId) return showToast('⚠️ Pilih group dulu');
+            const grupRes = await fetch('http://localhost:3000/api/grup');
+            const grups = await grupRes.json();
+            const selectedGrup = grups.find(g => g.id == gId);
+            if (selectedGrup) {
+                const sIds = JSON.parse(selectedGrup.siswaIds);
+                students = students.filter(s => sIds.includes(s.id));
+            }
+        }
+        
+        displayPrintPreview(students);
+        document.getElementById('btnCetakSiswa').disabled = students.length === 0;
+    } catch (e) {
+        showToast('⚠️ Gagal memuat data');
+    }
+};
+
+function displayPrintPreview(students) {
+    const container = document.getElementById('printPreviewContainer');
+    if (students.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Tidak ada data ditemukan.</p>';
+        return;
+    }
+    
+    let html = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Lengkap</th>
+                    <th>NISN</th>
+                    <th>Sekolah</th>
+                    <th>Kelas</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${students.map((s, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${s.nama}</td>
+                        <td>${s.nisn}</td>
+                        <td>${s.namaSekolah || '-'}</td>
+                        <td>${s.namaKelas || '-'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    container.innerHTML = html;
+}
+
+window.executePrintSiswa = function() {
+    const type = document.getElementById('printFilterType').value;
+    const filterText = document.getElementById('printFilterType').options[document.getElementById('printFilterType').selectedIndex].text;
+    let detailText = "";
+    
+    if (type === 'sekolah') detailText = document.getElementById('printFilterSekolah').options[document.getElementById('printFilterSekolah').selectedIndex].text;
+    else if (type === 'kelas') detailText = document.getElementById('printFilterKelas').options[document.getElementById('printFilterKelas').selectedIndex].text;
+    else if (type === 'grup') detailText = document.getElementById('printFilterGrup').options[document.getElementById('printFilterGrup').selectedIndex].text;
+    
+    const tableHtml = document.getElementById('printPreviewContainer').innerHTML;
+    const printWindow = window.open('', '_blank');
+    
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Cetak Data Siswa - WLC</title>
+            <style>
+                body { font-family: 'Inter', sans-serif; padding: 20px; }
+                h1 { text-align: center; margin-bottom: 5px; }
+                h3 { text-align: center; font-weight: normal; margin-top: 0; color: #666; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .footer { margin-top: 30px; text-align: right; font-size: 12px; }
+                @media print {
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>DAFTAR SISWA WLC</h1>
+            <h3>Filter: ${filterText} ${detailText ? '(' + detailText + ')' : ''}</h3>
+            ${tableHtml}
+            <div class="footer">Dicetak pada: ${new Date().toLocaleString('id-ID')}</div>
+            <script>
+                window.onload = function() { window.print(); window.close(); }
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+};
+        // === WLC CERTIFICATE ENGINE LOGIC ===
+        const certNarratives = {
+            kesiapan: {
+                langsung: "Ananda menunjukkan kesiapan yang sangat baik dalam memasuki aktivitas belajar dan mampu melakukan transisi dari bermain dengan cepat.",
+                diingatkan: "Ananda mulai menunjukkan kesiapan belajar, meski terkadang memerlukan sedikit arahan untuk memulai fokus pada aktivitas.",
+                menolak: "Ananda sedang dalam proses menyesuaikan diri untuk memulai aktivitas belajar dan membutuhkan waktu transisi yang lebih perlahan."
+            },
+            fokus: {
+                stabil: "Ananda memiliki ketahanan perhatian yang baik dan mampu menyelesaikan tugas secara tuntas tanpa mudah terpengaruh lingkungan.",
+                naikturun: "Ananda mampu fokus pada aktivitas, dengan sesekali memerlukan jeda atau arahan kembali untuk menjaga konsistensinya.",
+                distraksi: "Ananda cenderung mengeksplorasi hal-hal di sekitarnya saat belajar, menunjukkan perlunya lingkungan yang minim gangguan untuk membantu konsentrasinya."
+            },
+            respons: {
+                paham: "Ananda sangat responsif dan mampu memahami serta mengikuti instruksi langkah demi langkah dengan tepat.",
+                ulang: "Ananda dapat mengikuti instruksi dengan baik setelah diberikan penjelasan atau contoh yang lebih sederhana.",
+                bingung: "Ananda sedang belajar membangun keberanian untuk mengomunikasikan kesulitan yang dihadapi saat menerima instruksi baru."
+            },
+            kemandirian: {
+                mandiri: "Ananda menunjukkan inisiatif yang kuat untuk mencoba menyelesaikan tugas sederhana secara mandiri sebelum meminta bantuan.",
+                terbatas: "Ananda mulai menunjukkan kepercayaan diri untuk mencoba langkah awal sendiri, dengan sesekali memerlukan validasi.",
+                bergantung: "Ananda merasa lebih nyaman belajar dengan pendampingan intensif dan sedang dilatih untuk membangun rasa percaya diri dalam mencoba sendiri."
+            },
+            ketekunan: {
+                ulang: "Ananda menunjukkan daya juang yang baik dengan kemauan untuk mencoba kembali saat menghadapi tantangan baru.",
+                berhenti: "Ananda cenderung berhati-hati saat menemui kesulitan dan memerlukan dorongan kecil untuk melanjutkan usahanya.",
+                menolak: "Ananda sedang belajar mengelola tantangan saat belajar dan membutuhkan dukungan agar tidak cepat menyerah."
+            },
+            emosional: {
+                stabil: "Ananda menunjukkan kematangan emosional yang stabil, baik saat berhasil menyelesaikan tugas maupun saat menghadapi kendala.",
+                dorongan: "Ananda merespons aktivitas dengan positif, namun terkadang memerlukan penguatan rasa aman agar tetap tenang saat belajar.",
+                frustrasi: "Ananda sangat ekspresif dalam merasakan proses belajarnya dan sedang dibimbing untuk menyikapi tantangan sebagai bagian dari pembelajaran."
+            },
+            minat: {
+                antusias: "Ananda menunjukkan ketertarikan dan keterlibatan aktif yang tinggi terhadap berbagai aktivitas pembelajaran yang diberikan.",
+                netral: "Ananda mengikuti rangkaian aktivitas dengan cukup baik dan kooperatif dalam menjalankan setiap tahapan belajar.",
+                kurang: "Ananda sedang dalam tahap observasi untuk menemukan kecocokan gaya belajar yang dapat meningkatkan motivasi intrinsiknya."
+            }
+        };
+
+        const strategyMap = {
+            kesiapan: {
+                low: "berikan aba-aba waktu (seperti: '5 menit lagi kita mulai belajar ya') agar ananda memiliki ruang untuk menyiapkan mentalnya sebelum berpindah aktivitas",
+                visi: "proses transisinya akan menjadi lebih tenang dan stabil."
+            },
+            fokus: {
+                low: "membantu menciptakan lingkungan belajar yang tenang dan minim gangguan suara/visual agar fokusnya tetap terjaga secara konsisten",
+                visi: "konsistensi belajarnya akan terus meningkat."
+            },
+            respons: {
+                low: "melatih ananda untuk mendengarkan instruksi sampai tuntas sebelum mulai bekerja guna mengasah ketelitiannya",
+                visi: "kemampuan eksekusi tugasnya akan semakin presisi."
+            },
+            kemandirian: {
+                low: "memberikan kepercayaan pada ananda untuk mencoba langkah pertama sendiri tanpa dibantu, agar ia merasa berdaya atas proses belajarnya",
+                visi: "rasa percaya dirinya dalam menyelesaikan tantangan akan semakin kuat."
+            },
+            ketekunan: {
+                low: "fokus memuji proses 'mau mencoba lagi' daripada sekadar hasil benarnya agar mental pantang menyerahnya tumbuh",
+                visi: "mental pembelajar yang tangguh akan terbentuk secara alami."
+            },
+            emosional: {
+                low: "memberikan penguatan verbal yang positif saat ananda merasa ragu, guna memupuk rasa aman dalam bereksplorasi",
+                visi: "stabilitas emosinya akan menjadi modal besar dalam belajar."
+            },
+            minat: {
+                low: "menyajikan materi belajar dengan cara yang lebih variatif atau menghubungkan dengan hobi ananda untuk memicu motivasi intrinsiknya",
+                visi: "belajar akan menjadi aktivitas yang selalu dinanti oleh ananda."
+            }
+        };
+
+        window.generateNaturalRecommendation = function(scores) {
+            const componentKeys = Object.keys(scores);
+            const highMap = { kesiapan: 'langsung', fokus: 'stabil', respons: 'paham', kemandirian: 'mandiri', ketekunan: 'ulang', emosional: 'stabil', minat: 'antusias' };
+            const midMap = { kesiapan: 'diingatkan', fokus: 'naikturun', respons: 'ulang', kemandirian: 'terbatas', ketekunan: 'berhenti', emosional: 'dorongan', minat: 'netral' };
+            const lowMap = { kesiapan: 'menolak', fokus: 'distraksi', respons: 'bingung', kemandirian: 'bergantung', ketekunan: 'menolak', emosional: 'frustrasi', minat: 'kurang' };
+
+            const strengths = componentKeys.filter(k => scores[k] === highMap[k]);
+            const focusAreas = componentKeys.filter(k => scores[k] === lowMap[k] || scores[k] === midMap[k]);
+
+            let apresiasi = "";
+            if (strengths.length > 0) {
+                const k = strengths[Math.floor(Math.random() * strengths.length)];
+                apresiasi = certNarratives[k][scores[k]];
+            } else {
+                apresiasi = "Ananda menunjukkan proses belajar yang sangat berharga dengan antusiasme yang terus bertumbuh.";
+            }
+
+            let needle = focusAreas.length > 0 ? focusAreas[0] : componentKeys[Math.floor(Math.random() * componentKeys.length)];
+            let langkahKecil = strategyMap[needle].low;
+            let visi = strategyMap[needle].visi;
+
+            const transitions = [
+                "Untuk mengoptimalkan potensi tersebut, sangat disarankan agar ",
+                "Sebagai langkah pendampingan yang tepat, Ayah/Bunda dapat mencoba ",
+                "Guna mendukung perkembangan kemandirian ananda, kami merekomendasikan untuk ",
+                "Seiring dengan itu, dukungan terbaik dapat diberikan dengan cara ",
+                "Kami melihat potensi besar yang bisa dioptimalkan apabila Ayah/Bunda "
+            ];
+            const transition = transitions[Math.floor(Math.random() * transitions.length)];
+
+            return `${apresiasi} ${transition}${langkahKecil}. Dengan demikian, ${visi}`;
+        };
+
+        window.openManageCert = async function() {
+            window.hideAllDashboards();
+            document.getElementById('manageCertDashboard').classList.remove('hidden');
+            // Load settings untuk nama instance
+            if (!appSettings || !appSettings.app_name) await loadSettings();
+            
+            // Set Org Name
+            const orgNameEl = document.getElementById('certOrgNameSingle');
+            if (orgNameEl) orgNameEl.value = appSettings.app_name || 'Kumon Wahidin';
+            
+            // Load schools untuk dropdown
+            const res = await fetch('http://localhost:3000/api/sekolah');
+            const schools = await res.json();
+            
+            // Populasikan dropdown sekolah (Massal & Single)
+            const selSekolah = document.getElementById('certFilterSekolah');
+            if (selSekolah) selSekolah.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + schools.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+            
+            const selSekolahSingle = document.getElementById('certFilterSekolahSingle');
+            if (selSekolahSingle) selSekolahSingle.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + schools.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+
+            // Reset dependent dropdowns
+            const massalSiswa = document.getElementById('certSiswaId');
+            if (massalSiswa) massalSiswa.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            
+            document.getElementById('certFilterKelasSingle').innerHTML = '<option value="">-- Pilih Kelas --</option>';
+            document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            
+            // Set Date
+            const dateEl = document.getElementById('certDateSingle');
+            if (dateEl) dateEl.valueAsDate = new Date();
+            
+            // Load grup untuk cetak massal
+            const grupRes = await fetch('http://localhost:3000/api/grup');
+            if (grupRes.ok) {
+                const grups = await grupRes.json();
+                const selGrup = document.getElementById('certFilterGrup');
+                if (selGrup) selGrup.innerHTML = '<option value="">-- Pilih Grup --</option>' + grups.map(g => `<option value="${g.id}">${g.nama}</option>`).join('');
+            }
+        };
+
+        window.onCertPrintTypeChange = function() {
+            const type = document.getElementById('certPrintType').value;
+            document.getElementById('certFilterKelasGroup').classList.add('hidden');
+            document.getElementById('certFilterGrupGroup').classList.add('hidden');
+            if (type === 'kelas') {
+                document.getElementById('certFilterKelasGroup').classList.remove('hidden');
+            } else if (type === 'grup') {
+                document.getElementById('certFilterGrupGroup').classList.remove('hidden');
+            }
+        };
+
+window.onCertKelasChange = async function() {
+            const sId = document.getElementById('certFilterSekolah').value;
+            const kId = document.getElementById('certFilterKelas').value;
+            if (!sId) return;
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                if (res.ok) {
+                    const result = await res.json();
+                    let students = result.data || [];
+                    let filtered = students.filter(s => s.sekolahId == sId);
+                    if (kId) filtered = filtered.filter(s => s.kelasId == kId);
+                    document.getElementById('certSiswaId').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                    if(document.getElementById('certSiswaIdSingle')) {
+                        document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                    }
+                }
+            } catch(e){}
+        };
+
+window.loadCertSiswaByKelas = async function() {
+            const sId = document.getElementById('certFilterSekolah').value;
+            const kId = document.getElementById('certFilterKelas').value;
+            if(!sId) return;
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                if(res.ok) {
+                    const result = await res.json();
+                    const students = result.data || [];
+                    // Busca turmas da escola selecionada
+                    const kelasRes = await fetch('http://localhost:3000/api/kelas');
+                    let turmas = [];
+                    if(kelasRes.ok) turmas = await kelasRes.json();
+                    turmas = turmas.filter(t => t.sekolahId == sId);
+                    // Preenche dropdown kelas
+                    const kelasSelect = document.getElementById('certFilterKelas');
+                    if(kelasSelect) {
+                        kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + turmas.map(t => `<option value="${t.id}">${t.nama}</option>`).join('');
+                    }
+                    // Filtra alunos
+                    let filtered = students.filter(s => s.sekolahId == sId);
+                    if(kId) filtered = filtered.filter(s => s.kelasId == kId);
+                    // Preenche dropdown siswa (massal)
+                    const siswaSelect = document.getElementById('certSiswaId');
+                    if(siswaSelect) {
+                        siswaSelect.innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                    }
+                    // Preenche dropdown siswa (single)
+                    const singleSiswa = document.getElementById('certSiswaIdSingle');
+                    if(singleSiswa) {
+                        singleSiswa.innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                    }
+                }
+            } catch(e){}
+        };
+
+        window.previewCertMassal = async function() {
+            const printType = document.getElementById('certPrintType').value;
+            const sId = document.getElementById('certFilterSekolah').value;
+            const kId = document.getElementById('certFilterKelas').value;
+            const gId = document.getElementById('certFilterGrup').value;
+            
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                let students = await res.json();
+                
+                if (printType === 'sekolah' || printType === 'kelas') {
+                    if (!sId) return showToast('⚠️ Pilih sekolah dulu');
+                    students = students.filter(s => s.sekolahId == sId);
+                    if (printType === 'kelas' && kId) students = students.filter(s => s.kelasId == kId);
+                } else if (printType === 'grup') {
+                    if (!gId) return showToast('⚠️ Pilih grup dulu');
+                    const grupRes = await fetch('http://localhost:3000/api/grup');
+                    const grups = await grupRes.json();
+                        const selectedGrup = grups.find(g => g.id == gId);
+                    if (selectedGrup) {
+                        const sIds = JSON.parse(selectedGrup.siswaIds);
+                        students = students.filter(s => sIds.includes(s.id));
+                    }
+                }
+                
+                if (students.length === 0) return showToast('⚠️ Tidak ada siswa ditemukan');
+                showToast(`📋 ${students.length} siswa siap dicetak`);
+                document.getElementById('btnCetakCert').disabled = false;
+            } catch (e) {
+                showToast('⚠️ Gagal memuat data');
+            }
+        };
+
+        window.printCertMassal = function() {
+            showToast('⚠️ Fitur cetak massal memerlukan input skor. Gunakan mode "Cetak Satu Siswa" untuk saat ini.');
+            showToast('💡 Atau export data dan cetak manual.');
+        };
+
+        window.onCertSekolahChange = async function() {
+            const sId = document.getElementById('certFilterSekolah').value;
+            if (!sId) return;
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                if (res.ok) {
+                    const result = await res.json();
+                    const students = result.data || [];
+                    const filtered = students.filter(s => s.sekolahId == sId);
+                    document.getElementById('certSiswaId').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                }
+            } catch(e){}
+        };
+
+        window.onCertSekolahSingleChange = async function() {
+            const sId = document.getElementById('certFilterSekolahSingle').value;
+            if (!sId) {
+                document.getElementById('certFilterKelasSingle').innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>';
+                return;
+            }
+            try {
+                const res = await fetch('http://localhost:3000/api/kelas');
+                if (res.ok) {
+                    const classes = await res.json();
+                    const filtered = classes.filter(k => k.sekolahId == sId);
+                    document.getElementById('certFilterKelasSingle').innerHTML = '<option value="">-- Pilih Kelas --</option>' + filtered.map(k => `<option value="${k.id}">${k.nama}</option>`).join('');
+                    document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>';
+                }
+            } catch(e){}
+        };
+
+        window.onCertKelasSingleChange = async function() {
+            const sId = document.getElementById('certFilterSekolahSingle').value;
+            const kId = document.getElementById('certFilterKelasSingle').value;
+            if (!sId || !kId) {
+                document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>';
+                return;
+            }
+            try {
+                const res = await fetch('http://localhost:3000/api/siswa');
+                if (res.ok) {
+                    const result = await res.json();
+                    const students = result.data || [];
+                    const filtered = students.filter(s => s.sekolahId == sId && s.kelasId == kId);
+                    document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${s.id}">${s.nama}</option>`).join('');
+                }
+            } catch(e){}
+        };
+
+        window.exitManageCert = function() {
+            document.getElementById('manageCertDashboard').classList.add('hidden');
+            const role = localStorage.getItem('wlc_role');
+            if (role === 'owner') document.getElementById('ownerDashboard').classList.remove('hidden');
+            else if (role === 'asisten') document.getElementById('asistenDashboard').classList.remove('hidden');
+        };
+
+                window.onCertSiswaSingleChange = async function() {
+            const sId = document.getElementById('certSiswaIdSingle').value;
+            if (!sId) return;
+            showToast('🔍 Mengambil data observasi terbaru...');
+            try {
+                const resO = await fetch('http://localhost:3000/api/observasi');
+                const obs = await resO.json();
+                if (soalBank.length === 0) await loadSoal();
+                const studentObs = obs.filter(o => o.siswaId == sId);
+                if (studentObs.length === 0) { showToast('ℹ️ Belum ada data observasi.'); return; }
+
+                const components = { 'Kesiapan': [], 'Fokus': [], 'Instruksi': [], 'Kemandirian': [], 'Ketekunan': [], 'Emosi': [], 'Minat': [] };
+                studentObs.forEach(o => {
+                    const soal = soalBank.find(s => s.id == o.soalId);
+                    if (soal && components[soal.komponen]) components[soal.komponen].push(o.skor);
+                });
+
+                const getIndicatorKey = (scores, type) => {
+                    if (scores.length === 0) return { respons: 'paham', emosional: 'stabil', fokus: 'stabil', kesiapan: 'langsung', kemandirian: 'mandiri', ketekunan: 'ulang', minat: 'antusias' }[type] || 'antusias';
+                    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    if (avg >= 4.0) return { kesiapan: 'langsung', fokus: 'stabil', respons: 'paham', kemandirian: 'mandiri', ketekunan: 'ulang', emosional: 'stabil', minat: 'antusias' }[type];
+                    if (avg >= 2.5) return { kesiapan: 'diingatkan', fokus: 'naikturun', respons: 'ulang', kemandirian: 'terbatas', ketekunan: 'berhenti', emosional: 'dorongan', minat: 'netral' }[type];
+                    return { kesiapan: 'menolak', fokus: 'distraksi', respons: 'bingung', kemandirian: 'bergantung', ketekunan: 'menolak', emosional: 'frustrasi', minat: 'kurang' }[type];
+                };
+
+                ['Kesiapan', 'Fokus', 'Instruksi', 'Kemandirian', 'Ketekunan', 'Emosi', 'Minat'].forEach(comp => {
+                    const idMap = { 'Kesiapan': 'certKesiapan', 'Fokus': 'certFokus', 'Instruksi': 'certRespons', 'Kemandirian': 'certKemandirian', 'Ketekunan': 'certKetekunan', 'Emosi': 'certEmosional', 'Minat': 'certMinat' };
+                    const typeMap = { 'Kesiapan': 'kesiapan', 'Fokus': 'fokus', 'Instruksi': 'respons', 'Kemandirian': 'kemandirian', 'Ketekunan': 'ketekunan', 'Emosi': 'emosional', 'Minat': 'minat' };
+                    document.getElementById(idMap[comp]).value = getIndicatorKey(components[comp], typeMap[comp]);
+                });
+                showToast('✅ Data observasi berhasil ditarik otomatis!');
+            } catch (e) { showToast('⚠️ Gagal sinkronisasi data observasi.'); }
+        };
+
+                window.previewCertificate = function() {
+            const siswaId = document.getElementById('certSiswaIdSingle').value;
+            const certDate = document.getElementById('certDateSingle').value || new Date().toISOString().split('T')[0];
+            if (!siswaId) { showToast('⚠️ Pilih siswa terlebih dahulu'); return; }
+            const selSiswa = document.getElementById('certSiswaIdSingle');
+            const siswaName = selSiswa.options[selSiswa.selectedIndex].text;
+            const selSekolah = document.getElementById('certFilterSekolahSingle');
+            const sekolahName = selSekolah.options[selSekolah.selectedIndex].text;
+            const certOrgName = document.getElementById('certOrgNameSingle').value || appSettings.app_name || 'Kumon Wahidin';
+
+            const scores = {
+                kesiapan: document.getElementById('certKesiapan').value,
+                fokus: document.getElementById('certFokus').value,
+                respons: document.getElementById('certRespons').value,
+                kemandirian: document.getElementById('certKemandirian').value,
+                ketekunan: document.getElementById('certKetekunan').value,
+                emosional: document.getElementById('certEmosional').value,
+                minat: document.getElementById('certMinat').value
+            };
+
+            if (!scores.kesiapan || !scores.fokus || !scores.respons || !scores.kemandirian || !scores.ketekunan || !scores.emosional || !scores.minat) {
+                showToast('⚠️ Data observasi belum lengkap. Harap lengkapi semua komponen sebelum mencetak sertifikat!');
+                return;
+            }
+
+            const naturalRecommendation = window.generateNaturalRecommendation(scores);
+            const formattedDate = new Date(certDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const printWindow = window.open('about:blank', '_blank');
+            if (!printWindow) { showToast('⚠️ Pop-up terblokir! Izinkan pop-up untuk mencetak.'); return; }
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Sertifikat WLC - ${siswaName}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+                    <style>
+@page { size: A4 landscape; margin: 0; }
+                        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f1f5f9; color: #1e293b; display: flex; align-items: center; justify-content: center; min-height: 100vh; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        .cert-container { 
+                            width: 275mm; height: 185mm; box-sizing: border-box; padding: 8mm;
+                            display: flex; flex-direction: column; align-items: center; text-align: center;
+                            position: relative; background: white;
+                            border: 2px solid #94703a; outline: 6px solid #1e3a8a; outline-offset: -10px;
+                            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+                            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+                        }
+                        .cert-container::after {
+                            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+                            background-image: radial-gradient(circle at 100% 0%, rgba(148,112,58,0.05) 0%, transparent 50%),
+                                              radial-gradient(circle at 0% 100%, rgba(148,112,58,0.05) 0%, transparent 50%);
+                            pointer-events: none;
+                        }
+                        .cert-header { margin-bottom: 2mm; z-index: 2; }
+                        .cert-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: #1e3a8a; margin: 0; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; }
+                        .cert-subtitle { font-size: 0.9rem; color: #94703a; letter-spacing: 5px; text-transform: uppercase; margin-top: 1px; font-weight: 700; border-top: 1px solid #94703a; padding-top: 1px; display: inline-block; }
+                        .cert-body { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 230mm; gap: 2mm; z-index: 2; }
+                        .recipient-intro { font-size: 0.95rem; color: #64748b; margin: 0; font-style: italic; }
+                        .recipient-name { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #1e3a8a; margin: 1mm 0; padding: 0 6mm; border-bottom: 2px solid #e2e8f0; display: inline-block; font-weight: 700; }
+                        
+                        .content-grid { display: flex; flex-direction: column; gap: 2mm; text-align: left; }
+                        
+                        .narrative-box { 
+                            background: rgba(248, 250, 252, 0.9); padding: 3mm 6mm; border-radius: 2mm; border-left: 4px solid #1e3a8a;
+                            text-align: justify; line-height: 1.4; font-size: 0.88rem; color: #334155; position: relative;
+                        }
+                        
+                        .recom-box { 
+                            background: #fff; padding: 3mm 6mm; border-radius: 2mm; border: 1px solid #e2e8f0;
+                            font-size: 0.88rem; color: #1e3a8a; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+                        }
+                        .recom-title { color: #94703a; font-weight: 800; margin-bottom: 1mm; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+                        
+                        .cert-footer { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3mm; border-top: 1px solid #e2e8f0; padding-top: 2mm; z-index: 2; }
+                        .footer-item { text-align: left; font-size: 0.8rem; }
+                        .footer-label { color: #64748b; margin-bottom: 1px; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 1px; }
+                        .footer-value { font-weight: 700; color: #1e3a8a; }
+                        
+                        .signature { text-align: center; }
+                        .sig-line { width: 180px; border-bottom: 2px solid #1e3a8a; margin-bottom: 1mm; padding-bottom: 8mm; font-weight: 700; font-size: 1rem; color: #1e3a8a; font-family: 'Playfair Display', serif; }
+                        .sig-title { font-size: 0.75rem; color: #94703a; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+                        
+                        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 15rem; color: rgba(30, 58, 138, 0.03); z-index: 1; pointer-events: none; }
+                        .cert-header { 
+                            width: 100%; display: grid; grid-template-columns: 50mm 1fr 50mm; 
+                            align-items: center; margin-bottom: 2mm; z-index: 2;
+                        }
+                        .cert-logo-container { text-align: left; }
+                        .cert-logo { max-height: 18mm; max-width: 45mm; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
+                        .cert-title-container { text-align: center; }
+                        .cert-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1e3a8a; margin: 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; line-height: 1.2; }
+                    </style>
+                </head>
+                <body>
+                    <div class="cert-container">
+                        <div class="watermark"><i class="fas fa-certificate"></i></div>
+                        <div class="cert-header">
+                            <div class="cert-logo-container">
+                                ${appSettings.app_logo ? `<img src="${appSettings.app_logo}" class="cert-logo">` : ''}
+                            </div>
+                            <div class="cert-title-container">
+                                <h1 class="cert-title">WLC-1 | LEARNING GROWTH SNAPSHOT</h1>
+                            </div>
+                            <div class="cert-spacer"></div>
+                        </div>
+                        <div class="cert-body">
+                            <p class="recipient-intro">Diberikan sebagai pengakuan atas perkembangan belajar kepada:</p>
+                            <div><div class="recipient-name">${siswaName}</div></div>
+                            
+                            <div class="content-grid">
+                                <div class="narrative-box">
+                                    <div class="recom-title"><i class="fas fa-search"></i> Analisa Observasi:</div>
+                                    ${certNarratives.kesiapan[scores.kesiapan]} ${certNarratives.fokus[scores.fokus]} ${certNarratives.respons[scores.respons]} ${certNarratives.kemandirian[scores.kemandirian]} ${certNarratives.ketekunan[scores.ketekunan]} ${certNarratives.emosional[scores.emosional]} ${certNarratives.minat[scores.minat]}
+                                </div>
+                                <div class="recom-box">
+                                    <div class="recom-title">💡 Rekomendasi Pendampingan:</div>
+                                    <div style="font-style: italic; line-height: 1.4;">"${naturalRecommendation}"</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cert-footer">
+                            <div class="footer-item">
+                                <div class="footer-label">Lokasi Belajar:</div>
+                                <div class="footer-value">${sekolahName}</div>
+                            </div>
+                            <div class="footer-item">
+                                <div class="footer-label">Tanggal Penerbitan:</div>
+                                <div class="footer-value">${formattedDate}</div>
+                            </div>
+                            <div class="signature">
+                                <div class="sig-line">WLC Management</div>
+                                <div class="sig-title">Kumon Wahidin Learning Companion</div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() { 
+                            setTimeout(function() {
+                                window.print();
+                                setTimeout(function() { window.close(); }, 500);
+                            }, 500);
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        };
+
+        window.analyticsOverview = function() { showToast('📊 Fitur Analitik akan segera hadir!'); };
+        window.exportAllReports = function() { showToast('📥 Mengekspor semua laporan...'); };
+        window.hideAllDashboards = function() {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        };
+
+        window.openManageSettings = async function() {
+            console.log('Opening Manage Settings...');
+            window.hideAllDashboards();
+            const el = document.getElementById('manageSettingsDashboard');
+            if (el) {
+                el.classList.remove('hidden');
+                console.log('Dashboard unhidden');
+            }
+            const name = (appSettings && appSettings.app_name) ? appSettings.app_name : '';
+            const logo = (appSettings && appSettings.app_logo) ? appSettings.app_logo : '';
+            document.getElementById('setAppName').value = name;
+            document.getElementById('setAppLogo').value = logo;
+            
+            const preview = document.getElementById('setLogoPreview');
+            if (logo) preview.innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:contain;">`;
+            else preview.innerHTML = `<i class="fas fa-image" style="font-size:2rem; color:var(--border);"></i>`;
+        };
+
+        window.handleLogoFileSelect = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { showToast('⚠️ File terlalu besar (Max 2MB)'); return; }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                document.getElementById('setAppLogo').value = base64;
+                document.getElementById('setLogoPreview').innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:contain;">`;
+                showToast('📸 Gambar terpilih!');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.exitManageSettings = function() {
+            document.getElementById('manageSettingsDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
+        };
+
+        window.saveSettings = async function() {
+            const app_name = document.getElementById('setAppName').value.trim();
+            const app_logo = document.getElementById('setAppLogo').value.trim();
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-user-role': localStorage.getItem('wlc_role') },
+                    body: JSON.stringify({ app_name, app_logo })
+                });
+                if (res.ok) {
+                    showToast('✅ Pengaturan disimpan!');
+                    await loadSettings();
+                }
+            } catch (e) { showToast('❌ Gagal menyimpan'); }
+        };
+
+</script>
+</body>
+</html>

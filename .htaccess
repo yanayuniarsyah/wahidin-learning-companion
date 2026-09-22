@@ -1,0 +1,26 @@
+# Protect sensitive files from direct HTTP access on Apache/cPanel
+<FilesMatch "\.(db|json|bat|md|git|sh|log)$|^\.jwt_secret$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Disable directory browsing
+Options -Indexes
+
+# Enable CORS for fonts and icons if needed
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# Route API requests to api.php on Apache servers
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Rewrite /api/something to api.php
+    RewriteRule ^api(/.*)?$ api.php [L,QSA]
+</IfModule>
+

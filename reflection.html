@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Learning Reflection - WLC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #d4af37; /* Gold */
+            --primary-light: #f3e5ab; /* Vanilla Gold */
+            --primary-dark: #b38e5d; /* Dark Gold */
+            --accent: #d4af37;
+            --accent-light: #f3e5ab;
+            --bg: #0a0a0a; /* Premium Matte Black */
+            --surface: #141414; /* Dark Surface */
+            --text: #f5f5f5; /* Premium Off-White */
+            --text-muted: #a0a0a0; /* Muted Grey */
+            --border: rgba(212, 175, 55, 0.2); /* Subtle Gold border */
+            --radius: 16px;
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #141414, #0a0a0a);
+            padding: 2.5rem 2rem;
+            color: var(--primary);
+            text-align: center;
+            position: relative;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            color: var(--primary);
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .form-select, .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text);
+            background-color: #1a1a1a;
+            transition: var(--transition);
+        }
+
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #222222;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+        }
+
+        .rating-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: var(--bg);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+            margin-bottom: 1.75rem;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .rating-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .stars {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 0.25rem;
+        }
+
+        .stars input {
+            display: none;
+        }
+
+        .stars label {
+            font-size: 1.5rem;
+            color: #444444;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stars label:hover,
+        .stars label:hover ~ label,
+        .stars input:checked ~ label {
+            color: var(--accent-light);
+        }
+
+        .btn-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--primary);
+            color: #0a0a0a;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: none;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .success-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 1.5rem;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .success-screen h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .success-screen p {
+            color: var(--text-muted);
+            max-width: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .btn-reset {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-reset:hover {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--primary);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+            opacity: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .wlc-logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .wlc-logo-svg {
+            width: 104px;
+            height: auto;
+        }
+        .wlc-logo-text-main {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #b38e5d;
+            margin-top: 0.5rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="cardContainer">
+        <div id="formView">
+            <div class="wlc-logo-container">
+                <svg class="wlc-logo-svg" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
+                    <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.8" fill="none"/>
+                    <circle cx="50" cy="5" r="3.5" fill="#b38e5d"/>
+                    <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
+                </svg>
+                <div class="wlc-logo-text-main">WAHIDIN</div>
+            </div>
+            <div class="header">
+                <h1>Refleksi Belajar Mandiri</h1>
+                <p>Home Study Monitoring</p>
+            </div>
+            <form id="reflectionForm" class="form-content" onsubmit="submitReflection(event)">
+                <!-- Student Verification Section -->
+                <div id="verificationSection" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="font-weight: 600; color: var(--primary); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-user-shield"></i> Verifikasi Identitas Murid
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="searchNama">Nama Lengkap Murid</label>
+                        <input type="text" id="searchNama" class="form-input" placeholder="Masukkan nama lengkap anak" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="searchNisn">NISN Murid</label>
+                        <input type="text" id="searchNisn" class="form-input" placeholder="Masukkan NISN anak" required>
+                    </div>
+                    <button type="button" class="btn-reset" onclick="verifyStudent()" style="width: 100%; border-color: var(--primary); color: #0a0a0a; background: var(--primary); font-weight: 600; font-size: 0.85rem; padding: 0.6rem 1.2rem;">Verifikasi Data Anak</button>
+                </div>
+
+                <!-- Verified Student Info Banner (Hidden by default) -->
+                <div id="verifiedInfo" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem; color: #10b981; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check-circle"></i>
+                    <div>Terverifikasi: <strong id="verifiedStudentText">Nama Murid</strong></div>
+                </div>
+
+                <!-- Hidden Input to store verified siswaId -->
+                <input type="hidden" id="siswaId" required>
+
+                <!-- Rest of Form (Hidden until verified) -->
+                <div id="ratingFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="parentName">Nama Orang Tua / Wali</label>
+                        <input type="text" id="parentName" class="form-input" placeholder="Masukkan nama lengkap Anda" required>
+                    </div>
+
+                    <div class="form-label" style="margin-bottom: 0.75rem;">Penilaian Kebiasaan Belajar di Rumah:</div>
+                    <div class="rating-container">
+                        <!-- Kesiapan -->
+                        <div class="rating-row">
+                            <span class="rating-label">1. Kesiapan belajar mandiri (posisi duduk & persiapan alat)</span>
+                            <div class="stars" id="star-kesiapan">
+                                <input type="radio" id="kesiapan-5" name="kesiapan" value="5" required><label for="kesiapan-5">★</label>
+                                <input type="radio" id="kesiapan-4" name="kesiapan" value="4"><label for="kesiapan-4">★</label>
+                                <input type="radio" id="kesiapan-3" name="kesiapan" value="3"><label for="kesiapan-3">★</label>
+                                <input type="radio" id="kesiapan-2" name="kesiapan" value="2"><label for="kesiapan-2">★</label>
+                                <input type="radio" id="kesiapan-1" name="kesiapan" value="1"><label for="kesiapan-1">★</label>
+                            </div>
+                        </div>
+                        <!-- Fokus -->
+                        <div class="rating-row">
+                            <span class="rating-label">2. Fokus / Konsentrasi (daya tahan mengerjakan tanpa teralih)</span>
+                            <div class="stars" id="star-fokus">
+                                <input type="radio" id="fokus-5" name="fokus" value="5" required><label for="fokus-5">★</label>
+                                <input type="radio" id="fokus-4" name="fokus" value="4"><label for="fokus-4">★</label>
+                                <input type="radio" id="fokus-3" name="fokus" value="3"><label for="fokus-3">★</label>
+                                <input type="radio" id="fokus-2" name="fokus" value="2"><label for="fokus-2">★</label>
+                                <input type="radio" id="fokus-1" name="fokus" value="1"><label for="fokus-1">★</label>
+                            </div>
+                        </div>
+                        <!-- Kemandirian -->
+                        <div class="rating-row">
+                            <span class="rating-label">3. Kemandirian (menyelesaikan tugas tanpa terus ditunggui)</span>
+                            <div class="stars" id="star-kemandirian">
+                                <input type="radio" id="kemandirian-5" name="kemandirian" value="5" required><label for="kemandirian-5">★</label>
+                                <input type="radio" id="kemandirian-4" name="kemandirian" value="4"><label for="kemandirian-4">★</label>
+                                <input type="radio" id="kemandirian-3" name="kemandirian" value="3"><label for="kemandirian-3">★</label>
+                                <input type="radio" id="kemandirian-2" name="kemandirian" value="2"><label for="kemandirian-2">★</label>
+                                <input type="radio" id="kemandirian-1" name="kemandirian" value="1"><label for="kemandirian-1">★</label>
+                            </div>
+                        </div>
+                        <!-- Ketekunan -->
+                        <div class="rating-row">
+                            <span class="rating-label">4. Ketekunan & Daya Juang (tidak mudah menyerah saat ada soal sulit)</span>
+                            <div class="stars" id="star-ketekunan">
+                                <input type="radio" id="ketekunan-5" name="ketekunan" value="5" required><label for="ketekunan-5">★</label>
+                                <input type="radio" id="ketekunan-4" name="ketekunan" value="4"><label for="ketekunan-4">★</label>
+                                <input type="radio" id="ketekunan-3" name="ketekunan" value="3"><label for="ketekunan-3">★</label>
+                                <input type="radio" id="ketekunan-2" name="ketekunan" value="2"><label for="ketekunan-2">★</label>
+                                <input type="radio" id="ketekunan-1" name="ketekunan" value="1"><label for="ketekunan-1">★</label>
+                            </div>
+                        </div>
+                        <!-- Emosi -->
+                        <div class="rating-row">
+                            <span class="rating-label">5. Kestabilan Emosi (tenang dan terkendali saat proses belajar)</span>
+                            <div class="stars" id="star-emosional">
+                                <input type="radio" id="emosional-5" name="emosional" value="5" required><label for="emosional-5">★</label>
+                                <input type="radio" id="emosional-4" name="emosional" value="4"><label for="emosional-4">★</label>
+                                <input type="radio" id="emosional-3" name="emosional" value="3"><label for="emosional-3">★</label>
+                                <input type="radio" id="emosional-2" name="emosional" value="2"><label for="emosional-2">★</label>
+                                <input type="radio" id="emosional-1" name="emosional" value="1"><label for="emosional-1">★</label>
+                            </div>
+                        </div>
+                        <!-- Minat -->
+                        <div class="rating-row">
+                            <span class="rating-label">6. Minat & Antusiasme (semangat memulai dan merampungkan materi)</span>
+                            <div class="stars" id="star-minat">
+                                <input type="radio" id="minat-5" name="minat" value="5" required><label for="minat-5">★</label>
+                                <input type="radio" id="minat-4" name="minat" value="4"><label for="minat-4">★</label>
+                                <input type="radio" id="minat-3" name="minat" value="3"><label for="minat-3">★</label>
+                                <input type="radio" id="minat-2" name="minat" value="2"><label for="minat-2">★</label>
+                                <input type="radio" id="minat-1" name="minat" value="1"><label for="minat-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label" for="catatan">Catatan Tambahan / Observasi Rumah</label>
+                        <textarea id="catatan" class="form-textarea" rows="3" placeholder="Contoh: Ananda sudah bisa memulai belajar sendiri, namun masih perlu diingatkan untuk merapikan alat tulis setelah selesai."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Kirim Refleksi Laporan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="successView" class="success-screen">
+            <i class="fas fa-check-circle success-icon"></i>
+            <h2>Terima Kasih!</h2>
+            <p>Laporan refleksi belajar mandiri berhasil dikirimkan. Data ini akan dipasangkan dengan hasil observasi di kelas untuk mengoptimalkan pendampingan Ananda.</p>
+            <button class="btn-reset" onclick="resetForm()">Kirim Refleksi Lain</button>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function verifyStudent() {
+            const nama = document.getElementById('searchNama').value.trim();
+            const nisn = document.getElementById('searchNisn').value.trim();
+
+            if (!nama || !nisn) {
+                showToast('⚠️ Mohon isi Nama dan NISN Murid!');
+                return;
+            }
+
+            try {
+                const res = await fetch('api/reflection/verify-student', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nama, nisn })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const student = data.student;
+
+                    // Set siswaId hidden field
+                    document.getElementById('siswaId').value = student.id;
+
+                    // Show success info banner
+                    document.getElementById('verifiedStudentText').textContent = `${student.nama} (${student.namaSekolah || '-'} - ${student.namaKelas || '-'})`;
+                    document.getElementById('verifiedInfo').style.display = 'flex';
+
+                    // Hide verification inputs & show rating form fields
+                    document.getElementById('verificationSection').style.display = 'none';
+                    document.getElementById('ratingFields').style.display = 'block';
+
+                    showToast('✅ Identitas murid berhasil diverifikasi!');
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    showToast('❌ ' + (err.error || 'Verifikasi gagal. Periksa kembali Nama & NISN.'));
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('❌ Gangguan koneksi saat verifikasi murid.');
+            }
+        }
+
+        async function submitReflection(event) {
+            event.preventDefault();
+            
+            const siswaId = document.getElementById('siswaId').value;
+            const parent_name = document.getElementById('parentName').value;
+            const catatan = document.getElementById('catatan').value;
+            
+            const getSelectedRating = (name) => {
+                const checked = document.querySelector(`input[name="${name}"]:checked`);
+                return checked ? parseInt(checked.value) : 3;
+            };
+
+            const payload = {
+                siswaId: parseInt(siswaId),
+                parent_name,
+                kesiapan: getSelectedRating('kesiapan'),
+                fokus: getSelectedRating('fokus'),
+                kemandirian: getSelectedRating('kemandirian'),
+                ketekunan: getSelectedRating('ketekunan'),
+                emosional: getSelectedRating('emosional'),
+                minat: getSelectedRating('minat'),
+                catatan
+            };
+
+            try {
+                const res = await fetch('api/reflection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    showToast('✅ Berhasil mengirim data!');
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').style.display = 'flex';
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    showToast('❌ Gagal: ' + (err.error || 'Terjadi kesalahan sistem'));
+                }
+            } catch (err) {
+                console.error(err);
+                // Offline fallback
+                const offlineReflections = JSON.parse(localStorage.getItem('wlc_offline_reflections') || '[]');
+                payload.created_at = new Date().toISOString();
+                offlineReflections.push(payload);
+                localStorage.setItem('wlc_offline_reflections', JSON.stringify(offlineReflections));
+                
+                showToast('💾 Offline: Data disimpan di penyimpanan lokal browser!');
+                document.getElementById('formView').style.display = 'none';
+                document.getElementById('successView').style.display = 'flex';
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('reflectionForm').reset();
+            document.getElementById('siswaId').value = '';
+            document.getElementById('searchNama').value = '';
+            document.getElementById('searchNisn').value = '';
+            document.getElementById('verifiedInfo').style.display = 'none';
+            document.getElementById('verificationSection').style.display = 'flex';
+            document.getElementById('ratingFields').style.display = 'none';
+            document.getElementById('formView').style.display = 'block';
+            document.getElementById('successView').style.display = 'none';
+        }
+
+        async function applySettings() {
+            try {
+                const res = await fetch('api/settings');
+                if (res.ok) {
+                    const settings = await res.json();
+                    const name = settings.app_name || 'WLC Wahidin';
+                    const logo = settings.app_logo;
+                    if (name) {
+                        document.title = name;
+                    }
+                    const logoContainer = document.querySelector('.wlc-logo-container');
+                    if (logoContainer) {
+                        const svg = logoContainer.querySelector('.wlc-logo-svg');
+                        const textMain = logoContainer.querySelector('.wlc-logo-text-main');
+                        if (logo) {
+                            if (svg) {
+                                const img = document.createElement('img');
+                                img.src = logo;
+                                img.style.width = '80px';
+                                img.style.height = '80px';
+                                img.style.objectFit = 'contain';
+                                img.style.borderRadius = '1rem';
+                                img.style.background = 'white';
+                                img.style.padding = '4px';
+                                svg.replaceWith(img);
+                            }
+                        }
+                        if (textMain && name) {
+                            textMain.textContent = name;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            applySettings();
+        });
+    </script>
+</body>
+</html>

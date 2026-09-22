@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WLC - Wahidin Learning Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #d4af37; /* Metallic Gold */
+            --primary-light: #f3e5ab; /* Soft Gold */
+            --primary-dark: #b38e5d; /* Dark Gold */
+            --accent: #d4af37;
+            --bg: #0a0a0a; /* Sleek Matte Black */
+            --surface: #141414; /* Dark Surface */
+            --text: #f5f5f5; /* Off-white */
+            --text-muted: #a0a0a0; /* Muted Grey */
+            --border: rgba(212, 175, 55, 0.2); /* Subtle Gold border */
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.25rem 5%;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .btn-nav {
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .btn-nav-outline {
+            color: var(--text-muted);
+        }
+
+        .btn-nav-outline:hover {
+            color: #ffffff;
+            background: transparent;
+        }
+
+        .btn-nav-solid {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-nav-solid:hover {
+            color: var(--primary-light);
+            background: transparent;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 5% 4rem;
+            position: relative;
+            background: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.12) 0%, transparent 50%);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 4rem;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-content h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero {
+            text-decoration: none;
+            padding: 0.8rem 1.6rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: none;
+        }
+
+        .btn-hero-primary {
+            background: var(--primary);
+            color: #0a0a0a;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-hero-primary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-hero-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .hero-image-container {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-logo-img {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 20px;
+            filter: drop-shadow(0 15px 35px rgba(212, 175, 55, 0.25));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Pillars / Features */
+        .features {
+            padding: 6rem 5%;
+            background: var(--surface);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-md);
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            background: rgba(212, 175, 55, 0.1);
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* CTA Footer Bar */
+        .footer-cta {
+            background: linear-gradient(135deg, #0a0a0a, #141414);
+            color: white;
+            padding: 5rem 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-cta h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        .footer-cta p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .footer-copyright {
+            margin-top: 5rem;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+        }
+
+        /* Responsive Layouts */
+        @media (max-width: 968px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 3rem;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .hero-content h1 {
+                font-size: 2.75rem;
+            }
+            .hero {
+                padding-top: 8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 1rem 5%;
+            }
+            .nav-links {
+                gap: 1rem;
+                flex-direction: column;
+            }
+            .hero {
+                padding: 8rem 5% 3rem;
+            }
+            .hero-content h1 {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+            .hero-content h2 {
+                font-size: 1rem;
+            }
+            .hero-content p {
+                font-size: 1rem;
+            }
+            .hero-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .btn-hero {
+                width: 100%;
+                justify-content: center;
+            }
+            .features, .footer-cta {
+                padding: 3rem 5%;
+            }
+            .section-header h2 {
+                font-size: 1.6rem;
+            }
+            .feature-grid {
+                gap: 1.5rem;
+            }
+            .feature-card {
+                padding: 1.5rem;
+            }
+            .footer-cta h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="WLC Certificate - Budi.pdf" target="_blank" class="btn-nav btn-nav-outline"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</a>
+            <a href="dashboard.html" class="btn-nav btn-nav-solid">Masuk Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <h2>Wahidin Learning Companion (WLC)</h2>
+                <h1>Lebih dari Rapor,<br>Temukan Karakter Belajar Terbaik Anak.</h1>
+                <p>
+                    WLC menghubungkan pendamping kelas, orang tua di rumah, dan sekolah secara terintegrasi untuk mengamati ketahanan belajar emosional (Grit) dan kemandirian sejati anak.
+                </p>
+                <div class="hero-actions">
+                    <a href="dashboard.html" class="btn-hero btn-hero-primary">
+                        <i class="fas fa-school"></i>
+                        Kemitraan Sekolah & Admin
+                    </a>
+                    <a href="WLC Certificate - Budi.pdf" target="_blank" class="btn-hero btn-hero-secondary">
+                        <i class="fas fa-file-pdf"></i>
+                        Lihat Contoh Sertifikat
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image-container">
+                <!-- Premium WLC Official Logo Image -->
+                <img src="logo_wahidin.png" class="hero-logo-img" alt="Wahidin Learning Companion Logo">
+            </div>
+        </div>
+    </section>
+    <!-- Trust Bar (Honest Claims) -->
+    <div style="background: rgba(20, 20, 20, 0.95); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 2rem 5%; display: flex; justify-content: center; align-items: center; gap: 4rem; flex-wrap: wrap;">
+        <p style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; width: 100%; text-align: center; margin-bottom: 1rem;">Membangun Pendidikan Karakter dengan Pendekatan Terukur</p>
+        <div style="display: flex; gap: 3rem; align-items: center; opacity: 0.7; transition: all 0.3s ease; flex-wrap: wrap; justify-content: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 600; color: #fff;"><i class="fas fa-chart-line" style="font-size: 1.5rem; color: var(--primary);"></i> Evaluasi Berbasis Data</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 600; color: #fff;"><i class="fas fa-handshake" style="font-size: 1.5rem; color: var(--primary);"></i> Sinergi Guru & Orang Tua</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 600; color: #fff;"><i class="fas fa-shield-alt" style="font-size: 1.5rem; color: var(--primary);"></i> Transparansi Laporan</div>
+        </div>
+    </div>
+
+    <!-- Value Proposition Section (Replacing Fake Statistics) -->
+    <section class="features" style="background: var(--surface);">
+        <div class="section-header">
+            <h2>Membawa Perubahan Positif yang Terukur</h2>
+            <p>Sistem kami dirancang untuk memberikan instrumen yang tepat dalam mengamati perkembangan anak.</p>
+        </div>
+        <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); text-align: center;">
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-heartbeat" style="font-size: 2.5rem; color: var(--primary);"></i>
+                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Meredam Konflik Belajar</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Membantu orang tua memantau progres dengan kepala dingin melalui instrumen observasi yang terstruktur.</p>
+            </div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-seedling" style="font-size: 2.5rem; color: var(--primary);"></i>
+                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Fokus pada Proses</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Sistem kami tidak sekadar menilai hasil akhir, namun mengamati seberapa jauh daya juang anak saat berproses.</p>
+            </div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-mobile-alt" style="font-size: 2.5rem; color: var(--primary);"></i>
+                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Akses Mudah & Sinkron</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Laporan perkembangan karakter dapat disinkronkan secara langsung untuk pihak sekolah maupun keluarga.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Target Audience Columns -->
+    <section class="features" style="background: var(--bg); border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <h2>Dua Sisi Kolaborasi WLC</h2>
+            <p>Bagaimana platform ini memberi nilai tambah yang besar baik bagi keluarga di rumah maupun lembaga sekolah.</p>
+        </div>
+        <div class="feature-grid">
+            <!-- For Parents -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.3);">
+                <div class="feature-icon" style="background: rgba(212, 175, 55, 0.15);">
+                    <i class="fas fa-home"></i>
+                </div>
+                <h3>Untuk Orang Tua: Memahami Proses Belajar Anak Tanpa Rasa Khawatir</h3>
+                <p>
+                    Bukan hanya nilai akhir, kami membantu Anda memetakan sikap belajar anak di rumah. Ketahui apakah anak mudah menyerah, seberapa mandiri mereka memulai PR, dan dapatkan sertifikat digital apresiasi tumbuh kembang berkode QR yang siap cetak untuk portofolio mereka.
+                </p>
+            </div>
+            <!-- For Schools -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.15);">
+                <div class="feature-icon" style="background: rgba(212, 175, 55, 0.08);">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Untuk Sekolah: Kemitraan Evaluasi Karakter Belajar Secara Transparan</h3>
+                <p>
+                    Kami menyediakan instrumen observasi terstandarisasi untuk mengamati perkembangan kemandirian belajar dan ketahanan emosional (Grit) murid di kelas. Data ini sangat bermanfaat untuk melengkapi berkas asesmen karakter nasional dan portofolio rapor sekolah.
+                </p>
+                <a href="dashboard.html" class="btn" style="width:fit-content; margin-top:auto; font-size:0.85rem; padding:0.6rem 1.2rem; background:transparent; color:var(--primary); border:1px solid var(--border); border-radius:8px; text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:0.5rem; transition: var(--transition);">Dashboard Evaluator <i class="fas fa-arrow-right" style="font-size:0.75rem;"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commitment Section -->
+    <section class="features" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+        <div class="section-header">
+            <h2>Komitmen Kami untuk Pendidikan Karakter</h2>
+            <p>Kami hadir untuk menyediakan alat bantu observasi yang transparan, objektif, dan mendukung perkembangan emosional anak.</p>
+        </div>
+        <div class="feature-grid" style="grid-template-columns: 1fr;">
+            <div class="feature-card" style="background: rgba(20,20,20,0.7); border: 1px solid rgba(212, 175, 55, 0.2); text-align: center; max-width: 800px; margin: 0 auto; padding: 3rem 2rem;">
+                <i class="fas fa-hand-holding-heart" style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;"></i>
+                <p style="font-size: 1.15rem; font-style: italic; line-height: 1.8; color: #e0e0e0;">
+                    "WLC didesain semata-rata agar rapor karakter bukan lagi menjadi sekadar formalitas akhir tahun, melainkan merupakan rekaman jejak perjalanan nyata kemandirian seorang anak yang dibangun perlahan hari demi hari dari hasil kolaborasi pihak sekolah dan rumah."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose WLC Section -->
+    <section class="features" style="background: rgba(255, 255, 255, 0.01); border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <h2>Mengapa Memilih WLC?</h2>
+            <p>Membangun kolaborasi cerdas yang mendatangkan manfaat nyata bagi keluarga dan instansi sekolah.</p>
+        </div>
+        <div class="feature-grid">
+            <!-- Keuntungan Ortu -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.15);">
+                <div class="feature-icon" style="background: rgba(212, 175, 55, 0.08);"><i class="fas fa-heart"></i></div>
+                <h3>Keuntungan Nyata bagi Orang Tua</h3>
+                <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">✔ Solusi Tanpa Konflik:</strong> Membantu anak membangun disiplin pengerjaan PR secara mandiri tanpa perlu perdebatan di rumah.</p>
+                <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">✔ Deteksi Dini Hambatan:</strong> Mengetahui titik jenuh atau bagian tersulit belajar anak sebelum mereka merasa tertekan.</p>
+                <p><strong style="color: var(--primary);">✔ Apresiasi Positif:</strong> Setiap progres kemandirian diapresiasi dengan sertifikat resmi ber-QR Code untuk memotivasi rasa percaya diri anak.</p>
+            </div>
+            <!-- Keuntungan Sekolah -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.15);">
+                <div class="feature-icon" style="background: rgba(212, 175, 55, 0.08);"><i class="fas fa-check-double"></i></div>
+                <h3>Mengapa Sekolah Mempercayai WLC?</h3>
+                <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">✔ Data Karakter Valid:</strong> Menyediakan data objektif sikap belajar mandiri dan ketahanan emosional (Grit) siswa untuk rapor karakter sekolah.</p>
+                <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">✔ Sinergi Orang Tua & Guru:</strong> Mempermudah guru kelas berdiskusi secara objektif dengan wali murid mengenai perkembangan habit siswa.</p>
+                <p><strong style="color: var(--primary);">✔ Adaptabilitas Siswa Tinggi:</strong> Murid yang terbiasa mandiri dengan program WLC terbukti lebih fokus, tertib, dan berprestasi di kelas formal.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Value for Parents Section -->
+    <section class="features" style="background: radial-gradient(circle at 10% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%); border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <h2 style="color: var(--primary);">Mengapa Anak Anda Sangat Membutuhkan WLC?</h2>
+            <p>Lebih dari sekadar pendampingan belajar, WLC adalah investasi jangka panjang untuk karakter dan mental anak Anda.</p>
+        </div>
+        <div class="feature-grid" style="grid-template-columns: 1fr;">
+            <div class="feature-card" style="border-left: 4px solid var(--primary); background: rgba(20, 20, 20, 0.8);">
+                <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;"><i class="fas fa-gem" style="color: var(--primary); margin-right: 10px;"></i> Nilai Tak Tergantikan bagi Orang Tua</h3>
+                        <p style="margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.8;">
+                            Berbagai riset pendidikan modern (seperti studi <em>Grit</em>) menemukan bahwa kecerdasan akademis saja tidak menjamin kesuksesan jangka panjang. Di tengah era digital yang penuh distraksi, tantangan nyata yang banyak dihadapi anak adalah <strong>mempertahankan daya juang (fokus) dan tidak mudah menyerah</strong> saat menghadapi proses yang sulit.
+                        </p>
+                        <p style="margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.8;">
+                            WLC hadir sebagai solusi langsung. Kami melatih <strong style="color: var(--primary-light);">kemandirian sejati</strong> dan kebiasaan pantang menyerah setiap kali anak mengerjakan tugas. Anda tidak perlu lagi memaksa, berteriak, atau stres saat menemani anak belajar. 
+                        </p>
+                        <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text);">
+                            <strong>Hasilnya?</strong> Anak yang percaya diri, bertanggung jawab atas tugasnya sendiri, dan memiliki fondasi mental yang kuat untuk bersaing di masa depan. <em>Ini adalah bekal berharga yang tidak bisa diajarkan lewat buku pelajaran semata.</em>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pride for Schools Section -->
+    <section class="features" style="background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(30, 30, 30, 1) 100%); border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <h2 style="color: var(--primary);">Menjadi Sekolah Pionir Pembangun Karakter</h2>
+            <p>Bergabunglah dengan jajaran institusi pendidikan elit yang meletakkan kemandirian sebagai fondasi utama.</p>
+        </div>
+        <div class="feature-grid" style="grid-template-columns: 1fr;">
+            <div class="feature-card" style="border-right: 4px solid var(--primary); background: rgba(20, 20, 20, 0.8);">
+                <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; flex-direction: row-reverse;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;"><i class="fas fa-crown" style="color: var(--primary); margin-right: 10px;"></i> Kebanggaan Ekstra bagi Sekolah Mitra</h3>
+                        <p style="margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.8;">
+                            Sekolah Anda akan dipandang sebagai <strong>pionir institusi pendidikan yang progresif dan peduli</strong>. Dengan mengintegrasikan sistem pelaporan karakter dan kemandirian WLC, citra sekolah akan meningkat secara drastis di mata wali murid dan masyarakat luas.
+                        </p>
+                        <p style="margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.8;">
+                            Bukan sekadar mencetak angka di rapor, sekolah Anda kini memiliki <strong style="color: var(--primary-light);">bukti konkret dan terukur (Data-Driven)</strong> atas perkembangan karakter setiap murid.
+                        </p>
+                        <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text);">
+                            Kolaborasi ini membuktikan bahwa sekolah Anda memberikan layanan premium dengan standar pendidikan abad 21 yang sesungguhnya. Jadikan sekolah Anda sebagai rujukan utama pendidikan holistik di wilayah Anda!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- International Research Section -->
+    <section class="features" style="background: var(--surface); border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <h2>Berstandar & Didukung Riset Internasional</h2>
+            <p>Sistem pendampingan WLC dirancang berdasarkan kerangka kerja dan studi akademis global di bidang pendidikan modern.</p>
+        </div>
+        <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <!-- PISA Study -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.1);">
+                <span style="font-size: 2rem; font-weight: 800; color: var(--primary);">+35 Poin</span>
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: white;">Studi OECD PISA</h4>
+                <p style="font-size: 0.9rem;">
+                    Berdasarkan data <strong>Program for International Student Assessment (PISA)</strong>, siswa dengan kemampuan belajar mandiri (self-directed learning) yang kuat mencetak rata-rata 35 poin lebih tinggi dalam Matematika dan Sains dibanding siswa pasif.
+                </p>
+            </div>
+            <!-- Grit Scale -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.1);">
+                <span style="font-size: 2rem; font-weight: 800; color: var(--primary);">Grit Scale</span>
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: white;">Teori Grit Angela Duckworth</h4>
+                <p style="font-size: 0.9rem;">
+                    Riset psikologi dari University of Pennsylvania membuktikan bahwa <strong>Grit</strong> (ketekunan dan daya juang menghadapi kesulitan) merupakan indikator penentu kesuksesan akademis jangka panjang yang jauh lebih akurat daripada IQ.
+                </p>
+            </div>
+            <!-- Framework P21 -->
+            <div class="feature-card" style="border-color: rgba(212, 175, 55, 0.1);">
+                <span style="font-size: 2rem; font-weight: 800; color: var(--primary);">P21 Skill</span>
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: white;">Kerangka Pendidikan Abad 21</h4>
+                <p style="font-size: 0.9rem;">
+                    Asosiasi pendidikan global <strong>P21 (Partnership for 21st Century Learning)</strong> menempatkan kemandirian (self-direction) dan inisiatif sebagai keterampilan hidup utama yang wajib dimiliki siswa di era ekonomi berbasis teknologi saat ini.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="features">
+        <div class="section-header">
+            <h2>Bagaimana WLC Bekerja?</h2>
+            <p>Tiga langkah sederhana mewujudkan siklus pendampingan belajar yang optimal.</p>
+        </div>
+        <div class="feature-grid">
+            <!-- Step 1 -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-eye"></i></div>
+                <h3>1. Observasi Kelas</h3>
+                <p>Pendamping kelas mengamati perilaku belajar siswa secara langsung di kelas (fokus, kemandirian memulai PR, daya juang menghadapi soal sulit).</p>
+            </div>
+            <!-- Step 2 -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-pen-alt"></i></div>
+                <h3>2. Refleksi Rumah</h3>
+                <p>Orang tua mengisi form refleksi singkat di rumah mengenai sikap belajar anak sehari-hari untuk mendeteksi kesenjangan habit.</p>
+            </div>
+            <!-- Step 3 -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-certificate"></i></div>
+                <h3>3. Laporan & Rekomendasi</h3>
+                <p>Sistem memadukan kedua data tersebut menjadi laporan tumbuh kembang digital berbentuk sertifikat apresiasi A4 siap cetak dengan QR Code verifikasi.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <h2>Siap Memulai Pendampingan?</h2>
+        <p>Mari bersama-sama membangun kebiasaan belajar mandiri yang kuat pada anak demi masa depannya.</p>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <a href="dashboard.html" class="btn-hero btn-hero-primary">Portal Evaluator & Asisten</a>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-bottom: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            <i class="fas fa-shield-alt" style="color: var(--primary); font-size: 1.5rem;"></i>
+            <div style="text-align: left;">
+                <strong style="color: #fff; display: block;">Privasi & Keamanan Terjamin</strong>
+                Data evaluasi siswa dan sekolah dilindungi dengan enkripsi standar industri.
+            </div>
+        </div>
+        <div class="footer-copyright">
+            &copy; 2026 WLC Wahidin Cilacap. All rights reserved. &bull; Wahidin Learning Companion
+        </div>
+    </section>
+
+    <script>
+        async function applySettings() {
+            try {
+                const res = await fetch('api/settings');
+                if (res.ok) {
+                    const settings = await res.json();
+                    const name = settings.app_name || 'WLC Wahidin';
+                    const logo = settings.app_logo;
+                    if (name) {
+                        document.title = name;
+                        const copyright = document.querySelector('.footer-copyright');
+                        if (copyright) {
+                            copyright.innerHTML = `&copy; 2026 ${name}. All rights reserved.`;
+                        }
+                    }
+
+                    // 2. Update Floating Hero Logo Image from Settings
+                    const heroLogoImg = document.querySelector('.hero-logo-img');
+                    if (heroLogoImg) {
+                        if (logo) {
+                            heroLogoImg.src = logo;
+                            heroLogoImg.style.background = 'white';
+                            heroLogoImg.style.padding = '10px';
+                        } else {
+                            heroLogoImg.src = 'logo_wahidin.png';
+                            heroLogoImg.style.background = 'transparent';
+                            heroLogoImg.style.padding = '0';
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', applySettings);
+    </script>
+</body>
+</html>
