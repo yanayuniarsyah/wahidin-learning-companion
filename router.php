@@ -7,6 +7,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = urldecode($uri);
 
 // Serve index.html by default if path is empty or slash
 if ($uri === '/' || $uri === '') {
