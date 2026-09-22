@@ -78,6 +78,9 @@ function getBearerToken() {
     $authHeader = null;
     
     // Check multiple potential locations for the Authorization header
+    if (isset($_SERVER['HTTP_X_WLC_TOKEN'])) {
+        return trim($_SERVER['HTTP_X_WLC_TOKEN']);
+    }
     if (isset($_SERVER['Authorization'])) {
         $authHeader = trim($_SERVER['Authorization']);
     } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
