@@ -1231,49 +1231,31 @@ const rubrikSkoring = {
             
             const brandIcon = document.querySelector('.sidebar-brand div');
             if (brandIcon) {
-                if (escapedLogo) {
-                    brandIcon.innerHTML = `<img src="${escapedLogo}" style="width:100%;height:100%;object-fit:contain;">`;
-                    brandIcon.style.background = 'white';
-                    brandIcon.style.padding = '2px';
-                    brandIcon.style.width = '38px';
-                    brandIcon.style.height = '38px';
-                    brandIcon.style.borderRadius = '6px';
-                } else {
-                    brandIcon.innerHTML = `
-                        <img src="logo_wahidin.png" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
-                    `;
-                    brandIcon.style.background = 'transparent';
-                    brandIcon.style.padding = '0';
-                    brandIcon.style.width = '38px';
-                    brandIcon.style.height = '38px';
-                }
+                brandIcon.innerHTML = `
+                    <img src="logo_wahidin.png?v=20260923" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
+                `;
+                brandIcon.style.background = 'transparent';
+                brandIcon.style.padding = '0';
+                brandIcon.style.width = '38px';
+                brandIcon.style.height = '38px';
             }
 
             const loginTitle = document.querySelector('.login-card h2');
             if (loginTitle) loginTitle.textContent = 'Login ' + name;
             const loginIcon = document.querySelector('.login-card div');
             if (loginIcon) {
-                if (escapedLogo) {
-                    loginIcon.innerHTML = `<img src="${escapedLogo}" style="width:100%;height:100%;object-fit:contain;">`;
-                    loginIcon.style.background = 'white';
-                    loginIcon.style.boxShadow = '0 10px 15px -3px rgba(212, 175, 55, 0.2)';
-                    loginIcon.style.padding = '4px';
-                    loginIcon.style.width = '90px';
-                    loginIcon.style.height = '90px';
-                    loginIcon.style.borderRadius = '1.5rem';
-                } else {
-                    loginIcon.innerHTML = `
-                        <div class="wlc-crest" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor:pointer;" onclick="window.location.href='index.html#hero';">
-                            <img src="logo_wahidin.png" alt="WLC Logo" style="width:50%; height:50%; object-fit:contain;">
-                            <div style="font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; letter-spacing: 3px; color: #b38e5d; margin-top: 5px; line-height: 1;">WAHIDIN</div>
-                        </div>
-                    `;
-                    loginIcon.style.background = 'transparent';
-                    loginIcon.style.boxShadow = 'none';
-                    loginIcon.style.padding = '0';
-                    loginIcon.style.width = 'auto';
-                    loginIcon.style.height = 'auto';
-                }
+                loginIcon.innerHTML = `
+                    <img src="logo_wahidin.png?v=20260923" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain; cursor:pointer;" onclick="window.location.href='index.html#hero';">
+                `;
+                loginIcon.style.background = 'transparent';
+                loginIcon.style.boxShadow = 'none';
+                loginIcon.style.padding = '0';
+                loginIcon.style.width = '105px';
+                loginIcon.style.height = '105px';
+                loginIcon.style.margin = '0 auto 1.5rem';
+                loginIcon.style.display = 'flex';
+                loginIcon.style.alignItems = 'center';
+                loginIcon.style.justifyContent = 'center';
             }
 
             const certOrgName = document.getElementById('certOrgName');
@@ -2580,7 +2562,7 @@ window.executePrintSiswa = function() {
                         
                         <div class="cert-header">
                             <div class="wlc-crest" style="margin-bottom: 2mm;">
-                                <img src="${appLogo || 'logo_wahidin.png?v=20260923'}" alt="WAHIDIN Learning Companion" style="width: 175px; height: auto; background: transparent; cursor: pointer;" onclick="window.location.href='index.html#hero';">
+                                <img src="logo_wahidin.png?v=20260923" alt="WAHIDIN Learning Companion" style="width: 175px; height: auto; background: transparent; cursor: pointer;" onclick="window.location.href='index.html#hero';">
                             </div>
                         </div>
                         
