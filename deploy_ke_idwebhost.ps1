@@ -77,5 +77,4 @@ try {
 Remove-Item "update_wlc.zip" -ErrorAction SilentlyContinue
 Remove-Item "unzipper.php" -ErrorAction SilentlyContinue
 
-Write-Host "Tugas selesai. Tekan Enter untuk keluar..."
-Read-Host
+Write-Host "Tugas selesai!"

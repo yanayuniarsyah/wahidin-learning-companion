@@ -219,7 +219,7 @@
 
         /* Certificate page dimensions (standard A4 landscape at 96dpi) */
         .cert-page {
-            width: 297mm; height: 210mm;
+            width: 297mm; height: 190mm;
             min-width: 297mm;
             box-sizing: border-box;
             padding: 6mm 10mm;
@@ -811,9 +811,13 @@
                             <div class="cert-container">
                                 <div class="cert-border-decor"></div>
                                 
-                                <div class="cert-header">
-                                    <div class="wlc-crest" style="margin-bottom: 2mm;">
-                                        <img src="logo_wahidin.png?v=20260923" alt="WAHIDIN Learning Companion" style="width: 250px; height: auto; background: transparent;">
+                                <div class="cert-header" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 2mm;">
+                                    <div class="wlc-crest" style="text-align: left;">
+                                        <img src="logo_wahidin.png?v=20260923" alt="WAHIDIN Learning Companion" style="width: 200px; height: auto; background: transparent;">
+                                    </div>
+                                    <div class="qr-box-cert" style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=65x65&data=${encodeURIComponent(shareUrl)}" style="width: 65px; height: 65px; border: 1.5px solid var(--accent); padding: 2px; background: white;" alt="QR Verification">
+                                        <div style="font-size: 0.5rem; color: var(--accent); margin-top: 3px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">VERIFIKASI DIGITAL</div>
                                     </div>
                                 </div>
                                 
@@ -830,16 +834,10 @@
                                     </p>
                                 </div>
                                 
-                                <div class="cert-footer-snapshot">
+                                <div class="cert-footer-snapshot" style="justify-content: space-between;">
                                     <div class="date-box">
                                         <div class="date-label">TANGGAL TERBIT</div>
                                         <div class="date-value">${escapeHtml(formattedDate)}</div>
-                                    </div>
-
-                                    <!-- QR Verification Code -->
-                                    <div class="qr-box-cert" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=65x65&data=${encodeURIComponent(shareUrl)}" style="width: 65px; height: 65px; border: 1.5px solid var(--accent); padding: 2px; background: white;" alt="QR Verification">
-                                        <div style="font-size: 0.5rem; color: var(--accent); margin-top: 3px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">VERIFIKASI DIGITAL</div>
                                     </div>
                                     
                                     <div class="sig-box">
