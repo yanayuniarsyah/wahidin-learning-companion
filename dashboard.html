@@ -3095,7 +3095,8 @@ window.executePrintSiswa = function() {
                             body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f1f5f9; color: #1e293b; }
                             
                             .cert-page { 
-                                width: 297mm; height: 210mm;
+                                width: 296mm; height: 209mm;
+                                max-height: 100vh;
                                 box-sizing: border-box;
                                 padding: 6mm 10mm;
                                 display: flex;
@@ -3372,12 +3373,17 @@ window.executePrintSiswa = function() {
                             }
 
                             @media print {
-                                body { background: white; }
+                                @page { size: A4 landscape; margin: 0; }
+                                body, html { margin: 0; padding: 0; background: white; }
                                 .cert-page { 
-                                    width: 297mm; height: 210mm;
+                                    width: 296mm !important; height: 209mm !important;
+                                    max-height: 100vh !important;
+                                    overflow: hidden !important;
+                                    box-sizing: border-box !important;
                                     padding: 10mm;
-                                    margin: 0;
+                                    margin: 0 auto !important;
                                     page-break-after: always;
+                                    page-break-inside: avoid;
                                 }
                             }
                         </style>
