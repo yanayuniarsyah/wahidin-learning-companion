@@ -369,6 +369,10 @@ function sanitizeObject(&$obj) {
 
 // Request Data Parsers
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if (strpos($uri, '/api.php') === 0) {
+    $uri = substr($uri, 8);
+    if ($uri === '') $uri = '/';
+}
 $method = $_SERVER['REQUEST_METHOD'];
 
 $queryParams = [];

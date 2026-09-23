@@ -284,13 +284,8 @@
 
     <div class="container" id="cardContainer">
         <div id="formView">
-            <div class="wlc-logo-container">
-                <svg class="wlc-logo-svg" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
-                    <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.8" fill="none"/>
-                    <circle cx="50" cy="5" r="3.5" fill="#b38e5d"/>
-                    <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
-                </svg>
+            <div class="wlc-logo-container" onclick="window.location.href='index.html#hero';" style="cursor:pointer;">
+                <img src="logo_wahidin.png" alt="WLC Logo" class="wlc-logo-svg" style="object-fit:contain;">
                 <div class="wlc-logo-text-main">WAHIDIN</div>
             </div>
             <div class="header">
@@ -423,7 +418,9 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        const API_BASE = window.location.origin;
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? '/api.php'
+            : window.location.origin;
 
         function showToast(message) {
             const toast = document.getElementById('toast');

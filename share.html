@@ -222,14 +222,13 @@
             width: 297mm; height: 210mm;
             min-width: 297mm;
             box-sizing: border-box;
-            padding: 6mm 10mm;
+            padding: 8mm 12mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background: #f8fafc;
             position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            background: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            background: #fff;
         }
         
         .cert-container {
@@ -241,24 +240,28 @@
             flex-direction: column;
             justify-content: space-between;
             text-align: center;
-            border: 1px solid #b38e5d;
-            background: #fffefb;
+            border: 2px solid #d4af37;
+            outline: 1px solid #d4af37;
+            outline-offset: -8px;
+            background: #fffdf8;
+            background-image: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.1);
         }
         
         .cert-border-decor {
             position: absolute;
-            top: 2.5mm; left: 2.5mm; right: 2.5mm; bottom: 2.5mm;
-            border: 1px solid #b38e5d;
+            top: 3.5mm; left: 3.5mm; right: 3.5mm; bottom: 3.5mm;
+            border: 1px solid rgba(212, 175, 55, 0.5);
             pointer-events: none;
         }
         .cert-border-decor::before, .cert-border-decor::after {
             content: '';
             position: absolute;
-            width: 10mm; height: 10mm;
-            border: 2px solid #b38e5d;
+            width: 15mm; height: 15mm;
+            border: 3px solid #d4af37;
         }
-        .cert-border-decor::before { top: -1.25mm; left: -1.25mm; border-right: none; border-bottom: none; }
-        .cert-border-decor::after { bottom: -1.25mm; right: -1.25mm; border-left: none; border-top: none; }
+        .cert-border-decor::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .cert-border-decor::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
 
         .wlc-crest {
             display: flex;
@@ -295,36 +298,39 @@
         }
         .cert-main-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.4rem;
-            color: #b38e5d;
+            font-size: 2.8rem;
+            color: #d4af37;
             margin: 0;
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             line-height: 1.1;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         }
         .cert-main-subtitle {
             font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            letter-spacing: 5px;
-            color: #b38e5d;
-            margin: 1.5mm 0 3mm 0;
+            letter-spacing: 6px;
+            color: #1e3a8a;
+            margin: 2mm 0 4mm 0;
             text-transform: uppercase;
         }
         .recipient-intro {
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-style: italic;
             color: #64748b;
-            margin: 1.5mm 0 0 0;
+            margin: 2mm 0 0 0;
+            font-family: 'Playfair Display', serif;
         }
         .recipient-name-snapshot {
             font-family: 'Playfair Display', serif;
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-style: italic;
-            font-weight: 700;
-            color: #1e3a8a;
-            margin: 1.5mm 0 3mm 0;
+            font-weight: 800;
+            color: #0a192f;
+            margin: 2mm 0 4mm 0;
             line-height: 1.1;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
         }
         .dedication-text {
             font-family: 'Poppins', sans-serif;
@@ -379,11 +385,11 @@
         }
         .sig-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: #1e3a8a;
+            color: #0a192f;
             margin-bottom: 2mm;
-            width: 55mm;
+            width: 60mm;
             text-align: center;
         }
         .sig-line {
@@ -394,39 +400,41 @@
         .report-container {
             flex: 1;
             box-sizing: border-box;
-            padding: 5mm 8mm;
+            padding: 8mm 12mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background: white;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            background: #fffdf8;
+            border: 2px solid #d4af37;
+            outline: 1px solid #d4af37;
+            outline-offset: -6px;
+            box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
             position: relative;
         }
         .report-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            border-bottom: 2px solid #b38e5d;
-            padding-bottom: 1.5mm;
-            margin-bottom: 2.5mm;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 2mm;
+            margin-bottom: 3mm;
             text-align: left;
         }
         .report-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.7rem;
-            color: #1e3a8a;
+            font-size: 1.8rem;
+            color: #0a192f;
             margin: 0;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         .report-subtitle {
             font-family: 'Poppins', sans-serif;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            color: #b38e5d;
-            letter-spacing: 3px;
-            margin: 1mm 0 0 0;
+            color: #d4af37;
+            letter-spacing: 4px;
+            margin: 1.5mm 0 0 0;
             text-transform: uppercase;
         }
         .header-right {
@@ -434,16 +442,16 @@
         }
         .student-name {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-style: italic;
-            font-weight: 700;
-            color: #1e3a8a;
+            font-weight: 800;
+            color: #0a192f;
         }
         .student-school {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #64748b;
             font-weight: 500;
-            margin-top: 1px;
+            margin-top: 2px;
         }
         
         .report-body {
@@ -455,32 +463,34 @@
         }
         .section-title {
             font-family: 'Poppins', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            color: #1e3a8a;
-            letter-spacing: 1.5px;
-            margin-bottom: 1.5mm;
+            color: #0a192f;
+            letter-spacing: 2px;
+            margin-bottom: 2mm;
             display: flex;
             align-items: center;
-            gap: 2mm;
+            gap: 2.5mm;
+            text-transform: uppercase;
         }
         .report-box {
-            background: #f8fafc;
-            border-radius: 6px;
-            padding: 3mm 4mm;
-            font-size: 0.85rem;
-            line-height: 1.5;
+            background: #ffffff;
+            border-radius: 4px;
+            padding: 4mm 5mm;
+            font-size: 0.9rem;
+            line-height: 1.6;
             color: #334155;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .narrative-box {
             min-height: 25mm;
         }
         .recommendation-box {
             font-style: italic;
-            color: #1e3a8a;
-            background: #f0f7ff;
-            border: 1px solid #bfdbfe;
+            color: #0a192f;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.4);
             min-height: 15mm;
         }
         .report-note {
@@ -581,13 +591,8 @@
     <!-- Web Interface Header -->
     <header class="viewer-header" id="webHeader">
         <div class="brand">
-            <div class="brand-crest">
-                <svg width="40" height="18" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10,35 C30,35 45,20 50,5 C55,20 70,35 90,35" stroke="#b38e5d" stroke-width="2.5" fill="none"/>
-                    <path d="M30,30 Q50,15 70,30" stroke="#b38e5d" stroke-width="1.8" fill="none"/>
-                    <circle cx="50" cy="5" r="3.5" fill="#b38e5d"/>
-                    <path d="M50,15 L53,22 L60,22 L55,26 L57,33 L50,29 L43,33 L45,26 L40,22 L47,22 Z" fill="#b38e5d"/>
-                </svg>
+            <div class="brand-crest" onclick="window.location.href='index.html#hero';" style="cursor:pointer;">
+                <img src="logo_wahidin.png" alt="WLC Logo" style="height:16px; width:auto; object-fit:contain;">
             </div>
             <div class="brand-text">
                 <h1>WLC Digital Certificate</h1>
@@ -635,7 +640,9 @@
         });
 
         // API Base configuration automatically resolves relative to host
-        const API_BASE = window.location.origin;
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? '/api.php'
+            : window.location.origin;
 
         // Extract ID parameter from URL query string
         function getQueryParam(param) {
@@ -826,7 +833,7 @@
                                 <div class="cert-border-decor"></div>
                                 
                                 <div class="cert-header">
-                                    <div class="wlc-crest" style="margin-bottom: 2mm;">
+                                    <div class="wlc-crest" style="margin-bottom: 2mm; cursor:pointer;" onclick="window.location.href='index.html#hero';">
                                         <img src="logo_wahidin.png?v=20260923" alt="WAHIDIN Learning Companion" style="width: 250px; height: auto; background: transparent;">
                                     </div>
                                 </div>
