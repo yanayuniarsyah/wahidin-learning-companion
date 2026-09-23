@@ -19,7 +19,7 @@ Write-Host "Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
 Write-Host "Sedang mengemas file update dan file wlc diabaikan agar aman"
 $filesToZip = @(
     ".htaccess", ".jwt_secret", "api.php", "router.php", 
-    "index.html", "index_awal.html", "dashboard.html", 
+    "index.html", "dashboard.html", 
     "share.html", "reflection.html", "bank_soal_wlc1.json", 
     "logo_wahidin.png", "manifest.json", "WLC Certificate - Budi.pdf"
 )

@@ -3073,7 +3073,8 @@ window.executePrintSiswa = function() {
                         <style>
                             @page { size: A4 landscape; margin: 0; }
                             body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f1f5f9; color: #1e293b; }
-                            
+                            .cert-header img, .wlc-crest img { max-width: 175px !important; height: auto !important; }
+
                             .cert-page { 
                                 width: 296mm; height: 209mm;
                                 max-height: 100vh;
@@ -3242,7 +3243,7 @@ window.executePrintSiswa = function() {
                             .report-container {
                                 flex: 1;
                                 box-sizing: border-box;
-                                padding: 8mm 12mm;
+                                padding: 5mm 8mm;
                                 display: flex;
                                 flex-direction: column;
                                 justify-content: space-between;
@@ -3259,7 +3260,7 @@ window.executePrintSiswa = function() {
                                 align-items: flex-start;
                                 border-bottom: 2px solid #d4af37;
                                 padding-bottom: 2mm;
-                                margin-bottom: 3mm;
+                                margin-bottom: 1mm;
                             }
                             .report-title {
                                 font-family: 'Playfair Display', serif;
@@ -3307,7 +3308,7 @@ window.executePrintSiswa = function() {
                                 font-weight: 700;
                                 color: #0a192f;
                                 letter-spacing: 2px;
-                                margin-bottom: 2mm;
+                                margin-bottom: 1mm;
                                 display: flex;
                                 align-items: center;
                                 gap: 2.5mm;
@@ -3316,7 +3317,7 @@ window.executePrintSiswa = function() {
                             .report-box {
                                 background: #ffffff;
                                 border-radius: 4px;
-                                padding: 4mm 5mm;
+                                padding: 3mm 4mm;
                                 font-size: 0.9rem;
                                 line-height: 1.6;
                                 color: #334155;
@@ -3346,8 +3347,8 @@ window.executePrintSiswa = function() {
                                 font-size: 0.72rem;
                                 color: #94a3b8;
                                 border-top: 1px solid #f1f5f9;
-                                padding-top: 1.5mm;
-                                margin-top: 2mm;
+                                padding-top: 1mm;
+                                margin-top: 1mm;
                             }
                             
                             .sponsor-footer {
