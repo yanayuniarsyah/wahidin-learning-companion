@@ -905,8 +905,17 @@ const rubrikSkoring = {
                 options.headers['x-user-role'] = localStorage.getItem('wlc_role');
             }
             
-            const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
-            const finalUrl = new URL(url);
+            let finalUrl;
+            try {
+                // Determine absolute URL safely. Handle both absolute URLs and paths.
+                const urlStr = (typeof endpoint === 'string') 
+                    ? (endpoint.startsWith('http') ? endpoint : (endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : (endpoint.startsWith('./') ? `${API_BASE}${endpoint.substring(1)}` : `${API_BASE}/${endpoint}`))) 
+                    : endpoint.url;
+                finalUrl = new URL(urlStr, window.location.origin);
+            } catch (err) {
+                // Fallback to original fetch if URL parsing fails
+                return originalFetch(endpoint, options);
+            }
             if (token && !finalUrl.searchParams.has('token')) {
                 finalUrl.searchParams.append('token', token);
             }
