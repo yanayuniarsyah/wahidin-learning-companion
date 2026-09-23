@@ -31,10 +31,72 @@
 
         body {
             font-family: 'Outfit', sans-serif;
-            background: var(--bg);
+            background: transparent;
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            pointer-events: none;
+            background: var(--bg);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.35;
+            animation: floatOrb 20s infinite ease-in-out alternate;
+        }
+
+        .orb-1 {
+            width: 450px;
+            height: 450px;
+            background: rgba(212, 175, 55, 0.18);
+            top: -150px;
+            left: -150px;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: rgba(179, 142, 93, 0.12);
+            bottom: -50px;
+            right: -100px;
+            animation-delay: -5s;
+            animation-duration: 25s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(243, 229, 171, 0.08);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+            animation-duration: 30s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -50px) scale(1.1); }
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
         /* Navbar */
@@ -95,22 +157,12 @@
             align-items: center;
             padding: 8rem 5% 4rem;
             position: relative;
-            background: radial-gradient(circle at 85% 15%, rgba(212, 175, 55, 0.25) 0%, transparent 40%),
-                        radial-gradient(circle at 15% 85%, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
-        }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiIvPjwvc3ZnPg==');
-            z-index: -1;
-            pointer-events: none;
+            background: transparent;
         }
 
         .hero-grid {
             display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
+            grid-template-columns: 0.8fr 1.2fr;
             gap: 4rem;
             align-items: center;
             width: 100%;
@@ -243,25 +295,42 @@
         }
 
         .feature-card {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            position: relative;
+            background: linear-gradient(145deg, rgba(30,30,30,0.5) 0%, rgba(15,15,15,0.8) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: var(--radius-md);
             padding: 2.5rem;
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            border-top: 1px solid rgba(212, 175, 55, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: var(--transition);
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8);
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.8);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 2;
         }
 
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px -10px rgba(212, 175, 55, 0.2);
-            background: rgba(30, 30, 30, 0.8);
-            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(212, 175, 55, 0.15);
+            background: linear-gradient(145deg, rgba(40,40,40,0.6) 0%, rgba(20,20,20,0.9) 100%);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
         }
 
         .feature-icon {
@@ -290,38 +359,157 @@
             line-height: 1.6;
         }
 
-        /* CTA Footer Bar */
-        .footer-cta {
-            background: linear-gradient(135deg, #0a0a0a, #141414);
-            color: white;
-            padding: 5rem 5%;
-            text-align: center;
+        /* Antimainstream Footer */
+        .footer-wrapper {
+            padding: 4rem 5% 6rem;
+            display: flex;
+            justify-content: center;
             position: relative;
-            overflow: hidden;
-            border-top: 1px solid var(--border);
+            z-index: 10;
         }
 
-        .footer-cta h2 {
-            font-size: 2.5rem;
+        .footer-glass {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            background: linear-gradient(145deg, rgba(30,30,30,0.4) 0%, rgba(10,10,10,0.8) 100%);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(212, 175, 55, 0.4);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+            padding: 5rem 4rem 3rem;
+            overflow: hidden;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9),
+                        inset 0 1px 20px rgba(212, 175, 55, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .footer-glass::before {
+            content: 'WLC';
+            position: absolute;
+            bottom: -5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 35vw;
+            font-weight: 900;
+            color: rgba(255,255,255,0.015);
+            pointer-events: none;
+            line-height: 0.7;
+            white-space: nowrap;
+            z-index: 0;
+            text-shadow: 0 -2px 20px rgba(212, 175, 55, 0.05);
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .footer-content h2 {
+            font-size: 4rem;
             font-weight: 800;
             font-family: 'Poppins', sans-serif;
             margin-bottom: 1.5rem;
-            color: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 50%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
         }
 
-        .footer-cta p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
+        .footer-content p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 650px;
             margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .footer-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            text-align: left;
+            background: rgba(0,0,0,0.4);
+            padding: 1.2rem 1.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .badge-item:hover {
+            transform: translateY(-5px);
+            background: rgba(212, 175, 55, 0.05);
+            border-color: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.15);
+        }
+
+        .badge-item i {
+            font-size: 2.2rem;
+            color: var(--primary);
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
+        }
+
+        .badge-item span {
+            font-size: 0.95rem;
+            color: #a0a0a0;
+            line-height: 1.4;
+        }
+
+        .badge-item strong {
+            display: block;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 700;
         }
 
         .footer-copyright {
-            margin-top: 5rem;
-            font-size: 0.9rem;
+            position: relative;
+            z-index: 2;
+            margin-top: auto;
+            padding-top: 2.5rem;
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .footer-brand img {
+            height: 35px;
             opacity: 0.6;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 2rem;
+            filter: grayscale(100%) brightness(150%);
+            transition: var(--transition);
+        }
+        
+        .footer-brand:hover img {
+            opacity: 1;
+            filter: none;
+            transform: scale(1.05);
         }
 
         /* Responsive Layouts */
@@ -371,7 +559,7 @@
                 width: 100%;
                 justify-content: center;
             }
-            .features, .footer-cta {
+            .features {
                 padding: 3rem 5%;
             }
             .section-header h2 {
@@ -383,18 +571,51 @@
             .feature-card {
                 padding: 1.5rem;
             }
-            .footer-cta h2 {
-                font-size: 1.8rem;
+            .footer-wrapper {
+                padding: 2rem 5% 3rem;
+            }
+            .footer-glass {
+                padding: 3rem 1.5rem 2rem;
+                border-radius: 24px;
+            }
+            .footer-content h2 {
+                font-size: 2.2rem;
+            }
+            .footer-glass::before {
+                font-size: 45vw;
+                bottom: -2%;
+            }
+            .footer-badges {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .footer-copyright {
+                flex-direction: column;
+                text-align: center;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Premium Animated Background -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="noise-overlay"></div>
 
 
     <!-- Hero -->
     <section id="hero" class="hero">
         <div class="hero-grid">
+            <div class="hero-image-container">
+                <!-- Premium WLC Official Logo Image -->
+                <a href="#hero">
+                    <img src="logo_wahidin.png?v=20260923" class="hero-logo-img" alt="Wahidin Learning Companion Logo">
+                </a>
+            </div>
             <div class="hero-content">
                 <h2>Wahidin Learning Companion (WLC)</h2>
                 <h1>Lebih dari Rapor,<br>Temukan Karakter Belajar Terbaik Anak.</h1>
@@ -412,12 +633,6 @@
                     </a>
                 </div>
             </div>
-            <div class="hero-image-container">
-                <!-- Premium WLC Official Logo Image -->
-                <a href="#hero">
-                    <img src="logo_wahidin.png?v=20260923" class="hero-logo-img" alt="Wahidin Learning Companion Logo">
-                </a>
-            </div>
         </div>
     </section>
     <!-- Trust Bar (Honest Claims) -->
@@ -431,7 +646,7 @@
     </div>
 
     <!-- Value Proposition Section (Replacing Fake Statistics) -->
-    <section class="features" style="background: var(--surface);">
+    <section class="features" style="background: transparent;">
         <div class="section-header">
             <h2>Membawa Perubahan Positif yang Terukur</h2>
             <p>Sistem kami dirancang untuk memberikan instrumen yang tepat dalam mengamati perkembangan anak.</p>
@@ -461,7 +676,7 @@
         </div>
     </section>
     <!-- Target Audience Columns -->
-    <section class="features" style="background: var(--bg); border-top: 1px solid var(--border);">
+    <section class="features" style="background: transparent; border-top: 1px solid var(--border);">
         <div class="section-header">
             <h2>Dua Sisi Kolaborasi WLC</h2>
             <p>Bagaimana platform ini memberi nilai tambah yang besar baik bagi keluarga di rumah maupun lembaga sekolah.</p>
@@ -492,7 +707,7 @@
     </section>
 
     <!-- Commitment Section -->
-    <section class="features" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <section class="features" style="background: transparent; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
         <div class="section-header">
             <h2>Komitmen Kami untuk Pendidikan Karakter</h2>
             <p>Kami hadir untuk menyediakan alat bantu observasi yang transparan, objektif, dan mendukung perkembangan emosional anak.</p>
@@ -533,7 +748,7 @@
         </div>
     </section>
     <!-- Value for Parents Section -->
-    <section class="features" style="background: radial-gradient(circle at 10% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%); border-top: 1px solid var(--border);">
+    <section class="features" style="background: transparent; border-top: 1px solid var(--border);">
         <div class="section-header">
             <h2 style="color: var(--primary);">Mengapa Anak Anda Sangat Membutuhkan WLC?</h2>
             <p>Lebih dari sekadar pendampingan belajar, WLC adalah investasi jangka panjang untuk karakter dan mental anak Anda.</p>
@@ -559,7 +774,7 @@
     </section>
 
     <!-- Pride for Schools Section -->
-    <section class="features" style="background: linear-gradient(135deg, rgba(20, 20, 20, 1) 0%, rgba(30, 30, 30, 1) 100%); border-top: 1px solid var(--border);">
+    <section class="features" style="background: transparent; border-top: 1px solid var(--border);">
         <div class="section-header">
             <h2 style="color: var(--primary);">Menjadi Sekolah Pionir Pembangun Karakter</h2>
             <p>Bergabunglah dengan jajaran institusi pendidikan elit yang meletakkan kemandirian sebagai fondasi utama.</p>
@@ -586,7 +801,7 @@
 
 
     <!-- International Research Section -->
-    <section class="features" style="background: var(--surface); border-top: 1px solid var(--border);">
+    <section class="features" style="background: transparent; border-top: 1px solid var(--border);">
         <div class="section-header">
             <h2>Berstandar & Didukung Riset Internasional</h2>
             <p>Sistem pendampingan WLC dirancang berdasarkan kerangka kerja dan studi akademis global di bidang pendidikan modern.</p>
@@ -647,24 +862,42 @@
         </div>
     </section>
 
-    <!-- Footer CTA -->
-    <section class="footer-cta">
-        <h2>Bergabung dengan Komunitas Eksklusif Kami</h2>
-        <p>Akses portal tertutup ini hanya diperuntukkan bagi Orang Tua & Evaluator tersertifikasi Kumon Wahidin.</p>
-        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
-            <a href="dashboard.html" class="btn-hero btn-hero-primary">Secure Access Portal</a>
-        </div>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-bottom: 2rem; color: var(--text-muted); font-size: 0.9rem;">
-            <i class="fas fa-shield-alt" style="color: var(--primary); font-size: 1.5rem;"></i>
-            <div style="text-align: left;">
-                <strong style="color: #fff; display: block;">Privasi & Keamanan Terjamin</strong>
-                Data evaluasi siswa dan sekolah dilindungi dengan enkripsi standar industri.
+    <!-- Antimainstream Footer -->
+    <div class="footer-wrapper">
+        <footer class="footer-glass">
+            <div class="footer-content">
+                <h2>Langkah Kecil,<br>Dampak Besar.</h2>
+                <p>Akses portal ini khusus diperuntukkan bagi Orang Tua & Evaluator tersertifikasi Kumon Wahidin. Mari melangkah bersama mencetak generasi tangguh.</p>
+                
+                <div style="display: flex; justify-content: center; margin-bottom: 3rem;">
+                    <a href="dashboard.html" class="btn-hero btn-hero-primary" style="padding: 1.2rem 3rem; font-size: 1.15rem; border-radius: 50px; text-transform: uppercase; letter-spacing: 1px;">
+                        <i class="fas fa-lock"></i> Secure Access Portal
+                    </a>
+                </div>
+
+                <div class="footer-badges">
+                    <div class="badge-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span><strong>Privasi & Keamanan</strong>Enkripsi standar industri tingkat tinggi</span>
+                    </div>
+                    <div class="badge-item">
+                        <i class="fas fa-award"></i>
+                        <span><strong>Kredibilitas Data</strong>Terverifikasi oleh sistem Kumon Wahidin</span>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="footer-copyright">
-            &copy; 2026 WLC Wahidin Cilacap. All rights reserved. &bull; Wahidin Learning Companion
-        </div>
-    </section>
+            
+            <div class="footer-copyright">
+                <div class="footer-brand">
+                    <img src="logo_wahidin.png?v=20260923" alt="WLC Logo" class="footer-logo">
+                    <span style="font-weight: 600; color: #fff; letter-spacing: 1px;">WAHIDIN LEARNING COMPANION</span>
+                </div>
+                <div class="copyright-text">
+                    &copy; 2026 WLC Wahidin Cilacap. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <script>
         async function applySettings() {
@@ -676,7 +909,7 @@
                     const logo = settings.app_logo;
                     if (name) {
                         document.title = name;
-                        const copyright = document.querySelector('.footer-copyright');
+                        const copyright = document.querySelector('.copyright-text');
                         if (copyright) {
                             copyright.innerHTML = `&copy; 2026 ${name}. All rights reserved.`;
                         }
