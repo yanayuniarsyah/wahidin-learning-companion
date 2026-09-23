@@ -661,18 +661,12 @@
                         }
                     }
 
-                    // 2. Update Floating Hero Logo Image from Settings
+                    // 2. Logo dipaksa menggunakan logo_wahidin.png
                     const heroLogoImg = document.querySelector('.hero-logo-img');
                     if (heroLogoImg) {
-                        if (logo) {
-                            heroLogoImg.src = logo;
-                            heroLogoImg.style.background = 'white';
-                            heroLogoImg.style.padding = '10px';
-                        } else {
-                            heroLogoImg.src = 'logo_wahidin.png?v=20260923';
-                            heroLogoImg.style.background = 'transparent';
-                            heroLogoImg.style.padding = '0';
-                        }
+                        heroLogoImg.src = 'logo_wahidin.png?v=20260923';
+                        heroLogoImg.style.background = 'transparent';
+                        heroLogoImg.style.padding = '0';
                     }
                 }
             } catch (err) {
