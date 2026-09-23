@@ -95,7 +95,17 @@
             align-items: center;
             padding: 8rem 5% 4rem;
             position: relative;
-            background: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.12) 0%, transparent 50%);
+            background: radial-gradient(circle at 85% 15%, rgba(212, 175, 55, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 15% 85%, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiIvPjwvc3ZnPg==');
+            z-index: -1;
+            pointer-events: none;
         }
 
         .hero-grid {
@@ -119,10 +129,13 @@
         .hero-content h1 {
             font-size: 3.5rem;
             font-weight: 800;
-            color: #ffffff;
             line-height: 1.15;
             margin-bottom: 1.5rem;
             font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
         }
 
         .hero-content p {
@@ -152,15 +165,17 @@
         }
 
         .btn-hero-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: #0a0a0a;
             border: 1px solid var(--primary);
+            box-shadow: 0 8px 25px -5px rgba(212, 175, 55, 0.5);
         }
 
         .btn-hero-primary:hover {
-            background: var(--primary-light);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
             border-color: var(--primary-light);
-            transform: translateY(-1px);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px -5px rgba(212, 175, 55, 0.7);
         }
 
         .btn-hero-secondary {
@@ -185,7 +200,7 @@
             width: 100%;
             max-width: 480px;
             border-radius: 20px;
-            filter: drop-shadow(0 15px 35px rgba(212, 175, 55, 0.25));
+            filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4));
             animation: float 6s ease-in-out infinite;
         }
 
@@ -207,11 +222,13 @@
         }
 
         .section-header h2 {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #ffffff;
             font-family: 'Poppins', sans-serif;
             margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .section-header p {
@@ -226,20 +243,24 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border-radius: var(--radius-md);
             padding: 2.5rem;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-top: 1px solid rgba(212, 175, 55, 0.4);
             transition: var(--transition);
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8);
         }
 
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15);
-            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px -10px rgba(212, 175, 55, 0.2);
+            background: rgba(30, 30, 30, 0.8);
             border-color: var(--primary);
         }
 
