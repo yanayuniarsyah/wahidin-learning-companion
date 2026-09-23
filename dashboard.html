@@ -182,6 +182,15 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .bars-option.active { background: var(--primary); color: white; border-color: var(--primary); }
 .bars-number { font-weight: bold; font-size: 1.2rem; margin-right: 1rem; min-width: 24px; }
 .bars-text { font-size: 0.95rem; line-height: 1.4; }
+/* OVERRIDE UNTUK SERTIFIKAT LAMA DI DATABASE (Fix Halaman 2 Terpotong) */
+.report-container { padding: 3mm 6mm !important; }
+.report-title { font-size: 1.5rem !important; }
+.student-name { font-size: 1.2rem !important; }
+.section-title { font-size: 0.75rem !important; margin-bottom: 1mm !important; }
+.report-box { padding: 2.5mm 3mm !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
+.narrative-box { min-height: 20mm !important; }
+.report-note, .report-footer, .sponsor-footer { font-size: 0.65rem !important; margin-top: 1mm !important; padding-top: 1mm !important; }
+.report-header { margin-bottom: 1mm !important; padding-bottom: 2mm !important; }
 </style>
 </head>
 <body>
@@ -3243,7 +3252,7 @@ window.executePrintSiswa = function() {
                             .report-container {
                                 flex: 1;
                                 box-sizing: border-box;
-                                padding: 5mm 8mm;
+                                padding: 3mm 6mm;
                                 display: flex;
                                 flex-direction: column;
                                 justify-content: space-between;
@@ -3264,7 +3273,7 @@ window.executePrintSiswa = function() {
                             }
                             .report-title {
                                 font-family: 'Playfair Display', serif;
-                                font-size: 1.8rem;
+                                font-size: 1.5rem;
                                 color: #0a192f;
                                 margin: 0;
                                 font-weight: 900;
@@ -3284,7 +3293,7 @@ window.executePrintSiswa = function() {
                             }
                             .student-name {
                                 font-family: 'Playfair Display', serif;
-                                font-size: 1.4rem;
+                                font-size: 1.2rem;
                                 font-style: italic;
                                 font-weight: 800;
                                 color: #0a192f;
@@ -3304,7 +3313,7 @@ window.executePrintSiswa = function() {
                             }
                             .section-title {
                                 font-family: 'Poppins', sans-serif;
-                                font-size: 0.85rem;
+                                font-size: 0.75rem;
                                 font-weight: 700;
                                 color: #0a192f;
                                 letter-spacing: 2px;
@@ -3317,15 +3326,15 @@ window.executePrintSiswa = function() {
                             .report-box {
                                 background: #ffffff;
                                 border-radius: 4px;
-                                padding: 3mm 4mm;
-                                font-size: 0.9rem;
-                                line-height: 1.6;
+                                padding: 2.5mm 3mm;
+                                font-size: 0.8rem;
+                                line-height: 1.4;
                                 color: #334155;
                                 border: 1px solid rgba(212, 175, 55, 0.3);
                                 box-shadow: 0 2px 5px rgba(0,0,0,0.02);
                             }
                             .narrative-box {
-                                min-height: 25mm;
+                                min-height: 20mm;
                             }
                             .recommendation-box {
                                 font-style: italic;
@@ -3335,7 +3344,7 @@ window.executePrintSiswa = function() {
                                 min-height: 15mm;
                             }
                             .report-note {
-                                font-size: 0.72rem;
+                                font-size: 0.65rem;
                                 color: #64748b;
                                 margin: 1.5mm 0 0 0;
                                 line-height: 1.25;
@@ -3344,7 +3353,7 @@ window.executePrintSiswa = function() {
                             .report-footer {
                                 display: flex;
                                 justify-content: space-between;
-                                font-size: 0.72rem;
+                                font-size: 0.65rem;
                                 color: #94a3b8;
                                 border-top: 1px solid #f1f5f9;
                                 padding-top: 1mm;
@@ -3353,7 +3362,7 @@ window.executePrintSiswa = function() {
                             
                             .sponsor-footer {
                                 text-align: center;
-                                font-size: 0.72rem;
+                                font-size: 0.65rem;
                                 color: #64748b;
                                 font-weight: 600;
                                 letter-spacing: 0.5px;
