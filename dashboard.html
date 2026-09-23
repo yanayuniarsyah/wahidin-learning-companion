@@ -6,14 +6,14 @@
 <meta name="theme-color" content="#2563eb">
 <link rel="manifest" href="./manifest.json">
 <title>WLC - Komponen Observasi</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root{--primary:#d4af37;--primary-soft:rgba(212, 175, 55, 0.15);--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--secondary:#a0a0a0;--secondary-soft:#1e1e1e;--background:#0a0a0a;--surface:#141414;--text-main:#f5f5f5;--text-muted:#a0a0a0;--border:rgba(212, 175, 55, 0.2);--radius-md:12px;--radius-lg:20px;--shadow-sm:0 1px 3px rgba(0,0,0,0.5);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.5);--shadow-lg:0 20px 25px -5px rgba(0,0,0,0.8);}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;}
+:root{--primary:#D1B073;--primary-soft:rgba(209, 176, 115, 0.15);--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--secondary:#A0AAB2;--secondary-soft:#1e1e1e;--background:#0B0C10;--surface:#15161A;--text-main:#F8F9FA;--text-muted:#A0AAB2;--border:rgba(209, 176, 115, 0.15);--radius-md:12px;--radius-lg:20px;--shadow-sm:0 1px 3px rgba(0,0,0,0.5);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.5);--shadow-lg:0 20px 25px -5px rgba(0,0,0,0.8);}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',system-ui,-apple-system,sans-serif;}
 body{background-color:var(--background);color:var(--text-main);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:2rem 1rem;transition: background 0.3s ease;}
 .container{width:100%;max-width:1200px;margin:0 auto;transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);}
 .container:has(#loginScreen:not(.hidden)){max-width:fit-content;}
@@ -23,11 +23,11 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 [id$='FormContainer'].hidden{display:none !important;}
 .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
 .panel-header h1{font-size:1.75rem;margin:0;color:var(--primary);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1.5rem;font-weight:700;font-size:0.9rem;border-radius:var(--radius-md);cursor:pointer;transition:all 0.2s;border:none;background-color:var(--primary);color:#0a0a0a;box-shadow:var(--shadow-sm);}
-.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);filter:brightness(1.1);}
-.btn-primary{background-color:var(--primary);color:#0a0a0a;}
-.btn-secondary{background-color:var(--secondary-soft);color:var(--text-main);border:1px solid var(--border);}
-.btn-secondary:hover{background-color:var(--primary);color:#0a0a0a;border-color:var(--primary);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.85rem 1.75rem;font-weight:600;font-size:0.95rem;border-radius:var(--radius-md);cursor:pointer;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border:none;background-color:var(--primary);color:#0B0C10;box-shadow:var(--shadow-sm);}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(209, 176, 115, 0.3);filter:brightness(1.05);}
+.btn-primary{background-color:var(--primary);color:#0B0C10;}
+.btn-secondary{background-color:transparent;color:var(--text-main);border:1px solid rgba(255,255,255,0.1);}
+.btn-secondary:hover{background-color:rgba(255,255,255,0.05);color:var(--text-main);border-color:rgba(255,255,255,0.2);box-shadow:none;}
 .btn-danger{background-color:var(--danger);color:white;}
 .data-table{width:100%;border-collapse:collapse;margin:1.5rem 0;}
 .data-table th{text-align:left;padding:1.25rem 1rem;background:#1e1e1e;color:var(--primary);font-weight:700;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.075em;border-bottom:2px solid var(--border);}
@@ -35,16 +35,16 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .data-table tr:hover td{background-color:#1a1a1a;}
 .form-group{margin-bottom:1.5rem;}
 .form-label{display:block;margin-bottom:0.6rem;font-weight:700;font-size:0.95rem;color:var(--primary);letter-spacing:0.01em;}
-.form-input{width:100%;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:0.95rem;transition:border-color 0.2s;background:#1e1e1e;color:#f5f5f5;}
-.form-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(212,175,55,0.2);}
+.form-input{width:100%;padding:0.85rem 1.25rem;border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-size:0.95rem;transition:all 0.3s ease;background:rgba(20, 22, 26, 0.6);color:#f5f5f5;}
+.form-input:focus{outline:none;border-color:var(--primary);background:rgba(20, 22, 26, 0.9);box-shadow:0 0 0 4px rgba(209, 176, 115, 0.15);}
 .form-row{display:flex;gap:1.5rem;flex-wrap:wrap;}
 .form-row .form-group{flex:1;min-width:200px;}
 .menu-buttons{display:grid;grid-template-columns:repeat(3, 1fr);gap:1.5rem;margin-top:2rem;}
-.menu-btn{background:var(--surface);backdrop-filter: blur(5px);border:1px solid var(--border);padding:2.5rem;border-radius:var(--radius-lg);text-align:center;cursor:pointer;transition:all 0.3s ease;display:flex;flex-direction:column;align-items:center;gap:1.2rem;color:var(--text-main);font-weight:600;box-shadow:var(--shadow-sm);}
-.menu-btn:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:var(--primary);background: #1a1a1a;}
+.menu-btn{background:var(--surface);backdrop-filter: blur(5px);border:1px solid rgba(255,255,255,0.05);padding:2.5rem;border-radius:var(--radius-lg);text-align:center;cursor:pointer;transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);display:flex;flex-direction:column;align-items:center;gap:1.2rem;color:var(--text-main);font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+.menu-btn:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(209,176,115,0.1);border-color:rgba(209,176,115,0.3);background: linear-gradient(145deg, rgba(30, 32, 38, 0.9) 0%, rgba(20, 22, 26, 1) 100%);}
 .form-group{margin-bottom:1.5rem;}
-.login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0a0a;z-index:10000;padding:1rem;}
-.login-card{background:#141414;padding:clamp(1.5rem,4vw,3rem);border-radius:clamp(1rem,3vw,2rem);box-shadow:0 25px 50px -12px rgba(0,0,0,0.8);width:100%;max-width:min(90vw,420px);border:1px solid var(--border);text-align:center;}
+.login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10000;padding:1rem;}
+.login-card{background:linear-gradient(145deg, rgba(21, 22, 26, 0.9) 0%, rgba(11, 12, 16, 1) 100%);padding:clamp(2rem,5vw,4rem);border-radius:clamp(1rem,3vw,2rem);box-shadow:0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(209,176,115,0.05);width:100%;max-width:min(90vw,450px);border:1px solid rgba(209, 176, 115, 0.15);text-align:center;}
 .hidden{display:none !important;}
 .sidebar{width:260px;background:var(--surface);backdrop-filter: blur(15px);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:fixed;left:-260px;top:0;height:100vh;z-index:1000;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:var(--shadow-lg);}
 .sidebar.open{left:0;}
@@ -202,7 +202,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 
 <!-- FORM CONTAINERS AS TOP-LEVEL MODALS -->
 <div id="usersFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
     <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******"></div>
     <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
@@ -230,7 +230,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 
 <div id="siswaFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;font-size:1.5rem;margin:0;"><i class="fas fa-user-plus"></i> Tambah Siswa Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('siswaFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;font-size:1.5rem;margin:0;"><i class="fas fa-user-plus"></i> Tambah Siswa Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('siswaFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
     <div class="form-row">
         <div class="form-group"><label class="form-label">Nama Lengkap Siswa</label><input type="text" class="form-input" id="newSiswaNama" placeholder="Contoh: Budi Santoso"></div>
         <div class="form-group"><label class="form-label">NISN / Nomor Induk</label><input type="text" class="form-input" id="newSiswaNisn" placeholder="Contoh: 12345678"></div>
@@ -243,7 +243,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 
 <div id="soalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-row">
         <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
             <option value="Kesiapan">Kesiapan</option>
@@ -261,7 +261,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 
 <div id="jadwalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Poppins',sans-serif;margin:0;"><i class="fas fa-calendar-plus"></i> Tambah Jadwal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('jadwalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;"><i class="fas fa-calendar-plus"></i> Tambah Jadwal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('jadwalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-row">
         <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newJadwalSekolah"></select></div>
         <div class="form-group"><label class="form-label">Tanggal</label><input type="date" class="form-input" id="newJadwalTanggal"></div>
@@ -288,7 +288,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <!-- QR CODE SHARE MODAL -->
 <div id="qrShareModal" class="edit-modal-overlay hidden" style="z-index: 10000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
     <div class="edit-modal-card" style="background: white; padding: 2rem; border-radius: var(--radius-md); max-width: 400px; width: 100%; text-align: center; box-shadow: var(--shadow-lg);">
-        <h3 style="margin: 0 0 1rem 0; color: var(--primary); font-family: 'Poppins', sans-serif;"><i class="fas fa-qrcode"></i> Bagikan QR Code</h3>
+        <h3 style="margin: 0 0 1rem 0; color: var(--primary); font-family: 'Outfit', sans-serif;"><i class="fas fa-qrcode"></i> Bagikan QR Code</h3>
         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Orang tua dapat memindai QR Code ini untuk melihat sertifikat perkembangan anak secara langsung.</p>
         
         <div style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 8px; padding: 1.5rem; display: inline-block; margin-bottom: 1.5rem;">
@@ -336,7 +336,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <div style="background:transparent;width:105px;height:105px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;cursor:pointer;" onclick="window.location.href='index.html#hero';">
     <img src="logo_wahidin.png" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
 </div>
-<h2 style="font-family:'Poppins',sans-serif;font-size:1.15rem;line-height:1.3;color:var(--primary);margin-bottom:0.5rem;font-weight:700;">Exclusive Portal</h2>
+<h2 style="font-family:'Outfit',sans-serif;font-size:1.15rem;line-height:1.3;color:var(--primary);margin-bottom:0.5rem;font-weight:700;">Exclusive Portal</h2>
 <p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.75rem;line-height:1.4;">Akses terbatas khusus bagi Klien & Evaluator tersertifikasi.</p>
 <div style="text-align:left;margin-bottom:1.5rem;">
 <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginUsername">Username</label>
@@ -600,7 +600,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('grupFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Grup Baru</button></div>
 <div id="grupFormContainer" class="hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h3 style="color: #1e293b; font-family: 'Poppins', sans-serif; margin: 0;"><i class="fas fa-users-cog"></i> Tambah Grup Asisten</h3>
+        <h3 style="color: #1e293b; font-family: 'Outfit', sans-serif; margin: 0;"><i class="fas fa-users-cog"></i> Tambah Grup Asisten</h3>
         <button class="btn btn-secondary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;" onclick="document.getElementById('grupFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;"></i></button>
     </div>
     <div class="form-group" style="margin-bottom: 1rem;">
@@ -742,7 +742,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         
         <!-- Riwayat Kegiatan WLC & Sertifikat -->
         <div id="certHistorySection" class="hidden" style="margin-top:2.5rem; padding-top:2rem; border-top:2px dashed var(--border);">
-            <h3 style="margin-bottom:1.5rem; color:var(--primary); font-family: 'Poppins', sans-serif;"><i class="fas fa-history"></i> Riwayat Kegiatan WLC & Sertifikat</h3>
+            <h3 style="margin-bottom:1.5rem; color:var(--primary); font-family: 'Outfit', sans-serif;"><i class="fas fa-history"></i> Riwayat Kegiatan WLC & Sertifikat</h3>
             <table class="data-table" id="certHistoryTable" style="margin-top:1rem;">
                 <thead>
                     <tr>
@@ -3080,7 +3080,7 @@ window.executePrintSiswa = function() {
                         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
                         <style>
                             @page { size: A4 landscape; margin: 0; }
-                            body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f1f5f9; color: #1e293b; }
+                            body { font-family: 'Outfit', sans-serif; margin: 0; padding: 0; background: #f1f5f9; color: #1e293b; }
                             .cert-header img, .wlc-crest img { max-width: 175px !important; height: auto !important; }
 
                             .cert-page { 
@@ -3145,7 +3145,7 @@ window.executePrintSiswa = function() {
                                 line-height: 1;
                             }
                             .crest-text-sub {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 0.5rem;
                                 font-weight: 600;
                                 letter-spacing: 0.75px;
@@ -3173,7 +3173,7 @@ window.executePrintSiswa = function() {
                                 text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
                             }
                             .cert-main-subtitle {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 0.95rem;
                                 font-weight: 700;
                                 letter-spacing: 6px;
@@ -3199,7 +3199,7 @@ window.executePrintSiswa = function() {
                                 text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
                             }
                             .dedication-text {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 0.85rem;
                                 line-height: 1.5;
                                 color: #334155;
@@ -3220,14 +3220,14 @@ window.executePrintSiswa = function() {
                                 padding-left: 4mm;
                             }
                             .date-label {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 0.75rem;
                                 font-weight: 700;
                                 color: #b38e5d;
                                 letter-spacing: 1px;
                             }
                             .date-value {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 1.05rem;
                                 font-weight: 700;
                                 color: #1e3a8a;
@@ -3279,7 +3279,7 @@ window.executePrintSiswa = function() {
                                 letter-spacing: 2px;
                             }
                             .report-subtitle {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 0.75rem;
                                 font-weight: 700;
                                 color: #d4af37;
@@ -3311,7 +3311,7 @@ window.executePrintSiswa = function() {
                                 justify-content: flex-start;
                             }
                             .section-title {
-                                font-family: 'Poppins', sans-serif;
+                                font-family: 'Outfit', sans-serif;
                                 font-size: 0.75rem;
                                 font-weight: 700;
                                 color: #0a192f;
