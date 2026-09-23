@@ -9,22 +9,20 @@
     </IfModule>
 </FilesMatch>
 
-# Disable directory browsing
 Options -Indexes
 
-# Enable CORS for fonts and icons if needed
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
 </IfModule>
 
-# Route API requests to api.php on Apache servers
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Pass Authorization header to PHP
     RewriteCond %{HTTP:Authorization} ^(.*)
     RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
-    
-    # Rewrite /api/something to api.php
     RewriteRule ^api(/.*)?$ api.php [L,QSA]
-</IfModule>
 
+    # Load the shared fixes on the dashboard and public certificate viewer.
+    AddType text/javascript .js
+    AddOutputFilterByType SUBSTITUTE text/html
+    Substitute "s|</head>|<link rel=\"stylesheet\" href=\"/certificate-fixes.css?v=20260923\"><script src=\"/session-fixes.js?v=20260923\" defer></script></head>|i"
+</IfModule>
