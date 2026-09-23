@@ -629,94 +629,6 @@
             transform: scale(1.05);
         }
 
-        /* FAQ Section */
-        .faq-section {
-            padding: 6rem 5%;
-            background: transparent;
-            border-top: 1px solid var(--border);
-            position: relative;
-        }
-
-        .faq-container {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .faq-item {
-            background: linear-gradient(145deg, rgba(30,30,30,0.5) 0%, rgba(15,15,15,0.8) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            transition: var(--transition);
-        }
-
-        .faq-item:hover {
-            border-color: rgba(212, 175, 55, 0.3);
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8);
-        }
-
-        .faq-item.active {
-            border-color: var(--primary);
-            box-shadow: 0 15px 40px -10px rgba(212, 175, 55, 0.15);
-        }
-
-        .faq-question {
-            padding: 1.5rem 2rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #ffffff;
-            transition: var(--transition);
-        }
-
-        .faq-question:hover {
-            color: var(--primary-light);
-        }
-
-        .faq-icon {
-            color: var(--primary);
-            font-size: 1.2rem;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .faq-item.active .faq-icon {
-            transform: rotate(45deg);
-            background: var(--primary);
-            color: #000;
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 0 2rem;
-            color: var(--text-muted);
-            font-size: 1rem;
-            line-height: 1.8;
-            opacity: 0;
-        }
-
-        .faq-item.active .faq-answer {
-            padding: 0 2rem 1.5rem;
-            opacity: 1;
-        }
-
         /* Responsive Layouts */
         @media (max-width: 968px) {
             .hero-container {
@@ -824,16 +736,6 @@
                 flex-direction: column;
                 text-align: center;
                 justify-content: center;
-            }
-            .faq-question {
-                font-size: 1.05rem;
-                padding: 1.2rem 1.5rem;
-            }
-            .faq-answer {
-                padding: 0 1.5rem;
-            }
-            .faq-item.active .faq-answer {
-                padding: 0 1.5rem 1.2rem;
             }
         }
     </style>
@@ -1078,66 +980,67 @@
     </section>
 
     <!-- Exclusive FAQ Section -->
-    <section class="faq-section">
+    <section class="features" style="background: transparent; border-top: 1px solid var(--border);">
         <div class="section-header">
             <h2 style="color: var(--primary);">Pertanyaan Eksklusif</h2>
             <p>Eksplorasi lebih dalam mengenai inovasi pendampingan WLC yang tak biasa.</p>
         </div>
-        <div class="faq-container">
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Apakah WLC sama dengan aplikasi rapor pada umumnya?</span>
-                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
+        <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); text-align: center;">
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-chart-pie" style="font-size: 2.2rem; color: var(--primary);"></i>
                 </div>
-                <div class="faq-answer">
-                    <div style="padding-top: 0.5rem;">
-                        Tentu tidak. WLC berfokus pada observasi <em>Grit</em> (ketahanan belajar) dan kemandirian anak secara <em>real-time</em>, bukan sekadar kompilasi angka akademis statis. Kami menyajikan data kualitatif yang divisualisasikan dengan elegan untuk melacak perkembangan karakter anak dari waktu ke waktu.
-                    </div>
-                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Beda dari Aplikasi Rapor?</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Fokus pada observasi ketahanan belajar (<em>Grit</em>) secara <em>real-time</em>, bukan kompilasi angka statis.</p>
             </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Siapa saja yang memiliki hak akses ke portal premium ini?</span>
-                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-user-shield" style="font-size: 2.2rem; color: var(--primary);"></i>
                 </div>
-                <div class="faq-answer">
-                    <div style="padding-top: 0.5rem;">
-                        Portal ini dirancang dengan standar privasi tinggi, didedikasikan secara eksklusif hanya untuk Evaluator internal bersertifikasi dan Orang Tua murid yang terdaftar secara resmi di jaringan kemitraan eksklusif Kumon Wahidin.
-                    </div>
-                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Akses Portal Premium</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Didedikasikan eksklusif hanya untuk Evaluator bersertifikasi & Orang Tua dari jaringan kemitraan kami.</p>
             </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Bagaimana WLC menjamin kerahasiaan rekam jejak anak saya?</span>
-                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-lock" style="font-size: 2.2rem; color: var(--primary);"></i>
                 </div>
-                <div class="faq-answer">
-                    <div style="padding-top: 0.5rem;">
-                        Keamanan adalah prioritas tak tertawar bagi kami. Seluruh data observasi dan form refleksi dilindungi dalam ekosistem tertutup dengan kredensial akses khusus, memastikan rekam jejak emosional dan karakter anak Anda tersimpan secara privat dan aman.
-                    </div>
-                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Jaminan Kerahasiaan</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Seluruh data observasi dienkripsi <em>end-to-end</em> dengan kredensial akses khusus demi privasi anak Anda.</p>
             </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Berapa banyak waktu yang perlu diinvestasikan untuk refleksi?</span>
-                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-stopwatch" style="font-size: 2.2rem; color: var(--primary);"></i>
                 </div>
-                <div class="faq-answer">
-                    <div style="padding-top: 0.5rem;">
-                        Kami sangat menghargai waktu berharga Anda. Instrumen refleksi WLC dirancang dengan tingkat presisi tinggi dan sangat intuitif, hanya membutuhkan waktu kurang dari 3 menit per sesi untuk memberikan gambaran komprehensif tentang sikap belajar anak di rumah.
-                    </div>
-                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Waktu Refleksi</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Sangat intuitif dan efisien. Hanya butuh kurang dari 3 menit per sesi untuk memberikan gambaran komprehensif.</p>
             </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Apakah Sertifikat Apresiasi digital WLC memiliki validitas resmi?</span>
-                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-certificate" style="font-size: 2.2rem; color: var(--primary);"></i>
                 </div>
-                <div class="faq-answer">
-                    <div style="padding-top: 0.5rem;">
-                        Ya. Setiap Sertifikat Apresiasi yang diterbitkan oleh sistem kami dilengkapi dengan QR Code verifikasi unik yang terenkripsi dan terhubung langsung ke database utama WLC. Hal ini menjadikannya dokumen portofolio karakter yang otentik, valid, dan berkelas.
-                    </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Validitas Sertifikat</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Otentik dan berkelas. Terenkripsi QR Code verifikasi unik yang terhubung langsung ke <em>database</em> utama WLC.</p>
+            </div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-gem" style="font-size: 2.2rem; color: var(--primary);"></i>
                 </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Biaya Akses Aplikasi</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Sepenuhnya gratis sebagai privilese eksklusif bagi wali murid jaringan kemitraan Kumon Wahidin.</p>
+            </div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-share-alt" style="font-size: 2.2rem; color: var(--primary);"></i>
+                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Berbagi Portofolio</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Sertifikat digital memiliki tautan publik unik untuk dibagikan ke media sosial dengan kontrol privasi.</p>
+            </div>
+            <div class="feature-card" style="border: none; background: transparent; padding: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-hands-helping" style="font-size: 2.2rem; color: var(--primary);"></i>
+                </div>
+                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.8rem;">Kendala Emosional</h4>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Sistem memberikan notifikasi peringatan dini jika mendeteksi titik jenuh belajar anak saat diobservasi.</p>
             </div>
         </div>
     </section>
@@ -1236,31 +1139,7 @@
             }
         }
 
-        function initFAQ() {
-            const faqItems = document.querySelectorAll('.faq-item');
-            faqItems.forEach(item => {
-                const question = item.querySelector('.faq-question');
-                question.addEventListener('click', () => {
-                    const isActive = item.classList.contains('active');
-                    
-                    faqItems.forEach(otherItem => {
-                        otherItem.classList.remove('active');
-                        otherItem.querySelector('.faq-answer').style.maxHeight = null;
-                    });
-
-                    if (!isActive) {
-                        item.classList.add('active');
-                        const answer = item.querySelector('.faq-answer');
-                        answer.style.maxHeight = answer.scrollHeight + "px";
-                    }
-                });
-            });
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            applySettings();
-            initFAQ();
-        });
+        window.addEventListener('DOMContentLoaded', applySettings);
     </script>
 </body>
 </html>
