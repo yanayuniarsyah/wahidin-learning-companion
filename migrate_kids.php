@@ -1,5 +1,7 @@
 <?php
-$db = new PDO('sqlite:wlc.db');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+$db = new PDO('sqlite:' . __DIR__ . '/wlc.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Add columns to wlc_instruments
@@ -29,13 +31,13 @@ if (!$stmt->fetch()) {
         'Inisiatif Penyelesaian', 'Respons terhadap Kendala', 'Partisipasi Aktif', 'Lingkungan Belajar'
     ];
     
-    $insertConstruct = $db->prepare("INSERT INTO wlc_constructs (instrument_id, name) VALUES (?, ?)");
-    $insertItem = $db->prepare("INSERT INTO wlc_items (construct_id, text, is_reverse) VALUES (?, ?, 0)");
-    
     // Add columns is_reverse if missing
     try {
         $db->exec("ALTER TABLE wlc_items ADD COLUMN is_reverse INTEGER DEFAULT 0");
     } catch (Exception $e) {}
+    
+    $insertConstruct = $db->prepare("INSERT INTO wlc_constructs (instrument_id, name) VALUES (?, ?)");
+    $insertItem = $db->prepare("INSERT INTO wlc_items (construct_id, text, is_reverse) VALUES (?, ?, 0)");
     
     foreach ($constructs as $c) {
         $insertConstruct->execute([$kids_id, $c]);

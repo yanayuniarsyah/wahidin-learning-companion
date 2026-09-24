@@ -1,5 +1,7 @@
 <?php
-$db = new PDO('sqlite:wlc.db');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+$db = new PDO('sqlite:' . __DIR__ . '/wlc.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec('PRAGMA foreign_keys = ON');
 
