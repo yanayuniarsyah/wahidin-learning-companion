@@ -1897,7 +1897,7 @@ window.saveNewSoal = async function() {
                     <h1>DAFTAR SISWA WLC</h1>
                     <p>Filter: ${filterText}</p>
                     ${tableHtml}
-                <script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
+                </body>
                 </html>
             `;
             window.printHtml(printHtmlContent);
@@ -2552,7 +2552,7 @@ window.executePrintSiswa = function() {
             <h3>Filter: ${filterText} ${detailText ? '(' + detailText + ')' : ''}</h3>
             ${tableHtml}
             <div class="footer">Dicetak pada: ${escapeHtml(new Date().toLocaleString('id-ID'))}</div>
-        <script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
+        </body>
         </html>
     `;
     window.printHtml(printContent);
@@ -3404,7 +3404,7 @@ window.executePrintSiswa = function() {
                     </head>
                     <body>
                         ${certPagesHtml}
-                    <script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
+                    </body>
                     </html>
                 `;
                 
@@ -4057,6 +4057,6 @@ window.executePrintSiswa = function() {
         };
 
 </script>
-<script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
 <script src="wlc_kids.js"></script>
+</body>
 </html>
