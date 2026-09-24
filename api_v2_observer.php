@@ -91,7 +91,7 @@ if ($uri === '/api/v2/observer/session' && $method === 'POST') {
     exit;
 }
 
-if (preg_match('/^\/api\/v2\/student\/session\/(\d+)\/items$/', $uri, $matches) && $method === 'GET') {
+if (preg_match('/^\/api\/v2\/observer\/session\/(\d+)\/items$/', $uri, $matches) && $method === 'GET') {
     $session_id = $matches[1];
     $session = getSession($db, $session_id, $siswa_id);
     
@@ -117,7 +117,7 @@ if (preg_match('/^\/api\/v2\/student\/session\/(\d+)\/items$/', $uri, $matches) 
     exit;
 }
 
-if (preg_match('/^\/api\/v2\/student\/session\/(\d+)\/response$/', $uri, $matches) && ($method === 'PUT' || $method === 'POST')) {
+if (preg_match('/^\/api\/v2\/observer\/session\/(\d+)\/response$/', $uri, $matches) && ($method === 'PUT' || $method === 'POST')) {
     $session_id = $matches[1];
     $session = getSession($db, $session_id, $siswa_id);
     
@@ -159,7 +159,7 @@ if (preg_match('/^\/api\/v2\/student\/session\/(\d+)\/response$/', $uri, $matche
     exit;
 }
 
-if (preg_match('/^\/api\/v2\/student\/session\/(\d+)\/submit$/', $uri, $matches) && $method === 'POST') {
+if (preg_match('/^\/api\/v2\/observer\/session\/(\d+)\/submit$/', $uri, $matches) && $method === 'POST') {
     $session_id = $matches[1];
     $session = getSession($db, $session_id, $siswa_id);
     
@@ -278,5 +278,5 @@ if ($uri === '/api/v2/observer/report/latest' && $method === 'GET') {
 
 // Fallback
 http_response_code(404);
-echo json_encode(['error' => 'Student API Endpoint Not Found']);
+echo json_encode(['error' => 'Observer API Endpoint Not Found']);
 exit;
