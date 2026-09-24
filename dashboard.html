@@ -1713,13 +1713,13 @@ const rubrikSkoring = {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
-            document.getElementById('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard').classList.remove('hidden');
-            window.setActiveSidebar('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard');
+            document.getElementById('manageSoalDashboard').classList.remove('hidden');
+            window.setActiveSidebar('manageSoalDashboard');
             await loadSoalTable();
         };
 
         window.exitManageSoal = function() {
-            document.getElementById('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard').classList.add('hidden');
+            document.getElementById('manageSoalDashboard').classList.add('hidden');
             document.getElementById('ownerDashboard').classList.remove('hidden');
         };
 
@@ -2259,7 +2259,7 @@ window.saveNewSoal = async function() {
                     'manageUsersDashboard': window.manageUsers,
                     'manageSiswaDashboard': window.manageSiswa,
                     'manageSekolahDashboard': window.manageSekolah,
-                    'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard': window.manageSoal,
+                    'manageSoalDashboard': window.manageSoal,
                     'manageJadwalDashboard': window.manageJadwal,
                     'manageGrupDashboard': window.openManageGrup,
                     'printSiswaDashboard': window.openPrintSiswa,
