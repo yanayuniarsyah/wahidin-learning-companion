@@ -318,6 +318,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
 <li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Bagi Grup</a></li>
 <li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Komponen Observasi</a></li>
+<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> Observasi WLC Kids</a></li>
 <li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat WLC</a></li>
 <li><a href="#" onclick="openContohSertifikat();return false;"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</a></li>
 <li><a href="#" onclick="openPrintSiswa();return false;" data-nav="printSiswaDashboard"><i class="fas fa-print"></i> Cetak Siswa</a></li>
@@ -437,6 +438,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
 <button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Bagi Grup</button>
 <button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Komponen Observasi</button>
+<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> Observasi WLC Kids</button>
 <button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat WLC</button>
 <button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
 <button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
@@ -651,6 +653,8 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
     <tbody id="grupTableBody"><tr><td colspan="6" style="text-align:center;">Memuat data grup...</td></tr></tbody>
 </table>
 </div>
+<div id="wlcKidsDashboard" class="hidden"><header class="panel-header"><h1>Observasi WLC Kids</h1></header><div id="wlcKidsContent" class="mt-4"></div></div>
+<div id="wlcKidsDashboard" class="hidden"><header class="panel-header"><h1>Observasi WLC Kids</h1></header><div id="wlcKidsContent" class="mt-4"></div></div>
 <div id="manageSoalDashboard" class="hidden">
 <header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
 <table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
@@ -906,10 +910,14 @@ const rubrikSkoring = {
             
             let finalUrl;
             try {
-                // Determine absolute URL safely. Handle both absolute URLs and paths.
-                const urlStr = (typeof endpoint === 'string') 
-                    ? (endpoint.startsWith('http') ? endpoint : (endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : (endpoint.startsWith('./') ? `${API_BASE}${endpoint.substring(1)}` : `${API_BASE}/${endpoint}`))) 
-                    : endpoint.url;
+                let urlStr = endpoint.url || endpoint;
+                if (typeof urlStr === 'string' && !urlStr.startsWith('http')) {
+                    if (API_BASE && urlStr.startsWith(API_BASE)) {
+                        // Already has API_BASE
+                    } else {
+                        urlStr = urlStr.startsWith('/') ? `${API_BASE}${urlStr}` : (urlStr.startsWith('./') ? `${API_BASE}${urlStr.substring(1)}` : `${API_BASE}/${urlStr}`);
+                    }
+                }
                 finalUrl = new URL(urlStr, window.location.origin);
             } catch (err) {
                 // Fallback to original fetch if URL parsing fails
@@ -925,7 +933,7 @@ const rubrikSkoring = {
                     localStorage.removeItem('wlc_role');
                     localStorage.removeItem('wlc_user');
                     document.getElementById('loginScreen').classList.remove('hidden');
-                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
@@ -1544,7 +1552,7 @@ const rubrikSkoring = {
             localStorage.removeItem('wlc_user');
             localStorage.removeItem('wlc_token');
             document.getElementById('loginScreen').classList.remove('hidden');
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1566,7 +1574,7 @@ const rubrikSkoring = {
         };
 
         window.showRoleDashboard = function(role) {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1624,7 +1632,7 @@ const rubrikSkoring = {
         }
 
         window.manageUsers = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1678,7 +1686,7 @@ const rubrikSkoring = {
         }
 
         window.manageSiswa = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1689,7 +1697,7 @@ const rubrikSkoring = {
         };
 
         window.manageSekolah = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1701,17 +1709,17 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
-            document.getElementById('manageSoalDashboard').classList.remove('hidden');
-            window.setActiveSidebar('manageSoalDashboard');
+            document.getElementById('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard').classList.remove('hidden');
+            window.setActiveSidebar('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard');
             await loadSoalTable();
         };
 
         window.exitManageSoal = function() {
-            document.getElementById('manageSoalDashboard').classList.add('hidden');
+            document.getElementById('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard').classList.add('hidden');
             document.getElementById('ownerDashboard').classList.remove('hidden');
         };
 
@@ -1889,7 +1897,7 @@ window.saveNewSoal = async function() {
                     <h1>DAFTAR SISWA WLC</h1>
                     <p>Filter: ${filterText}</p>
                     ${tableHtml}
-                </body>
+                <script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
                 </html>
             `;
             window.printHtml(printHtmlContent);
@@ -2027,7 +2035,7 @@ window.saveNewSoal = async function() {
         }
 
         window.manageJadwal = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2251,7 +2259,7 @@ window.saveNewSoal = async function() {
                     'manageUsersDashboard': window.manageUsers,
                     'manageSiswaDashboard': window.manageSiswa,
                     'manageSekolahDashboard': window.manageSekolah,
-                    'manageSoalDashboard': window.manageSoal,
+                    'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard': window.manageSoal,
                     'manageJadwalDashboard': window.manageJadwal,
                     'manageGrupDashboard': window.openManageGrup,
                     'printSiswaDashboard': window.openPrintSiswa,
@@ -2278,7 +2286,7 @@ let allJadwalData = [];
 let allKelasData = [];
 
 window.openManageGrup = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2313,7 +2321,10 @@ async function loadAsistenDropdown() {
 
 async function fetchAllSiswaAndKelas() {
     const resS = await fetch(`${API_BASE}/api/siswa`);
-    if(resS.ok) allSiswaData = await resS.json();
+    if(resS.ok) {
+        let json = await resS.json();
+        allSiswaData = json.data || [];
+    }
     const resK = await fetch(`${API_BASE}/api/kelas`);
     if(resK.ok) allKelasData = await resK.json();
 }
@@ -2371,7 +2382,7 @@ async function loadGrupTable() {
 
 // === LOGIKA PRINT SISWA ===
 window.openPrintSiswa = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageGrupDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'manageGrupDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2447,7 +2458,8 @@ window.previewPrintSiswa = async function() {
     
     try {
         const res = await fetch(`${API_BASE}/api/siswa`);
-        let students = await res.json();
+        let r = await res.json();
+        let students = r.data || [];
         
         if (type === 'sekolah') {
             if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -2540,7 +2552,7 @@ window.executePrintSiswa = function() {
             <h3>Filter: ${filterText} ${detailText ? '(' + detailText + ')' : ''}</h3>
             ${tableHtml}
             <div class="footer">Dicetak pada: ${escapeHtml(new Date().toLocaleString('id-ID'))}</div>
-        </body>
+        <script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
         </html>
     `;
     window.printHtml(printContent);
@@ -2962,7 +2974,8 @@ window.executePrintSiswa = function() {
             
             try {
                 const res = await fetch(`${API_BASE}/api/siswa`);
-                let students = await res.json();
+                let r = await res.json();
+                let students = r.data || [];
                 
                 if (printType === 'sekolah' || printType === 'kelas') {
                     if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -3391,7 +3404,7 @@ window.executePrintSiswa = function() {
                     </head>
                     <body>
                         ${certPagesHtml}
-                    </body>
+                    <script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
                     </html>
                 `;
                 
@@ -3982,7 +3995,7 @@ window.executePrintSiswa = function() {
         };
 
         window.hideAllDashboards = function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4044,5 +4057,6 @@ window.executePrintSiswa = function() {
         };
 
 </script>
-</body>
+<script src="wlc_kids.js"></script><script src="wlc_kids.js"></script></body>
+<script src="wlc_kids.js"></script>
 </html>

@@ -1,5 +1,8 @@
 <?php
 // api.php
+if (php_sapi_name() === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
+    return false;
+}
 
 // CORS and response headers
 header("Access-Control-Allow-Origin: *");
@@ -32,9 +35,10 @@ try {
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $db->exec('PRAGMA journal_mode = DELETE;');
     $db->exec('PRAGMA busy_timeout = 5000;');
+    $db->exec('PRAGMA foreign_keys = ON;');
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Database connection failed']);
     exit;
 }
 
@@ -386,6 +390,15 @@ sanitizeObject($inputBody);
 
 // ROUTING
 
+if (strpos($uri, '/api/v2/student') === 0) {
+    require_once 'api_v2_student.php';
+    exit;
+}
+if (strpos($uri, '/api/v2/observer') === 0) {
+    require_once 'api_v2_observer.php';
+    exit;
+}
+
 // 1. Settings Endpoints
 if ($uri === '/api/settings') {
     if ($method === 'GET') {
@@ -415,7 +428,7 @@ if ($uri === '/api/settings') {
         } catch (Exception $e) {
             $db->rollBack();
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => 'Database error']);
         }
         exit;
     }
@@ -768,7 +781,7 @@ if ($uri === '/api/siswa/bulk' && $method === 'POST') {
     } catch (Exception $e) {
         $db->rollBack();
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => 'Database error']);
     }
     exit;
 }
@@ -788,7 +801,14 @@ if ($uri === '/api/observasi') {
         exit;
     } elseif ($method === 'POST') {
         $user = authenticateToken();
-        $siswaId = $inputBody['siswaId'] ?? null;
+        
+        // Identity Hardening: if role is 'siswa', force siswaId from JWT (authoritative source)
+        if (isset($user['role']) && $user['role'] === 'siswa') {
+            $siswaId = $user['reference_id'] ?? $user['id'];
+        } else {
+            $siswaId = $inputBody['siswaId'] ?? null;
+        }
+        
         $soalId = $inputBody['soalId'] ?? null;
         $skor = $inputBody['skor'] ?? null;
         // Verify asistenId matches logged in username (or default to it) to prevent spoofing
@@ -826,7 +846,7 @@ if ($uri === '/api/observasi/bulk' && $method === 'POST') {
     } catch (Exception $e) {
         $db->rollBack();
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => 'Database error']);
     }
     exit;
 }
@@ -940,7 +960,14 @@ if ($uri === '/api/kegiatan-wlc') {
         exit;
     } elseif ($method === 'POST') {
         $user = authenticateToken();
-        $siswaId = $inputBody['siswaId'] ?? null;
+        
+        // Identity Hardening: if role is 'siswa', force siswaId from JWT (authoritative source)
+        if (isset($user['role']) && $user['role'] === 'siswa') {
+            $siswaId = $user['reference_id'] ?? $user['id'];
+        } else {
+            $siswaId = $inputBody['siswaId'] ?? null;
+        }
+        
         $wlc_tipe = $inputBody['wlc_tipe'] ?? null;
         $tanggal = $inputBody['tanggal'] ?? null;
         $org_name = $inputBody['org_name'] ?? '';
@@ -1006,7 +1033,7 @@ if ($uri === '/api/seed-bank-soal' && $method === 'POST') {
         echo json_encode(['success' => true, 'count' => $count]);
     } catch (Exception $e) {
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => 'Database error']);
     }
     exit;
 }

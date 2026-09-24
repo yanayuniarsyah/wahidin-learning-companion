@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WLC Student - Learning Habits Profile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2d5a27; --primary-light: #3e7a36; --primary-dark: #1e3d1a; --accent: #c4a153; --accent-light: #d4b872; --bg-main: #f5f7f5; --bg-card: #ffffff; --text-main: #2c3e2c; --text-muted: #5c705c; --border: #e0e6e0; --danger: #e74c3c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { font-family: 'Playfair Display', serif; color: var(--primary-dark); font-size: 1.8rem; }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .hidden { display: none !important; }
+        .btn { display: inline-block; width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .btn:hover { background: var(--primary-light); }
+        .btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .item-card { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        .item-text { font-weight: 500; margin-bottom: 15px; font-size: 1.1rem; }
+        .scale-options { display: flex; flex-direction: column; gap: 10px; }
+        .scale-option { display: flex; align-items: center; padding: 10px 15px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .scale-option:hover { background: #f0f4f0; }
+        .scale-option.selected { background: var(--primary-light); color: white; border-color: var(--primary); }
+        .scale-option input[type="radio"] { display: none; }
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; font-size: 0.9rem; }
+        .report-construct { border-bottom: 1px solid var(--border); padding: 15px 0; }
+        .report-construct:last-child { border-bottom: none; }
+        .report-category { font-weight: 600; color: var(--accent); }
+        .badge { display: inline-block; padding: 4px 8px; background: #ffeaa7; color: #d35400; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WLC SMP Self-Report</h1>
+            <p id="studentName">Memuat data...</p>
+        </header>
+
+        <!-- Landing Page -->
+        <div id="landingView" class="card hidden">
+            <h2 style="margin-bottom: 10px;">Selamat Datang!</h2>
+            <p style="margin-bottom: 20px;">Mari evaluasi kebiasaan belajarmu. Tidak ada jawaban benar atau salah, jawabanmu tidak mempengaruhi nilai raport.</p>
+            <div id="activeSessionInfo" class="hidden" style="margin-bottom: 15px; color: var(--accent); font-weight: 500;">
+                <i class="fas fa-info-circle"></i> Kamu memiliki sesi yang belum selesai.
+            </div>
+            <button id="btnStart" class="btn">Mulai Evaluasi</button>
+            <button id="btnViewReport" class="btn btn-outline hidden" style="margin-top: 10px;">Lihat Hasil Terakhir</button>
+            <button id="btnLogout" class="btn btn-outline" style="margin-top: 10px; border-color: var(--danger); color: var(--danger);">Logout</button>
+        </div>
+
+        <!-- Questionnaire View -->
+        <div id="questionnaireView" class="hidden">
+            <div class="card" style="position: sticky; top: 0; z-index: 10; padding: 10px 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600;">Progres: <span id="progressText">0/0</span></span>
+                    <div id="savingIndicator" class="hidden" style="color: var(--accent); font-size: 0.9rem;">
+                        <i class="fas fa-spinner fa-spin"></i> Menyimpan...
+                    </div>
+                </div>
+            </div>
+            
+            <div id="itemsContainer" style="margin-top: 20px;"></div>
+            
+            <button id="btnSubmit" class="btn" style="margin-top: 20px;" disabled>Kirim Evaluasi</button>
+            <button id="btnBackToLanding" class="btn btn-outline" style="margin-top: 10px;">Kembali</button>
+        </div>
+
+        <!-- Report View -->
+        <div id="reportView" class="card hidden">
+            <h2 style="text-align: center; margin-bottom: 5px;">Learning Habits Profile</h2>
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);" id="reportDate"></p>
+            
+            <div id="reportContent"></div>
+
+            <p style="margin-top: 20px; font-size: 0.85rem; font-style: italic; color: var(--text-muted);">
+                Menurut jawaban siswa, profil ini dirancang untuk mendampingi perkembangan kebiasaan belajar dan tidak ditujukan sebagai diagnosis psikologis atau medis.
+            </p>
+            <div id="provisionalBadge" class="hidden">
+                <span class="badge">PROVISIONAL CONTENT (SME VALIDATION PENDING)</span>
+            </div>
+
+            <button id="btnBackFromReport" class="btn" style="margin-top: 20px;">Tutup Laporan</button>
+        </div>
+    </div>
+
+    <div id="toast">Notifikasi</div>
+
+    <script>
+        const API_BASE = '';
+        let currentSessionId = null;
+        let totalItems = 0;
+        let answeredItems = 0;
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 3000);
+        }
+
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('wlc_student_token');
+            if (!token) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            if (!options.headers) options.headers = {};
+            options.headers['Authorization'] = `Bearer ${token}`;
+            options.headers['Content-Type'] = 'application/json';
+            
+            try {
+                const res = await fetch(url, options);
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('wlc_student_token');
+                    window.location.href = 'index.html';
+                    return null;
+                }
+                return res;
+            } catch (e) {
+                console.error(e);
+                showToast("Koneksi gagal");
+                return null;
+            }
+        }
+
+        async function init() {
+            try {
+                const token = localStorage.getItem('wlc_student_token');
+                if(!token) return window.location.href = 'index.html';
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                document.getElementById('studentName').textContent = `Halo, ${payload.username}`;
+
+                const res = await fetchWithAuth(`${API_BASE}/api/v2/student/session/active`);
+                if (res && res.ok) {
+                    const json = await res.json();
+                    document.getElementById('landingView').classList.remove('hidden');
+                    
+                    if (json.data) {
+                        currentSessionId = json.data.id;
+                        document.getElementById('activeSessionInfo').classList.remove('hidden');
+                        document.getElementById('btnStart').textContent = "Lanjutkan Evaluasi";
+                    }
+
+                    // Check if report exists
+                    const repRes = await fetchWithAuth(`${API_BASE}/api/v2/student/report/latest`);
+                    if (repRes && repRes.ok) {
+                        document.getElementById('btnViewReport').classList.remove('hidden');
+                    }
+                }
+            } catch (e) {
+                showToast("Gagal memuat data awal");
+            }
+        }
+
+        document.getElementById('btnLogout').onclick = () => {
+            localStorage.removeItem('wlc_student_token');
+            window.location.href = 'index.html';
+        };
+
+        document.getElementById('btnStart').onclick = async () => {
+            document.getElementById('btnStart').disabled = true;
+            if (!currentSessionId) {
+                const res = await fetchWithAuth(`${API_BASE}/api/v2/student/session`, {
+                    method: 'POST',
+                    body: JSON.stringify({ methodology: 'SMP Self-Report' })
+                });
+                if (res && res.ok) {
+                    const json = await res.json();
+                    currentSessionId = json.id;
+                }
+            }
+            
+            if (currentSessionId) {
+                await loadQuestionnaire();
+            }
+            document.getElementById('btnStart').disabled = false;
+        };
+
+        async function loadQuestionnaire() {
+            const res = await fetchWithAuth(`${API_BASE}/api/v2/student/session/${currentSessionId}/items`);
+            if (res && res.ok) {
+                const json = await res.json();
+                document.getElementById('landingView').classList.add('hidden');
+                document.getElementById('questionnaireView').classList.remove('hidden');
+                
+                const container = document.getElementById('itemsContainer');
+                container.innerHTML = '';
+                totalItems = json.data.length;
+                answeredItems = 0;
+
+                const scales = [
+                    {val: 1, label: 'Sangat Jarang / Tidak Pernah'},
+                    {val: 2, label: 'Kadang-Kadang'},
+                    {val: 3, label: 'Sering'},
+                    {val: 4, label: 'Selalu / Hampir Selalu'}
+                ];
+
+                let currentConstruct = '';
+                json.data.forEach((item, index) => {
+                    if (item.skor) answeredItems++;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'item-card';
+                    
+                    let scaleHtml = scales.map(s => `
+                        <label class="scale-option ${item.skor == s.val ? 'selected' : ''}">
+                            <input type="radio" name="item_${item.item_id}" value="${s.val}" ${item.skor == s.val ? 'checked' : ''} onchange="saveResponse(${item.item_id}, ${s.val}, this)">
+                            ${s.label}
+                        </label>
+                    `).join('');
+
+                    div.innerHTML = `
+                        <div class="item-text">${index + 1}. ${item.text}</div>
+                        <div class="scale-options">${scaleHtml}</div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                updateProgress();
+            }
+        }
+
+        window.saveResponse = async (itemId, skor, radioEl) => {
+            // Update UI immediately
+            const labels = radioEl.closest('.scale-options').querySelectorAll('.scale-option');
+            labels.forEach(l => l.classList.remove('selected'));
+            radioEl.parentElement.classList.add('selected');
+
+            document.getElementById('savingIndicator').classList.remove('hidden');
+            
+            const res = await fetchWithAuth(`${API_BASE}/api/v2/student/session/${currentSessionId}/response`, {
+                method: 'POST',
+                body: JSON.stringify({ itemId, skor: parseInt(skor) })
+            });
+
+            if (res && res.ok) {
+                // Count answered items
+                const checked = document.querySelectorAll('input[type="radio"]:checked').length;
+                answeredItems = checked;
+                updateProgress();
+            } else {
+                showToast("Gagal menyimpan jawaban. Periksa koneksi.");
+            }
+            document.getElementById('savingIndicator').classList.add('hidden');
+        };
+
+        function updateProgress() {
+            document.getElementById('progressText').textContent = `${answeredItems}/${totalItems}`;
+            document.getElementById('btnSubmit').disabled = (answeredItems < totalItems);
+        }
+
+        document.getElementById('btnBackToLanding').onclick = () => {
+            document.getElementById('questionnaireView').classList.add('hidden');
+            document.getElementById('landingView').classList.remove('hidden');
+        };
+
+        document.getElementById('btnSubmit').onclick = async () => {
+            if (answeredItems < totalItems) {
+                return showToast("Harap selesaikan semua pertanyaan.");
+            }
+
+            if (!confirm("Kirim evaluasi sekarang? Jawaban tidak dapat diubah lagi.")) return;
+
+            document.getElementById('btnSubmit').disabled = true;
+            const res = await fetchWithAuth(`${API_BASE}/api/v2/student/session/${currentSessionId}/submit`, {
+                method: 'POST'
+            });
+
+            if (res && res.ok) {
+                showToast("Evaluasi berhasil dikirim!");
+                currentSessionId = null;
+                document.getElementById('activeSessionInfo').classList.add('hidden');
+                document.getElementById('btnStart').textContent = "Mulai Evaluasi";
+                document.getElementById('questionnaireView').classList.add('hidden');
+                await loadReport();
+            } else {
+                const err = await res.json();
+                showToast(err.error || "Gagal mengirim evaluasi.");
+            }
+            document.getElementById('btnSubmit').disabled = false;
+        };
+
+        document.getElementById('btnViewReport').onclick = loadReport;
+        document.getElementById('btnBackFromReport').onclick = () => {
+            document.getElementById('reportView').classList.add('hidden');
+            document.getElementById('landingView').classList.remove('hidden');
+        };
+
+        async function loadReport() {
+            const res = await fetchWithAuth(`${API_BASE}/api/v2/student/report/latest`);
+            if (res && res.ok) {
+                const json = await res.json();
+                
+                document.getElementById('landingView').classList.add('hidden');
+                document.getElementById('reportView').classList.remove('hidden');
+                document.getElementById('btnViewReport').classList.remove('hidden');
+                
+                const d = new Date(json.submitted_at);
+                document.getElementById('reportDate').textContent = "Tanggal Evaluasi: " + d.toLocaleDateString('id-ID');
+
+                if (json.content_status === 'PROVISIONAL') {
+                    document.getElementById('provisionalBadge').classList.remove('hidden');
+                } else {
+                    document.getElementById('provisionalBadge').classList.add('hidden');
+                }
+
+                const container = document.getElementById('reportContent');
+                container.innerHTML = '';
+
+                json.data.forEach(r => {
+                    const div = document.createElement('div');
+                    div.className = 'report-construct';
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-weight: 500;">${r.name}</span>
+                            <span class="report-category">${r.category}</span>
+                        </div>
+                        <div style="background: #e0e6e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: var(--primary); height: 100%; width: ${(r.avg_skor / 4) * 100}%;"></div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

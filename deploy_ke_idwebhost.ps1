@@ -18,8 +18,8 @@ Write-Host "Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
 # 1. Bikin file ZIP lokal (TANPA wlc.db)
 Write-Host "Sedang mengemas file update dan file wlc diabaikan agar aman"
 $filesToZip = @(
-    ".htaccess", ".jwt_secret", "api.php", "router.php", 
-    "index.html", "dashboard.html", 
+    ".htaccess", ".jwt_secret", "api.php", "api_v2_student.php", "router.php", 
+    "index.html", "dashboard.html", "student.html",
     "share.html", "reflection.html", "bank_soal_wlc1.json", 
     "logo_wahidin.png", "manifest.json", "WLC Certificate - Budi.pdf"
 )
