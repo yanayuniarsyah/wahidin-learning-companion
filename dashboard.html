@@ -246,13 +246,13 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-row">
         <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
-            <option value="Kesiapan">Kesiapan</option>
-            <option value="Fokus">Fokus</option>
-            <option value="Instruksi">Instruksi</option>
-            <option value="Kemandirian">Kemandirian</option>
-            <option value="Ketekunan">Ketekunan</option>
-            <option value="Emosi">Emosi</option>
-            <option value="Minat">Minat</option>
+            <option value="Kesiapan">Transisi ke Belajar</option>
+            <option value="Fokus">Keterlibatan Tugas</option>
+            <option value="Instruksi">Penerapan Instruksi</option>
+            <option value="Kemandirian">Inisiatif Penyelesaian</option>
+            <option value="Ketekunan">Respons terhadap Kendala</option>
+            <option value="Emosi">Ekspresi Perilaku</option>
+            <option value="Minat">Partisipasi Aktif</option>
         </select></div>
         <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
     </div>
@@ -512,12 +512,12 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
                     <th>Waktu</th>
                     <th>Siswa</th>
                     <th>Orang Tua</th>
-                    <th>Kesiapan</th>
-                    <th>Fokus</th>
-                    <th>Kemandirian</th>
-                    <th>Ketekunan</th>
-                    <th>Emosi</th>
-                    <th>Minat</th>
+                    <th>Transisi ke Belajar</th>
+                    <th>Keterlibatan Tugas</th>
+                    <th>Inisiatif Penyelesaian</th>
+                    <th>Respons terhadap Kendala</th>
+                    <th>Ekspresi Perilaku</th>
+                    <th>Partisipasi Aktif</th>
                     <th>Catatan</th>
                 </tr>
             </thead>
@@ -3862,7 +3862,7 @@ window.executePrintSiswa = function() {
             const scores2 = calculateScores(obs2);
             
             const compKeys = ['kesiapan', 'fokus', 'respons', 'kemandirian', 'ketekunan', 'emosional', 'minat'];
-            const compLabels = ['Kesiapan', 'Fokus', 'Instruksi/Respons', 'Kemandirian', 'Ketekunan', 'Emosional', 'Minat'];
+            const compLabels = ['Transisi ke Belajar', 'Keterlibatan Tugas', 'Penerapan Instruksi', 'Inisiatif Penyelesaian', 'Respons terhadap Kendala', 'Ekspresi Perilaku', 'Partisipasi Aktif'];
             
             const data1 = compKeys.map(k => scores1[k]);
             const data2 = compKeys.map(k => scores2[k]);
