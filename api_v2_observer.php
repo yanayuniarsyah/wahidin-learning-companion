@@ -63,7 +63,7 @@ if ($uri === '/api/v2/observer/session' && $method === 'POST') {
     $target_grade = $inputBody['target_grade'] ?? 'TK';
     
     // Validate Instrument
-    $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE methodology = ? AND target_grade = ? AND status IN ('active', 'provisional') ORDER BY version DESC LIMIT 1");
+    $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE methodology = ? AND target_grade = ? AND UPPER(status) IN ('ACTIVE', 'PROVISIONAL') ORDER BY version DESC LIMIT 1");
     $stmt->execute([$methodology, $target_grade]);
     $instrument = $stmt->fetch(PDO::FETCH_ASSOC);
     
