@@ -458,6 +458,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Bagi Grup</button>
 <button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Komponen Observasi</button>
 
+<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat WLC</button>
 <button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
 <button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
 <button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
@@ -678,6 +679,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
 </div>
 <div id="manageCertDashboard" class="hidden">
+<div id="manageCertModal" style="display:contents;">
     <header class="panel-header">
         <button class="btn btn-secondary" onclick="exitManageCert()"><i class="fas fa-arrow-left"></i> Kembali</button>
         <h1>Cetak Sertifikat WLC</h1>
@@ -782,6 +784,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
             </table>
         </div>
     </div>
+</div>
 </div>
 <div id="printSiswaDashboard" class="hidden">
 <header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div></header>
