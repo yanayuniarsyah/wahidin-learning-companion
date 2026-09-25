@@ -1,7 +1,7 @@
 function openWlcKids() {
-    hideAllPanels();
+    if (typeof window.hideAllDashboards === 'function') window.hideAllDashboards();
     document.getElementById('wlcKidsDashboard').classList.remove('hidden');
-    window.setActiveSidebar('wlcKidsDashboard');
+    if (typeof window.setActiveSidebar === 'function') window.setActiveSidebar('wlcKidsDashboard');
     loadKidsTargetSiswa();
 }
 
