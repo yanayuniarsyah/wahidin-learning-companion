@@ -19,10 +19,10 @@ Write-Host "Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
 Write-Host "Sedang mengemas file update dan file wlc diabaikan agar aman"
 $filesToZip = @(
     ".htaccess", ".jwt_secret", "api.php", "api_v2_student.php", "api_v2_observer.php", "router.php", 
-    "index.html", "dashboard.html", "student.html", "observer.html", "wlc_kids.js",
+    "index.html", "dashboard.html", "dashboard2.html", "student.html", "observer.html", "wlc_kids.js",
     "share.html", "reflection.html", "bank_soal_wlc1.json", 
     "logo_wahidin.png", "manifest.json", "WLC Certificate - Budi.pdf",
-    "migrate.php", "migrate_kids.php", "migrate_seed.php", "seed_kids_content.php"
+    "migrate.php", "migrate_kids.php", "migrate_seed.php", "seed_kids_content.php", "full_seed_prod.php", "db_export.json"
 )
 Compress-Archive -Path $filesToZip -DestinationPath "update_wlc.zip" -Force
 

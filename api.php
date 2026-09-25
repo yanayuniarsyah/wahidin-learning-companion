@@ -234,10 +234,29 @@ function initDatabase($db) {
     $stmt = $db->query("SELECT COUNT(*) as count FROM users");
     $row = $stmt->fetch();
     if ($row['count'] == 0) {
+        // Validate required environment variables for default users
+        $ownerPass = getenv('WLC_OWNER_PASSWORD');
+        $evaluatorPass = getenv('WLC_EVALUATOR_PASSWORD');
+        $asistenPass = getenv('WLC_ASISTEN_PASSWORD');
+        if (!$ownerPass || strlen($ownerPass) < 8) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Environment variable WLC_OWNER_PASSWORD missing or too short (min 8)']);
+            exit;
+        }
+        if (!$evaluatorPass || strlen($evaluatorPass) < 8) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Environment variable WLC_EVALUATOR_PASSWORD missing or too short (min 8)']);
+            exit;
+        }
+        if (!$asistenPass || strlen($asistenPass) < 8) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Environment variable WLC_ASISTEN_PASSWORD missing or too short (min 8)']);
+            exit;
+        }
         $insertUser = $db->prepare("INSERT OR IGNORE INTO users (role, username, password) VALUES (?, ?, ?)");
-        $insertUser->execute(['owner', 'owner', password_hash('owner123', PASSWORD_BCRYPT, ['cost' => 10])]);
-        $insertUser->execute(['evaluator', 'evaluator', password_hash('evaluator123', PASSWORD_BCRYPT, ['cost' => 10])]);
-        $insertUser->execute(['asisten', 'asisten', password_hash('asisten123', PASSWORD_BCRYPT, ['cost' => 10])]);
+        $insertUser->execute(['owner', 'owner', password_hash($ownerPass, PASSWORD_BCRYPT, ['cost' => 10])]);
+        $insertUser->execute(['evaluator', 'evaluator', password_hash($evaluatorPass, PASSWORD_BCRYPT, ['cost' => 10])]);
+        $insertUser->execute(['asisten', 'asisten', password_hash($asistenPass, PASSWORD_BCRYPT, ['cost' => 10])]);
     }
     
     $db->exec("CREATE TABLE IF NOT EXISTS settings (
@@ -598,6 +617,36 @@ if ($uri === '/api/login' && $method === 'POST') {
         'token' => $token,
         'user' => ['role' => $user['role'], 'username' => $user['username']]
     ]);
+    exit;
+}
+
+// 5.5 Reset Password Endpoint
+if ($uri === '/api/reset-password' && $method === 'POST') {
+    $username = $inputBody['username'] ?? '';
+    $new_password = $inputBody['new_password'] ?? '';
+
+    if (!$username || !$new_password) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Username dan password baru wajib diisi']);
+        exit;
+    }
+
+    $sanitizedUsername = preg_replace('/[^a-zA-Z0-9_]/', '', $username);
+    $stmt = $db->prepare('SELECT id FROM users WHERE username = ?');
+    $stmt->execute([$sanitizedUsername]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Username tidak ditemukan']);
+        exit;
+    }
+
+    $hashed = password_hash($new_password, PASSWORD_BCRYPT, ['cost' => 10]);
+    $stmtUpgrade = $db->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmtUpgrade->execute([$hashed, $user['id']]);
+
+    echo json_encode(['success' => true]);
     exit;
 }
 

@@ -16,10 +16,11 @@ async function loadKidsTargetSiswa() {
             html += `<div class="card bg-gray-800 p-4 rounded-xl">
                 <h3 class="text-xl font-bold text-yellow-500">${s.nama}</h3>
                 <p>NIS: ${s.nis}</p>
-                <div class="mt-3 flex gap-2">
+                <div class="mt-3 flex gap-2 flex-wrap">
                     <button class="btn btn-primary text-sm" onclick="startKidsObservation(${s.id}, 'TK')">TK</button>
                     <button class="btn btn-primary text-sm" onclick="startKidsObservation(${s.id}, 'SD 1-3')">SD 1-3</button>
                     <button class="btn btn-primary text-sm" onclick="startKidsObservation(${s.id}, 'SD 4-6')">SD 4-6</button>
+
                 </div>
             </div>`;
         });

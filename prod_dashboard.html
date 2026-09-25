@@ -204,7 +204,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <div id="usersFormContainer" class="hidden">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
-    <div class="form-group" style="position:relative;"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******" style="padding-right:3rem;"><i class="fas fa-eye" style="position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('newUserPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i></div>
+    <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******"></div>
     <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
     <button class="btn btn-primary" onclick="saveNewUser()" style="width:100%;margin-top:1rem;"><i class="fas fa-save"></i> Simpan User</button>
 </div>
@@ -246,13 +246,13 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-row">
         <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
-            <option value="Kesiapan">Kesiapan</option>
-            <option value="Fokus">Fokus</option>
-            <option value="Instruksi">Instruksi</option>
-            <option value="Kemandirian">Kemandirian</option>
-            <option value="Ketekunan">Ketekunan</option>
-            <option value="Emosi">Emosi</option>
-            <option value="Minat">Minat</option>
+            <option value="Kesiapan">Transisi ke Belajar</option>
+            <option value="Fokus">Keterlibatan Tugas</option>
+            <option value="Instruksi">Penerapan Instruksi</option>
+            <option value="Kemandirian">Inisiatif Penyelesaian</option>
+            <option value="Ketekunan">Respons terhadap Kendala</option>
+            <option value="Emosi">Ekspresi Perilaku</option>
+            <option value="Minat">Partisipasi Aktif</option>
         </select></div>
         <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
     </div>
@@ -318,11 +318,10 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
 <li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Bagi Grup</a></li>
 <li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Komponen Observasi</a></li>
+<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> Observasi WLC Kids</a></li>
 <li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat WLC</a></li>
-<li><a href="#" onclick="window.location.href='export.php'" data-nav="backupDashboard"><i class="fas fa-database"></i> Backup Database</a></li>
-<li><a href="#" onclick="openWlcKids()" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> WLC Kids</a></li>
-<li><a href="#" onclick="window.location.href='student.html'" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> WLC Teen Questionnaire</a></li>
-
+<li><a href="#" onclick="openContohSertifikat();return false;"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</a></li>
+<li><a href="#" onclick="openPrintSiswa();return false;" data-nav="printSiswaDashboard"><i class="fas fa-print"></i> Cetak Siswa</a></li>
 <li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> Growth Check</a></li>
 <li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> Refleksi Ortu</a></li>
 <li><a href="#" onclick="openManageSettings();return false;" data-nav="manageSettingsDashboard"><i class="fas fa-cog"></i> Pengaturan</a></li>
@@ -344,14 +343,11 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginUsername">Username</label>
 <input type="text" id="loginUsername" class="form-input" placeholder="Masukkan username" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
 </div>
-<div style="text-align:left;margin-bottom:2.5rem;position:relative;">
+<div style="text-align:left;margin-bottom:2.5rem;">
 <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginPassword">Password</label>
-<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 3rem 0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
-<i class="fas fa-eye" id="toggleLoginPassword" style="position:absolute;right:1rem;top:2.7rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('loginPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i>
-<div style="text-align:right; margin-top:0.5rem;">
-<a href="forgot_password.html" style="color:var(--primary); font-size:0.9rem; text-decoration:none;">Lupa Password?</a>
-</div>
-</div>
+<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
+<span class="toggle-pass" onclick="togglePassword('loginPassword')" style="margin-left:0.5rem;cursor:pointer;color:var(--text-muted);"><i class="fas fa-eye"></i></span>
+<p style="margin-top:0.5rem;text-align:right;"><a href="forgot_password.html" style="color:var(--primary);font-size:0.9rem;">Lupa Password?</a></p>
 <button class="btn btn-primary" onclick="doLogin()" style="width:100%;height:50px;font-weight:700;font-size:0.95rem;border-radius:0.75rem;background:var(--primary);color:#0a0a0a;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 8px 12px -3px rgba(212, 175, 55, 0.3);letter-spacing:1px;">
 SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </button>
@@ -361,11 +357,6 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <div id="userInfo" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; background: var(--surface); padding: 1rem 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
 <div style="font-weight: bold; color: var(--text-main);">Role Anda: <span id="loggedRole" style="color: var(--primary); text-transform: uppercase;"></span></div>
 <div id="quizUserInfo" style="font-weight: 600; color: var(--secondary);"></div>
-</div>
-
-<div id="wlcKidsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
-<div id="wlcKidsContent" style="margin-top:1rem;"><p style="color:var(--text-muted);">Memuat data siswa...</p></div>
 </div>
 
 <div id="manageSettingsDashboard" class="hidden">
@@ -437,8 +428,6 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
 <button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
 <button class="menu-btn" onclick="exportAllReports()"><i class="fas fa-download"></i> Export Data</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids</button>
-<button class="menu-btn" onclick="window.location.href='student.html'"><i class="fas fa-user-graduate"></i> WLC Teen Questionnaire</button>
 </div>
 </div>
 <div id="ownerDashboard" class="hidden">
@@ -450,14 +439,13 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
 <button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Bagi Grup</button>
 <button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Komponen Observasi</button>
-
+<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> Observasi WLC Kids</button>
+<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat WLC</button>
 <button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
 <button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
 <button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
 <button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu (WLC-2)</button>
 <button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids & Teen</button>
-<button class="menu-btn" onclick="window.location.href='export.php'"><i class="fas fa-database"></i> Backup DB</button>
 </div>
 </div>
 
@@ -527,12 +515,12 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
                     <th>Waktu</th>
                     <th>Siswa</th>
                     <th>Orang Tua</th>
-                    <th>Kesiapan</th>
-                    <th>Fokus</th>
-                    <th>Kemandirian</th>
-                    <th>Ketekunan</th>
-                    <th>Emosi</th>
-                    <th>Minat</th>
+                    <th>Transisi ke Belajar</th>
+                    <th>Keterlibatan Tugas</th>
+                    <th>Inisiatif Penyelesaian</th>
+                    <th>Respons terhadap Kendala</th>
+                    <th>Ekspresi Perilaku</th>
+                    <th>Partisipasi Aktif</th>
                     <th>Catatan</th>
                 </tr>
             </thead>
@@ -666,6 +654,8 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
     <tbody id="grupTableBody"><tr><td colspan="6" style="text-align:center;">Memuat data grup...</td></tr></tbody>
 </table>
 </div>
+<div id="wlcKidsDashboard" class="hidden"><header class="panel-header"><h1>Observasi WLC Kids</h1></header><div id="wlcKidsContent" class="mt-4"></div></div>
+<div id="wlcKidsDashboard" class="hidden"><header class="panel-header"><h1>Observasi WLC Kids</h1></header><div id="wlcKidsContent" class="mt-4"></div></div>
 <div id="manageSoalDashboard" class="hidden">
 <header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
 <table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
@@ -812,7 +802,6 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 </div>
 </div> <!-- Akhir dari container utama -->
-<script src="wlc_kids.js"></script>
 <script>
 const rubrikSkoring = {
     'Kesiapan': {
@@ -922,10 +911,14 @@ const rubrikSkoring = {
             
             let finalUrl;
             try {
-                // Determine absolute URL safely. Handle both absolute URLs and paths.
-                const urlStr = (typeof endpoint === 'string') 
-                    ? (endpoint.startsWith('http') ? endpoint : (endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : (endpoint.startsWith('./') ? `${API_BASE}${endpoint.substring(1)}` : `${API_BASE}/${endpoint}`))) 
-                    : endpoint.url;
+                let urlStr = endpoint.url || endpoint;
+                if (typeof urlStr === 'string' && !urlStr.startsWith('http')) {
+                    if (API_BASE && urlStr.startsWith(API_BASE)) {
+                        // Already has API_BASE
+                    } else {
+                        urlStr = urlStr.startsWith('/') ? `${API_BASE}${urlStr}` : (urlStr.startsWith('./') ? `${API_BASE}${urlStr.substring(1)}` : `${API_BASE}/${urlStr}`);
+                    }
+                }
                 finalUrl = new URL(urlStr, window.location.origin);
             } catch (err) {
                 // Fallback to original fetch if URL parsing fails
@@ -941,7 +934,7 @@ const rubrikSkoring = {
                     localStorage.removeItem('wlc_role');
                     localStorage.removeItem('wlc_user');
                     document.getElementById('loginScreen').classList.remove('hidden');
-                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
@@ -1299,6 +1292,16 @@ const rubrikSkoring = {
         window.showPanduan = function() {
             showToast('📖 Panduan: Klik dot 1-5 untuk skor murid. ←→ navigasi soal.');
         }
+        // Show/hide password toggle
+        window.togglePassword = function(id) {
+            const input = document.getElementById(id);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        };
 
         window.resetAllData = function() {
             if (confirm('Reset semua data local?')) {
@@ -1560,7 +1563,7 @@ const rubrikSkoring = {
             localStorage.removeItem('wlc_user');
             localStorage.removeItem('wlc_token');
             document.getElementById('loginScreen').classList.remove('hidden');
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1582,7 +1585,7 @@ const rubrikSkoring = {
         };
 
         window.showRoleDashboard = function(role) {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1640,7 +1643,7 @@ const rubrikSkoring = {
         }
 
         window.manageUsers = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1694,7 +1697,7 @@ const rubrikSkoring = {
         }
 
         window.manageSiswa = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1705,7 +1708,7 @@ const rubrikSkoring = {
         };
 
         window.manageSekolah = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1717,7 +1720,7 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2043,7 +2046,7 @@ window.saveNewSoal = async function() {
         }
 
         window.manageJadwal = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2137,22 +2140,9 @@ window.saveNewSoal = async function() {
                     input.className = 'form-input';
                     input.type = f.type || 'text';
                     input.value = f.val || '';
-                    if (f.type === 'password') {
-                        group.style.position = 'relative';
-                        input.style.paddingRight = '3rem';
-                    }
                 }
                 input.id = `edit_${escapeHtml(f.key)}`;
                 group.appendChild(input);
-                if (f.type === 'password') {
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-eye';
-                    icon.style.cssText = 'position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);';
-                    icon.onclick = function() {
-                        if(input.type==='password'){input.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{input.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}
-                    };
-                    group.appendChild(icon);
-                }
                 fieldsContainer.appendChild(group);
             });
             overlay.classList.add('show');
@@ -2307,7 +2297,7 @@ let allJadwalData = [];
 let allKelasData = [];
 
 window.openManageGrup = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2342,7 +2332,10 @@ async function loadAsistenDropdown() {
 
 async function fetchAllSiswaAndKelas() {
     const resS = await fetch(`${API_BASE}/api/siswa`);
-    if(resS.ok) allSiswaData = await resS.json();
+    if(resS.ok) {
+        let json = await resS.json();
+        allSiswaData = json.data || [];
+    }
     const resK = await fetch(`${API_BASE}/api/kelas`);
     if(resK.ok) allKelasData = await resK.json();
 }
@@ -2400,7 +2393,7 @@ async function loadGrupTable() {
 
 // === LOGIKA PRINT SISWA ===
 window.openPrintSiswa = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageGrupDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'manageGrupDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2476,7 +2469,8 @@ window.previewPrintSiswa = async function() {
     
     try {
         const res = await fetch(`${API_BASE}/api/siswa`);
-        let students = await res.json();
+        let r = await res.json();
+        let students = r.data || [];
         
         if (type === 'sekolah') {
             if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -2991,7 +2985,8 @@ window.executePrintSiswa = function() {
             
             try {
                 const res = await fetch(`${API_BASE}/api/siswa`);
-                let students = await res.json();
+                let r = await res.json();
+                let students = r.data || [];
                 
                 if (printType === 'sekolah' || printType === 'kelas') {
                     if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -3891,7 +3886,7 @@ window.executePrintSiswa = function() {
             const scores2 = calculateScores(obs2);
             
             const compKeys = ['kesiapan', 'fokus', 'respons', 'kemandirian', 'ketekunan', 'emosional', 'minat'];
-            const compLabels = ['Kesiapan', 'Fokus', 'Instruksi/Respons', 'Kemandirian', 'Ketekunan', 'Emosional', 'Minat'];
+            const compLabels = ['Transisi ke Belajar', 'Keterlibatan Tugas', 'Penerapan Instruksi', 'Inisiatif Penyelesaian', 'Respons terhadap Kendala', 'Ekspresi Perilaku', 'Partisipasi Aktif'];
             
             const data1 = compKeys.map(k => scores1[k]);
             const data2 = compKeys.map(k => scores2[k]);
@@ -4011,7 +4006,7 @@ window.executePrintSiswa = function() {
         };
 
         window.hideAllDashboards = function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4073,5 +4068,6 @@ window.executePrintSiswa = function() {
         };
 
 </script>
+<script src="wlc_kids.js"></script>
 </body>
 </html>
