@@ -108,7 +108,7 @@
         async function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem('wlc_student_token');
             if (!token) {
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
                 return null;
             }
             if (!options.headers) options.headers = {};
@@ -119,7 +119,7 @@
                 const res = await fetch(url, options);
                 if (res.status === 401 || res.status === 403) {
                     localStorage.removeItem('wlc_student_token');
-                    window.location.href = 'index.html';
+                    window.location.href = 'dashboard.html';
                     return null;
                 }
                 return res;
@@ -133,7 +133,7 @@
         async function init() {
             try {
                 const token = localStorage.getItem('wlc_student_token');
-                if(!token) return window.location.href = 'index.html';
+                if(!token) return window.location.href = 'dashboard.html';
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 document.getElementById('studentName').textContent = `Halo, ${payload.username}`;
 
@@ -161,7 +161,7 @@
 
         document.getElementById('btnLogout').onclick = () => {
             localStorage.removeItem('wlc_student_token');
-            window.location.href = 'index.html';
+            window.location.href = 'dashboard.html';
         };
 
         document.getElementById('btnStart').onclick = async () => {
