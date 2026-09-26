@@ -55,7 +55,18 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .sidebar-nav a:hover,.sidebar-nav a.active{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);}
 .sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
 @media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
-@media(min-width:1025px){body.has-sidebar .sidebar{left:0;}body.has-sidebar .container{margin-left:260px;max-width:calc(100% - 260px);}.sidebar-overlay{display:none!important;}}
+@media(min-width:1025px){
+  body.has-sidebar .sidebar { left: 0; width: 75px; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-x: hidden; white-space: nowrap; }
+  body.has-sidebar .sidebar:hover { width: 260px; box-shadow: var(--shadow-lg); }
+  body.has-sidebar .container { margin-left: 75px; max-width: calc(100% - 75px); transition: margin-left 0.3s, max-width 0.3s; }
+  body.has-sidebar .sidebar:not(:hover) .sidebar-nav a { padding-left: 1.5rem; }
+  body.has-sidebar .sidebar:not(:hover) .sidebar-nav a i { margin-right: 2rem; }
+  body.has-sidebar .sidebar:not(:hover) .sidebar-nav a span.nav-text, 
+  body.has-sidebar .sidebar:not(:hover) .sidebar-brand div:nth-child(2),
+  body.has-sidebar .sidebar:not(:hover) .sidebar-group-label,
+  body.has-sidebar .sidebar:not(:hover) .sidebar-footer { opacity: 0; visibility: hidden; pointer-events: none; }
+  .sidebar-overlay { display: none!important; }
+}
 .notification{position:fixed;bottom:2rem;right:2rem;background:#27272a;color:white;padding:1rem 1.5rem;border-radius:8px;font-weight:500;box-shadow:var(--shadow-lg);z-index:2000;}
 .soal-counter{text-align:center;margin-bottom:2rem;}
 .soal-number{font-size:3rem;color:var(--primary);font-weight:800;line-height:1;}
@@ -312,26 +323,27 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 </div>
 <ul class="sidebar-nav">
-<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> Beranda</a></li>
+<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> <span class="nav-text">Beranda</span></a></li>
 
 <li><span class="sidebar-group-label">Data</span></li>
-<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
-<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> Sekolah & Kelas</a></li>
-<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Group</a></li>
-<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Instrumen</a></li>
+<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> <span class="nav-text">Siswa</span></a></li>
+<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> <span class="nav-text">Sekolah & Kelas</span></a></li>
+<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> <span class="nav-text">Group</span></a></li>
+<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> <span class="nav-text">Instrumen</span></a></li>
 
 <li><span class="sidebar-group-label">WLC</span></li>
-<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> WLC Kids</a></li>
-<li><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</a></li>
-<li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> Growth Check</a></li>
-<li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> Refleksi Ortu</a></li>
-<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> Jadwal</a></li>
-<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat</a></li>
+<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> <span class="nav-text">WLC Kids</span></a></li>
+<li><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> <span class="nav-text">WLC Teen (Reports)</span></a></li>
+<li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> <span class="nav-text">Growth Check</span></a></li>
+<li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> <span class="nav-text">Refleksi Ortu</span></a></li>
+<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> <span class="nav-text">Jadwal</span></a></li>
+<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> <span class="nav-text">Sertifikat</span></a></li>
 
 <li><span class="sidebar-group-label">Pengaturan</span></li>
-<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> User</a></li>
-<li><a href="#" onclick="window.location.href='export.php'" data-nav="backupDashboard"><i class="fas fa-database"></i> Backup Database</a></li>
-<li><a href="#" onclick="document.getElementById('restoreUploadInput').click();return false;" data-nav="restoreDashboard"><i class="fas fa-upload"></i> Restore Database</a></li>
+<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> <span class="nav-text">User</span></a></li>
+<li><a href="#" onclick="window.location.href='export.php'" data-nav="backupDashboard"><i class="fas fa-database"></i> <span class="nav-text">Backup Database</span></a></li>
+<li><a href="#" onclick="document.getElementById('restoreUploadInput').click();return false;" data-nav="restoreDashboard"><i class="fas fa-upload"></i> <span class="nav-text">Restore Database</span></a></li>
+<li><a href="#" onclick="openManageSettings();return false;" data-nav="settingsDashboard"><i class="fas fa-cog"></i> <span class="nav-text">Pengaturan Web</span></a></li>
 </ul>
 <input type="file" id="restoreUploadInput" class="hidden" accept=".db,.sqlite,.sqlite3" onchange="uploadRestoreDatabase(this)">
 <div class="sidebar-footer" style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center;">
@@ -459,24 +471,36 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 <div id="ownerDashboard" class="hidden">
 <header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<div class="menu-buttons">
+
+<!-- DATA SECTION -->
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-database"></i> Data</h3>
+<div class="menu-buttons" style="margin-top: 1rem;">
 <button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
 <button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah & Kelas</button>
 <button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Group</button>
 <button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Instrumen</button>
+</div>
+
+<!-- WLC SECTION -->
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> WLC</h3>
+<div class="menu-buttons" style="margin-top: 1rem;">
 <button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids</button>
 <button class="menu-btn" onclick="openWlcTeenReports()"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</button>
 <button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
 <button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
 <button class="menu-btn" onclick="manageJadwal()"><i class="fas fa-calendar-alt"></i> Jadwal</button>
 <button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat</button>
-<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> User</button>
-<button class="menu-btn" onclick="window.location.href='export.php'"><i class="fas fa-database"></i> Backup Database</button>
-<button class="menu-btn" onclick="document.getElementById('restoreUploadInput').click()"><i class="fas fa-upload"></i> Restore Database</button>
-<button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
-<button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
-<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
 </div>
+
+<!-- PENGATURAN SECTION -->
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-cogs"></i> Pengaturan</h3>
+<div class="menu-buttons" style="margin-top: 1rem;">
+<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> User</button>
+<button class="menu-btn" onclick="window.location.href='export.php'"><i class="fas fa-download"></i> Backup Database</button>
+<button class="menu-btn" onclick="document.getElementById('restoreUploadInput').click()"><i class="fas fa-upload"></i> Restore Database</button>
+<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan Web</button>
+</div>
+
 </div>
 
 <div id="growthCheckDashboard" class="hidden">
@@ -1608,28 +1632,20 @@ const rubrikSkoring = {
                 if (el) el.classList.add('hidden');
             });
             
+            // SIDEBAR SELALU ADA SETELAH LOGIN (TETAP ADA DI KONDISI APAPUN)
+            document.body.classList.add('has-sidebar');
+            const sidebar = document.getElementById('ownerSidebar');
+            if (sidebar) sidebar.classList.remove('hidden');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            if (toggleBtn) toggleBtn.classList.remove('hidden');
+
             if (role === 'owner') {
-                document.body.classList.add('has-sidebar');
-                const sidebar = document.getElementById('ownerSidebar');
-                if (sidebar) sidebar.classList.remove('hidden');
-                const toggleBtn = document.getElementById('sidebarToggle');
-                if (toggleBtn) toggleBtn.classList.remove('hidden');
                 document.getElementById('ownerDashboard').classList.remove('hidden');
                 window.setActiveSidebar('ownerDashboard');
-            } else {
-                document.body.classList.remove('has-sidebar');
-                const sidebar = document.getElementById('ownerSidebar');
-                if (sidebar) {
-                    sidebar.classList.add('hidden');
-                    sidebar.classList.remove('open');
-                }
-                const toggleBtn = document.getElementById('sidebarToggle');
-                if (toggleBtn) toggleBtn.classList.add('hidden');
-                const overlay = document.getElementById('sidebarOverlay');
-                if (overlay) overlay.classList.remove('open');
-                
-                if (role === 'asisten') document.getElementById('asistenDashboard').classList.remove('hidden');
-                else if (role === 'evaluator') document.getElementById('evaluatorDashboard').classList.remove('hidden');
+            } else if (role === 'asisten') {
+                document.getElementById('asistenDashboard').classList.remove('hidden');
+            } else if (role === 'evaluator') {
+                document.getElementById('evaluatorDashboard').classList.remove('hidden');
             }
         };
 

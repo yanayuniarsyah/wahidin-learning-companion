@@ -9,8 +9,29 @@ Script ini akan:
 #>
 
 $ftpHost = "ftp://ftp.kumonwahidincilacap.com/wlc.kumonwahidincilacap.com/"
+$ftpCredFile = Join-Path $PWD ".ftp_credentials"
 $ftpUser = $Env:FTP_USER
 $ftpPass = $Env:FTP_PASS
+
+if (Test-Path $ftpCredFile) {
+    $creds = Get-Content $ftpCredFile | ConvertFrom-Json
+    if (-not $ftpUser) { $ftpUser = $creds.user }
+    if (-not $ftpPass) { $ftpPass = $creds.pass }
+}
+
+if ([string]::IsNullOrWhiteSpace($ftpUser) -or [string]::IsNullOrWhiteSpace($ftpPass)) {
+    Write-Host "Kredensial FTP belum diatur." -ForegroundColor Yellow
+    $ftpUser = Read-Host "Masukkan FTP Username (Idwebhost)"
+    $ftpPass = Read-Host "Masukkan FTP Password"
+
+    $save = Read-Host "Simpan kredensial ini di file .ftp_credentials untuk auto-update selanjutnya? (y/n)"
+    if ($save -eq 'y') {
+        $credObj = @{ user = $ftpUser; pass = $ftpPass }
+        $credObj | ConvertTo-Json | Set-Content $ftpCredFile
+        Write-Host "Kredensial disimpan ke .ftp_credentials. File ini sudah diabaikan oleh Git." -ForegroundColor Green
+    }
+}
+
 $webUrl = "https://wlc.kumonwahidincilacap.com/unzipper.php"
 
 Write-Host "Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
