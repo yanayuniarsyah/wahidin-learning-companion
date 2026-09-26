@@ -450,7 +450,42 @@ if ($uri === '/api/settings') {
             echo json_encode(['error' => 'Database error']);
         }
         exit;
+}
+}
+
+// 1.5 Restore Endpoint
+if ($uri === '/api/restore' && $method === 'POST') {
+    $user = authenticateToken();
+    if ($user['role'] !== 'owner') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
     }
+    
+    if (!isset($_FILES['backup_file'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'No backup file provided']);
+        exit;
+    }
+    
+    $uploadedFile = $_FILES['backup_file']['tmp_name'];
+    $dbFile = __DIR__ . '/wlc.db';
+    
+    if (is_uploaded_file($uploadedFile)) {
+        // Optional backup
+        copy($dbFile, $dbFile . '.bak_' . time());
+        
+        if (move_uploaded_file($uploadedFile, $dbFile)) {
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to overwrite database file']);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid file upload']);
+    }
+    exit;
 }
 
 // 2. Bank Soal Endpoints

@@ -9,8 +9,8 @@ Script ini akan:
 #>
 
 $ftpHost = "ftp://ftp.kumonwahidincilacap.com/wlc.kumonwahidincilacap.com/"
-$ftpUser = "kumonwah"
-$ftpPass = "V75]XBJu7:juj6"
+$ftpUser = $Env:FTP_USER
+$ftpPass = $Env:FTP_PASS
 $webUrl = "https://wlc.kumonwahidincilacap.com/unzipper.php"
 
 Write-Host "Memulai Proses Update WLC App ke Idwebhost..." -ForegroundColor Cyan
@@ -23,6 +23,7 @@ $filesToZip = @(
     "share.html", "reflection.html", "bank_soal_wlc1.json", 
     "logo_wahidin.png", "manifest.json", "WLC Certificate - Budi.pdf",
     "migrate.php", "migrate_kids.php", "migrate_seed.php", "seed_kids_content.php", "full_seed_prod.php", "db_export.json"
+    "diagnose_prod_db.php"
 )
 Compress-Archive -Path $filesToZip -DestinationPath "update_wlc.zip" -Force
 

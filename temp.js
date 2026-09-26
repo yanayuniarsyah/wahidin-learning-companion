@@ -1,840 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2563eb">
-<link rel="manifest" href="./manifest.json">
-<title>WLC - Komponen Observasi</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root{--primary:#D1B073;--primary-soft:rgba(209, 176, 115, 0.15);--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--secondary:#A0AAB2;--secondary-soft:#1e1e1e;--background:#0B0C10;--surface:#15161A;--text-main:#F8F9FA;--text-muted:#A0AAB2;--border:rgba(209, 176, 115, 0.15);--radius-md:12px;--radius-lg:20px;--shadow-sm:0 1px 3px rgba(0,0,0,0.5);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.5);--shadow-lg:0 20px 25px -5px rgba(0,0,0,0.8);}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',system-ui,-apple-system,sans-serif;}
-body{background-color:var(--background);color:var(--text-main);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:2rem 1rem;transition: background 0.3s ease;}
-.container{width:100%;max-width:1200px;margin:0 auto;transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);}
-.container:has(#loginScreen:not(.hidden)){max-width:fit-content;}
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-[id$='Dashboard'],#quizApp{background:var(--surface);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:2.5rem;min-height:80vh;animation:fadeInUp 0.5s ease-out;border: 1px solid var(--border);position: relative;}
-[id$='FormContainer']{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4000;background:#141414;color:#f5f5f5;padding:2rem;border-radius:var(--radius-lg);box-shadow:0 0 0 100vw rgba(0,0,0,0.8),var(--shadow-lg);width:90%;max-width:550px;max-height:85vh;overflow-y:auto;display:block;border:1px solid var(--border);}
-[id$='FormContainer'].hidden{display:none !important;}
-.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
-.panel-header h1{font-size:1.75rem;margin:0;color:var(--primary);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.85rem 1.75rem;font-weight:600;font-size:0.95rem;border-radius:var(--radius-md);cursor:pointer;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border:none;background-color:var(--primary);color:#0B0C10;box-shadow:var(--shadow-sm);}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(209, 176, 115, 0.3);filter:brightness(1.05);}
-.btn-primary{background-color:var(--primary);color:#0B0C10;}
-.btn-secondary{background-color:transparent;color:var(--text-main);border:1px solid rgba(255,255,255,0.1);}
-.btn-secondary:hover{background-color:rgba(255,255,255,0.05);color:var(--text-main);border-color:rgba(255,255,255,0.2);box-shadow:none;}
-.btn-danger{background-color:var(--danger);color:white;}
-.data-table{width:100%;border-collapse:collapse;margin:1.5rem 0;}
-.data-table th{text-align:left;padding:1.25rem 1rem;background:#1e1e1e;color:var(--primary);font-weight:700;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.075em;border-bottom:2px solid var(--border);}
-.data-table td{padding:1rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text-main);}
-.data-table tr:hover td{background-color:#1a1a1a;}
-.form-group{margin-bottom:1.5rem;}
-.form-label{display:block;margin-bottom:0.6rem;font-weight:700;font-size:0.95rem;color:var(--primary);letter-spacing:0.01em;}
-.form-input{width:100%;padding:0.85rem 1.25rem;border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-size:0.95rem;transition:all 0.3s ease;background:rgba(20, 22, 26, 0.6);color:#f5f5f5;}
-.form-input:focus{outline:none;border-color:var(--primary);background:rgba(20, 22, 26, 0.9);box-shadow:0 0 0 4px rgba(209, 176, 115, 0.15);}
-.form-row{display:flex;gap:1.5rem;flex-wrap:wrap;}
-.form-row .form-group{flex:1;min-width:200px;}
-.menu-buttons{display:grid;grid-template-columns:repeat(3, 1fr);gap:1.5rem;margin-top:2rem;}
-.menu-btn{background:var(--surface);backdrop-filter: blur(5px);border:1px solid rgba(255,255,255,0.05);padding:2.5rem;border-radius:var(--radius-lg);text-align:center;cursor:pointer;transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);display:flex;flex-direction:column;align-items:center;gap:1.2rem;color:var(--text-main);font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-.menu-btn:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(209,176,115,0.1);border-color:rgba(209,176,115,0.3);background: linear-gradient(145deg, rgba(30, 32, 38, 0.9) 0%, rgba(20, 22, 26, 1) 100%);}
-.form-group{margin-bottom:1.5rem;}
-.login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10000;padding:1rem;}
-.login-card{background:linear-gradient(145deg, rgba(21, 22, 26, 0.9) 0%, rgba(11, 12, 16, 1) 100%);padding:clamp(2rem,5vw,4rem);border-radius:clamp(1rem,3vw,2rem);box-shadow:0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(209,176,115,0.05);width:100%;max-width:min(90vw,450px);border:1px solid rgba(209, 176, 115, 0.15);text-align:center;}
-.hidden{display:none !important;}
-.sidebar{width:260px;background:var(--surface);backdrop-filter: blur(15px);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:fixed;left:-260px;top:0;height:100vh;z-index:1000;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:var(--shadow-lg);}
-.sidebar.open{left:0;}
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;visibility:hidden;transition:all 0.35s ease;}
-.sidebar-overlay.open{opacity:1;visibility:visible;}
-.sidebar-nav{list-style:none;padding:0;margin:0;flex:1;overflow-y:auto;}
-.sidebar-nav a{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;font-size:0.9rem;transition:all 0.2s ease;border-left:3px solid transparent;}
-.sidebar-nav a:hover,.sidebar-nav a.active{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);}
-.sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
-@media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
-@media(min-width:1025px){body.has-sidebar .sidebar{left:0;}body.has-sidebar .container{margin-left:260px;max-width:calc(100% - 260px);}.sidebar-overlay{display:none!important;}}
-.notification{position:fixed;bottom:2rem;right:2rem;background:#27272a;color:white;padding:1rem 1.5rem;border-radius:8px;font-weight:500;box-shadow:var(--shadow-lg);z-index:2000;}
-.soal-counter{text-align:center;margin-bottom:2rem;}
-.soal-number{font-size:3rem;color:var(--primary);font-weight:800;line-height:1;}
-.soal-text{font-size:1.25rem;line-height:1.6;margin:1rem auto;max-width:800px;color:var(--text-main);background:#f1f5f9;padding:1.5rem;border-radius:var(--radius-md);text-align:center;}
-.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;margin:1.5rem auto;max-width:100%;overflow:hidden;}
-.progress-fill{height:100%;background:var(--primary);transition:width 0.3s ease;}
-.rating-dots{display:flex;gap:0.6rem;justify-content:flex-start;flex-wrap:nowrap;}
-.rating-dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.3s;background:#ffffff;color:var(--text-muted);}
-.rating-dot:hover{border-color:var(--primary);color:var(--primary);transform:scale(1.1);background:var(--primary-soft);}
-.rating-dot.active{background-color:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 10px rgba(37, 99, 235, 0.3);transform:scale(1.05);}
-.murid-card{display:flex;align-items:center;justify-content:space-between;background:#fff;padding:1rem 1.5rem;border-radius:var(--radius-md);margin-bottom:1rem;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
-.murid-header{display:flex;align-items:center;gap:1rem;}
-.murid-avatar{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:1.1rem;}
-.murid-name{font-weight:600;font-size:1.1rem;}
-.menu-btn i { font-size: 3.5rem; color: var(--primary); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.menu-btn:hover i { transform: scale(1.15); }
-.sidebar-nav a i { font-size: 1.25rem; width: 28px; text-align: center; transition: transform 0.2s ease; }
-.sidebar-nav a:hover i { transform: scale(1.1); }
-.sidebar-group-label { display: block; padding: 0.6rem 1.5rem 0.3rem; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(209,176,115,0.45); margin-top: 0.5rem; }
-.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:3000;opacity:0;visibility:hidden;transition:all 0.3s;}
-.edit-modal-overlay.show{opacity:1;visibility:visible;}
-.edit-modal-card{background:white;padding:2rem;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:var(--shadow-lg);transform:translateY(20px);transition:all 0.3s;max-height:90vh;overflow-y:auto;}
-.edit-modal-overlay.show .edit-modal-card{transform:translateY(0);}
-.action-dropdown{position:relative;display:inline-block;}
-.action-menu{position:absolute;right:0;top:110%;background:white;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);border:1px solid var(--border);z-index:100;min-width:180px;display:none;flex-direction:column;overflow:hidden;}
-.action-menu.show{display:flex;}
-.action-item{padding:0.8rem 1.2rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;gap:0.75rem;color:var(--text-main);font-weight:500;font-size:0.9rem;border:none;background:none;width:100%;text-align:left;}
-.action-item:hover{background:var(--primary-soft);color:var(--primary);}
-.action-item i{color:var(--primary);width:20px;text-align:center;}
-.btn-action{padding:0.5rem;border-radius:var(--radius-md);border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;font-size:0.9rem;}
-.btn-edit-alt{background:var(--primary-soft);color:var(--primary);}
-.btn-edit-alt:hover{background:var(--primary);color:white;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
-.btn-delete-alt{background:#fee2e2;color:#ef4444;}
-.btn-delete-alt:hover{background:#ef4444;color:white;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
-.action-group{display:flex;gap:0.5rem;align-items:center;}
-.sort-header{cursor:pointer;position:relative;user-select:none;transition:all 0.2s;}
-.sort-header:hover{background:var(--primary-soft) !important;color:var(--primary);}
-.sort-header::after{content:' \f0dc';font-family:'Font Awesome 5 Free';font-weight:900;font-size:0.7rem;opacity:0.3;margin-left:0.5rem;vertical-align:middle;}
-.sort-header.asc::after{content:' \f0de';opacity:1;color:var(--primary);}
-.sort-header.desc::after{content:' \f0dd';opacity:1;color:var(--primary);}
 
-/* --- MOBILE RESPONSIVENESS AND ANDROID OPTIMIZATIONS --- */
-@media (max-width: 768px) {
-  body {
-    padding: 0.5rem;
-  }
-  [id$='Dashboard'], #quizApp {
-    padding: 1.25rem 1rem;
-    border-radius: var(--radius-md);
-    min-height: auto;
-  }
-  .panel-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-  }
-  .panel-header h1 {
-    font-size: 1.4rem;
-    text-align: center;
-  }
-  .panel-header .btn {
-    width: 100%;
-  }
-  .data-table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .form-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .form-row .form-group {
-    width: 100%;
-    margin-bottom: 0;
-  }
-  .menu-buttons {
-    grid-template-columns: 1fr !important;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  .menu-btn {
-    padding: 1.5rem 1rem;
-    gap: 0.75rem;
-  }
-  .menu-btn i {
-    font-size: 2.5rem;
-  }
-  [id$='FormContainer'] {
-    width: 95%;
-    padding: 1.5rem;
-    max-height: 90vh;
-  }
-}
-
-@media (max-width: 576px) {
-  .murid-card {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  .murid-header {
-    justify-content: flex-start;
-  }
-  .rating-dots {
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  .rating-dot {
-    width: 40px;
-    height: 40px;
-  }
-  .edit-modal-card {
-    padding: 1.25rem 1rem;
-  }
-}
-.bars-container { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
-.bars-option { display: flex; align-items: center; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; background: var(--surface); transition: all 0.2s; }
-.bars-option:hover { border-color: var(--primary); background: var(--primary-soft); }
-.bars-option.active { background: var(--primary); color: white; border-color: var(--primary); }
-.bars-number { font-weight: bold; font-size: 1.2rem; margin-right: 1rem; min-width: 24px; }
-.bars-text { font-size: 0.95rem; line-height: 1.4; }
-/* OVERRIDE UNTUK SERTIFIKAT LAMA DI DATABASE (Fix Halaman 2 Terpotong) */
-.report-container { padding: 3mm 6mm !important; }
-.report-title { font-size: 1.5rem !important; }
-.student-name { font-size: 1.2rem !important; }
-.section-title { font-size: 0.75rem !important; margin-bottom: 1mm !important; }
-.report-box { padding: 2.5mm 3mm !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
-.narrative-box { min-height: 20mm !important; }
-.report-note, .report-footer, .sponsor-footer { font-size: 0.65rem !important; margin-top: 1mm !important; padding-top: 1mm !important; }
-.report-header { margin-bottom: 1mm !important; padding-bottom: 2mm !important; }
-</style>
-</head>
-<body>
-<div id="protocolWarning" class="hidden" style="background:#fee2e2;color:#b91c1c;padding:1rem;text-align:center;font-weight:bold;border-bottom:2px solid #ef4444;position:sticky;top:0;z-index:9999;">
-⚠️ PERINGATAN: Anda membuka aplikasi via FILE. Fitur Database TIDAK AKAN JALAN.<br>
-Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:underline;color:#b91c1c;">http://localhost:3000</a><br>
-<span style="font-size:0.8rem; font-weight:normal;">Jika sudah membuka via localhost tapi tidak ada perubahan, tekan <b>CTRL + F5</b> untuk Hard Refresh.</span>
-</div>
-
-<!-- FORM CONTAINERS AS TOP-LEVEL MODALS -->
-<div id="usersFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
-    <div class="form-group" style="position:relative;"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******" style="padding-right:3rem;"><i class="fas fa-eye" style="position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('newUserPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i></div>
-    <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
-    <button class="btn btn-primary" onclick="saveNewUser()" style="width:100%;margin-top:1rem;"><i class="fas fa-save"></i> Simpan User</button>
-</div>
-
-<div id="sekolahFormContainer" class="hidden">
-    <div style="background:var(--surface); padding:1rem; border-radius:var(--radius-md);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="margin:0;">Tambah Sekolah Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('sekolahFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-        <div class="form-group"><label class="form-label">Nama Sekolah</label><input type="text" class="form-input" id="sekolahNama" placeholder="Contoh: SD Negeri 01"></div>
-        <div class="form-group"><label class="form-label">Alamat</label><input type="text" class="form-input" id="sekolahAlamat" placeholder="Jl. Merdeka No. 123"></div>
-        <div class="form-group"><label class="form-label">Kota</label><input type="text" class="form-input" id="sekolahKota" placeholder="Contoh: Jakarta"></div>
-        <button class="btn btn-primary" onclick="tambahSekolah()" style="width:100%;"><i class="fas fa-plus"></i> Simpan Sekolah</button>
-    </div>
-</div>
-
-<div id="kelasFormContainer" class="hidden">
-    <div style="background:var(--surface); padding:1rem; border-radius:var(--radius-md);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="margin:0;">Tambah Kelas Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('kelasFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-        <div class="form-group"><label class="form-label">Nama Kelas</label><input type="text" class="form-input" id="kelasNama" placeholder="Contoh: Kelas 1-A"></div>
-        <div class="form-group"><label class="form-label">Tingkat</label><input type="text" class="form-input" id="kelasTingkat" placeholder="Contoh: SD / SMP"></div>
-        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="kelasSekolahId"></select></div>
-        <button class="btn btn-primary" onclick="tambahKelas()" style="width:100%;"><i class="fas fa-plus"></i> Simpan Kelas</button>
-    </div>
-</div>
-
-<div id="siswaFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;font-size:1.5rem;margin:0;"><i class="fas fa-user-plus"></i> Tambah Siswa Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('siswaFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Nama Lengkap Siswa</label><input type="text" class="form-input" id="newSiswaNama" placeholder="Contoh: Budi Santoso"></div>
-        <div class="form-group"><label class="form-label">NISN / Nomor Induk</label><input type="text" class="form-input" id="newSiswaNisn" placeholder="Contoh: 12345678"></div>
-    </div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newSiswaSekolah" onchange="updateKelasDropdownSiswa()"></select></div>
-        <div class="form-group"><label class="form-label">Kelas</label><select class="form-input" id="newSiswaKelas"></select></div>
-    </div>
-    <button class="btn btn-primary" onclick="saveNewSiswa()" style="width:100%;margin-top:1.5rem;height:50px;font-weight:700;"><i class="fas fa-save"></i> Simpan Siswa</button>
-</div>
-
-<div id="soalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
-            <option value="Kesiapan">Kesiapan</option>
-            <option value="Fokus">Fokus</option>
-            <option value="Instruksi">Instruksi</option>
-            <option value="Kemandirian">Kemandirian</option>
-            <option value="Ketekunan">Ketekunan</option>
-            <option value="Emosi">Emosi</option>
-            <option value="Minat">Minat</option>
-        </select></div>
-        <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
-    </div>
-    <div class="form-group"><label class="form-label">Pertanyaan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pertanyaan lengkap..."></div>
-    <button class="btn btn-primary" onclick="saveNewSoal()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Soal</button>
-</div>
-
-<div id="jadwalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;"><i class="fas fa-calendar-plus"></i> Tambah Jadwal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('jadwalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newJadwalSekolah"></select></div>
-        <div class="form-group"><label class="form-label">Tanggal</label><input type="date" class="form-input" id="newJadwalTanggal"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Catatan</label><input type="text" class="form-input" id="newJadwalCatatan" placeholder="Kunjungan rutin / Observasi khusus"></div>
-    <button class="btn btn-primary" onclick="tambahJadwal()" style="width:100%;"><i class="fas fa-calendar-check"></i> Simpan Jadwal</button>
-</div>
-
-<!-- EDIT MODAL OVERLAY (ESSENTIAL FOR EDITING) -->
-<div id="editModalOverlay" class="edit-modal-overlay">
-    <div class="edit-modal-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1rem;">
-            <h3 id="editModalTitle" style="margin:0;color:var(--primary);">Edit Data</h3>
-            <button class="btn btn-secondary" style="border-radius:50%;width:34px;height:34px;padding:0;" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="editModalFields"></div>
-        <div style="margin-top:2rem;display:flex;gap:1rem;">
-            <button class="btn btn-secondary" style="flex:1" onclick="closeEditModal()">Batal</button>
-            <button class="btn btn-primary" id="editModalSaveBtn" style="flex:1">Simpan Perubahan</button>
-        </div>
-    </div>
-</div>
-
-<!-- QR CODE SHARE MODAL -->
-<div id="qrShareModal" class="edit-modal-overlay hidden" style="z-index: 10000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
-    <div class="edit-modal-card" style="background: white; padding: 2rem; border-radius: var(--radius-md); max-width: 400px; width: 100%; text-align: center; box-shadow: var(--shadow-lg);">
-        <h3 style="margin: 0 0 1rem 0; color: var(--primary); font-family: 'Outfit', sans-serif;"><i class="fas fa-qrcode"></i> Bagikan QR Code</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Orang tua dapat memindai QR Code ini untuk melihat sertifikat perkembangan anak secara langsung.</p>
-        
-        <div style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 8px; padding: 1.5rem; display: inline-block; margin-bottom: 1.5rem;">
-            <img id="qrShareImage" src="" style="width: 180px; height: 180px; display: block; margin: 0 auto;" alt="QR Code Share">
-        </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <button class="btn btn-primary" onclick="copyShareLink()" style="width:100%; height: 45px;"><i class="fas fa-copy"></i> Salin Tautan</button>
-            <button class="btn btn-secondary" onclick="closeQrShareModal()" style="width:100%; height: 45px;">Tutup</button>
-        </div>
-    </div>
-</div>
-<nav id="ownerSidebar" class="sidebar hidden">
-<div class="sidebar-brand" style="cursor:pointer;padding:1rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;" onclick="window.location.href='index.html#hero';">
-<div style="background:transparent;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-    <img src="logo_wahidin.png" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
-</div>
-<div style="display:flex;flex-direction:column;line-height:1.1;">
-<h2 style="font-family:'Playfair Display',serif;font-size:0.85rem;font-weight:700;letter-spacing:1px;color:#b38e5d;margin:0;">WLC Admin</h2>
-</div>
-</div>
-<ul class="sidebar-nav">
-<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> Beranda</a></li>
-
-<li><span class="sidebar-group-label">Data</span></li>
-<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
-<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> Sekolah & Kelas</a></li>
-<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Group</a></li>
-<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Instrumen</a></li>
-
-<li><span class="sidebar-group-label">WLC</span></li>
-<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> WLC Kids</a></li>
-<li><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</a></li>
-<li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> Growth Check</a></li>
-<li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> Refleksi Ortu</a></li>
-<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> Jadwal</a></li>
-<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat</a></li>
-
-<li><span class="sidebar-group-label">Pengaturan</span></li>
-<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> User</a></li>
-<li><a href="#" onclick="window.location.href='export.php'" data-nav="backupDashboard"><i class="fas fa-database"></i> Backup Database</a></li>
-<li><a href="#" onclick="document.getElementById('restoreUploadInput').click();return false;" data-nav="restoreDashboard"><i class="fas fa-upload"></i> Restore Database</a></li>
-</ul>
-<input type="file" id="restoreUploadInput" class="hidden" accept=".db,.sqlite,.sqlite3" onchange="uploadRestoreDatabase(this)">
-<div class="sidebar-footer" style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center;">
-<button class="btn" onclick="logout()" style="width:auto;min-width:120px;border-radius:8px;height:34px;padding:0 1rem;font-size:0.8rem;background:linear-gradient(135deg, #d4af37, #aa7c11);color:#0a0a0a;font-weight:700;border:none;box-shadow:0 3px 8px rgba(212, 175, 55, 0.2);letter-spacing:0.5px;transition:all 0.2s ease;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-</div>
-</nav>
-<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-<button id="sidebarToggle" class="sidebar-toggle hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-<div id="loginScreen" class="login-screen">
-<div class="login-card">
-<div style="background:transparent;width:105px;height:105px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;cursor:pointer;" onclick="window.location.href='index.html#hero';">
-    <img src="logo_wahidin.png" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
-</div>
-<h2 style="font-family:'Outfit',sans-serif;font-size:1.15rem;line-height:1.3;color:var(--primary);margin-bottom:0.5rem;font-weight:700;">Exclusive Portal</h2>
-<p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.75rem;line-height:1.4;">Akses terbatas khusus bagi Klien & Evaluator tersertifikasi.</p>
-<div style="text-align:left;margin-bottom:1.5rem;">
-<label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginUsername">Username</label>
-<input type="text" id="loginUsername" class="form-input" placeholder="Masukkan username" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
-</div>
-<div style="text-align:left;margin-bottom:2.5rem;position:relative;">
-<label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginPassword">Password</label>
-<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 3rem 0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
-<i class="fas fa-eye" id="toggleLoginPassword" style="position:absolute;right:1rem;top:2.7rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('loginPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i>
-<div style="text-align:right; margin-top:0.5rem;">
-<a href="forgot_password.html" style="color:var(--primary); font-size:0.9rem; text-decoration:none;">Lupa Password?</a>
-</div>
-</div>
-<button class="btn btn-primary" onclick="doLogin()" style="width:100%;height:50px;font-weight:700;font-size:0.95rem;border-radius:0.75rem;background:var(--primary);color:#0a0a0a;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 8px 12px -3px rgba(212, 175, 55, 0.3);letter-spacing:1px;">
-SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
-</button>
-</div>
-</div>
-<div class="container">
-<div id="userInfo" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; background: var(--surface); padding: 1rem 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
-<div style="font-weight: bold; color: var(--text-main);">Role Anda: <span id="loggedRole" style="color: var(--primary); text-transform: uppercase;"></span></div>
-<div id="quizUserInfo" style="font-weight: 600; color: var(--secondary);"></div>
-</div>
-
-<div id="wlcKidsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
-<div id="landingView" style="margin-top:1rem;">
-<div id="wlcKidsContent"><p style="color:var(--text-muted);">Memuat data siswa...</p></div>
-</div>
-</div>
-
-<div id="wlcTeenDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Teen - Laporan Evaluasi</h1><div style="width:100px;"></div></header>
-<div id="wlcTeenContent" style="margin-top:1rem;">
-    <p style="color:var(--text-muted);">Memuat laporan WLC Teen...</p>
-</div>
-</div>
-
-<div id="manageSettingsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSettings()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Pengaturan Aplikasi</h1><div style="width:100px;"></div></header>
-<div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-    <div class="form-group">
-        <label class="form-label">Nama Aplikasi</label>
-        <input type="text" id="setAppName" class="form-input" placeholder="Contoh: WLC Kumon Wahidin">
-    </div>
-    <div class="form-group">
-        <label class="form-label">Logo Aplikasi</label>
-        <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
-            <div id="setLogoPreview" style="width:80px; height:80px; border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f8fafc; overflow:hidden;">
-                <i class="fas fa-image" style="font-size:2rem; color:var(--border);"></i>
-            </div>
-            <div style="flex:1;">
-                <input type="text" id="setAppLogo" class="form-input" placeholder="URL Logo (Opsional)" style="margin-bottom:0.5rem;">
-                <input type="file" id="uploadLogoInput" class="hidden" accept="image/*" onchange="handleLogoFileSelect(this)">
-                <button class="btn btn-secondary" onclick="document.getElementById('uploadLogoInput').click()" style="width:100%; font-size:0.8rem;">
-                    <i class="fas fa-upload"></i> Unggah Gambar
-                </button>
-            </div>
-        </div>
-        <p style="font-size:0.8rem; color:var(--text-muted);">Pilih salah satu: Masukkan URL atau unggah file gambar.</p>
-    </div>
-    <div style="margin-top:2rem;">
-        <button class="btn btn-primary" onclick="saveSettings()" style="width:100%; height:50px; font-weight:700;">
-            <i class="fas fa-save"></i> SIMPAN PENGATURAN
-        </button>
-    </div>
-</div>
-</div>
-<div id="asistenDashboard" class="hidden">
-<header class="panel-header"><h1>Asisten Dashboard</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<div style="margin-bottom:2rem;"><h3 style="color:var(--text-main);margin-bottom:0.5rem;"><i class="fas fa-clipboard-list"></i> Jadwal Tugas Anda</h3><p style="color:var(--text-muted);font-size:0.9rem;">Daftar sekolah dan siswa yang harus Anda observasi hari ini.</p></div>
-<div id="asistenGroupList" class="menu-buttons" style="grid-template-columns:1fr;">
-<button class="menu-btn" onclick="startQuiz()" style="background:var(--primary-soft); border-color:var(--primary); color:var(--primary);">
-<i class="fas fa-play-circle" style="font-size:2rem;"></i> Mulai Sesi Observasi
-</button>
-</div>
-</div>
-<div id="quizApp" class="hidden">
-<header class="panel-header" style="margin-bottom: 1rem; padding-bottom: 1rem;">
-<div>
-<h2 style="font-size: 1.5rem; margin:0;"><i class="fas fa-list-check"></i> Form Observasi Siswa</h2>
-<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Berikan skor 1 (Kurang) s/d 5 (Sangat Baik)</p>
-</div>
-<button class="btn btn-secondary" onclick="showMenu()"><i class="fas fa-home"></i> Kembali</button>
-</header>
-<div class="soal-counter">Soal <span id="soalCounter" class="soal-number">1</span></div>
-<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%;"></div></div>
-<div id="progressText" style="text-align: center; margin-bottom: 1rem; font-weight:600;">0%</div>
-<div class="soal-text" id="soalText">Memuat pertanyaan...</div>
-<div id="muridContainer" style="margin-top: 2rem;"></div>
-<div style="display:flex; justify-content:space-between; margin-top:3rem;">
-<button class="btn btn-secondary" onclick="prevSoal()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
-<button class="btn btn-primary" onclick="nextSoal()">Selanjutnya <i class="fas fa-arrow-right"></i></button>
-</div>
-<div style="margin-top:2rem; text-align:center; padding-top: 2rem; border-top: 1px solid var(--border);">
-<button class="btn btn-danger" onclick="saveScores()"><i class="fas fa-cloud-upload-alt"></i> Simpan Hasil Observasi</button>
-</div>
-</div>
-<div id="evaluatorDashboard" class="hidden">
-<header class="panel-header"><h1>Evaluator Mode</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<p style="color:var(--text-muted);margin-bottom:2rem;">Analisis & Laporan Hasil Observasi.</p>
-<div class="menu-buttons">
-<button class="menu-btn" onclick="viewReports()"><i class="fas fa-chart-bar"></i> Lihat Laporan</button>
-<button class="menu-btn" onclick="analyticsOverview()"><i class="fas fa-analytics"></i> Analitik Siswa</button>
-<button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
-<button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
-<button class="menu-btn" onclick="exportAllReports()"><i class="fas fa-download"></i> Export Data</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids</button>
-<button class="menu-btn" onclick="openWlcTeenReports()"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</button>
-</div>
-</div>
-<div id="ownerDashboard" class="hidden">
-<header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<div class="menu-buttons">
-<button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
-<button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah & Kelas</button>
-<button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Group</button>
-<button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Instrumen</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids</button>
-<button class="menu-btn" onclick="openWlcTeenReports()"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</button>
-<button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
-<button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
-<button class="menu-btn" onclick="manageJadwal()"><i class="fas fa-calendar-alt"></i> Jadwal</button>
-<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat</button>
-<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> User</button>
-<button class="menu-btn" onclick="window.location.href='export.php'"><i class="fas fa-database"></i> Backup Database</button>
-<button class="menu-btn" onclick="document.getElementById('restoreUploadInput').click()"><i class="fas fa-upload"></i> Restore Database</button>
-<button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
-<button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
-<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
-</div>
-</div>
-
-<div id="growthCheckDashboard" class="hidden">
-    <header class="panel-header">
-        <button class="btn btn-secondary" onclick="exitGrowthCheck()"><i class="fas fa-arrow-left"></i> Kembali</button>
-        <h1>Growth Check (Perbandingan Sesi)</h1>
-        <div style="width:100px;"></div>
-    </header>
-    <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:2rem;">
-        <div class="form-row">
-            <div class="form-group" style="flex:1;">
-                <label class="form-label">Pilih Siswa</label>
-                <select id="growthSiswaId" class="form-input" onchange="onGrowthSiswaChange()"></select>
-            </div>
-            <div class="form-group" style="flex:1;">
-                <label class="form-label">Sesi Awal (Lama)</label>
-                <select id="growthSession1" class="form-input"></select>
-            </div>
-            <div class="form-group" style="flex:1;">
-                <label class="form-label">Sesi Pembanding (Baru)</label>
-                <select id="growthSession2" class="form-input"></select>
-            </div>
-        </div>
-        <button class="btn btn-primary" onclick="compareSessions()" style="width:100%; margin-top:1rem; height:50px; font-weight:bold;">
-            <i class="fas fa-balance-scale"></i> BANDINGKAN SESI
-        </button>
-    </div>
-    
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:2rem;">
-        <div style="background:white; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); min-height:300px;">
-            <h3 style="margin-bottom:1rem;"><i class="fas fa-chart-bar"></i> Radar Perkembangan</h3>
-            <div style="height: 250px; position: relative;">
-                <canvas id="growthRadarChart"></canvas>
-            </div>
-        </div>
-        <div style="background:white; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); min-height:300px;">
-            <h3 style="margin-bottom:1rem;"><i class="fas fa-list-ul"></i> Analisis Perubahan</h3>
-            <table class="data-table" id="growthComparisonTable" style="margin:0;">
-                <thead>
-                    <tr>
-                        <th>Komponen</th>
-                        <th>Sesi Awal</th>
-                        <th>Sesi Pembanding</th>
-                        <th>Delta</th>
-                    </tr>
-                </thead>
-                <tbody id="growthComparisonTableBody">
-                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Pilih siswa dan bandingkan sesi untuk melihat hasil.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div id="parentReflectionsDashboard" class="hidden">
-    <header class="panel-header">
-        <button class="btn btn-secondary" onclick="exitParentReflections()"><i class="fas fa-arrow-left"></i> Kembali</button>
-        <h1>Daftar Refleksi Orang Tua (WLC-2)</h1>
-        <div style="width:100px;"></div>
-    </header>
-    <div style="overflow-x:auto;">
-        <table class="data-table" id="reflectionsTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Waktu</th>
-                    <th>Siswa</th>
-                    <th>Orang Tua</th>
-                    <th>Kesiapan</th>
-                    <th>Fokus</th>
-                    <th>Kemandirian</th>
-                    <th>Ketekunan</th>
-                    <th>Emosi</th>
-                    <th>Minat</th>
-                    <th>Catatan</th>
-                </tr>
-            </thead>
-            <tbody id="reflectionsTableBody">
-                <tr><td colspan="11" style="text-align:center; padding:2rem;">Memuat data refleksi...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-<div id="manageUsersDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageUsers()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Users & Asisten</h1><div style="width:100px;"></div></header>
-<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('usersFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Akun</button></div>
-<table class="data-table" id="usersTable"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('users', 'role')">Role Akses</th><th class="sort-header" onclick="sortAndRender('users', 'username')">Username Login</th><th>Aksi</th></tr></thead><tbody id="usersTableBody"><tr><td colspan="4" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="viewReportsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitViewReports()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Laporan Observasi</h1><div style="width:100px;"></div></header>
-<table class="data-table" id="reportsTable" style="margin-top:0;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('reports', 'timestamp')">Waktu Input</th><th class="sort-header" onclick="sortAndRender('reports', 'asistenId')">Asisten</th><th class="sort-header" onclick="sortAndRender('reports', 'nama')">Data Siswa</th><th class="sort-header" onclick="sortAndRender('reports', 'skor')">Skor Observasi</th></tr></thead><tbody id="reportsTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="analyticsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitAnalytics()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Analitik Performa Siswa</h1></header>
-<div class="menu-buttons" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:2rem;">
-<div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Total Observasi</h4><p id="statTotalObs" style="font-size:2.5rem;font-weight:800;color:var(--primary);">0</p></div>
-<div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Rata-rata Skor</h4><p id="statAvgScore" style="font-size:2.5rem;font-weight:800;color:var(--success);">0.0</p></div>
-</div>
-<div style="background:white;padding:2rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:2rem;"><h3 style="margin-bottom:1.5rem;"><i class="fas fa-chart-line"></i> Grafik Progress Skor Murid</h3><canvas id="analyticsChart" height="150"></canvas></div>
-</div>
-<div id="manageSekolahDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSekolah()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Sekolah</h1><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary" onclick="document.getElementById('sekolahFormContainer').classList.toggle('hidden')"><i class="fas fa-school"></i> Sekolah</button><button class="btn btn-primary" onclick="populateSekolahDropdownKelas().then(() => document.getElementById('kelasFormContainer').classList.toggle('hidden'))"><i class="fas fa-door-open"></i> Kelas</button></div></header>
-<h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Sekolah</h3>
-<table class="data-table" id="tableSekolah"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('sekolah', 'nama')">Nama Sekolah</th><th class="sort-header" onclick="sortAndRender('sekolah', 'kota')">Kota</th><th>Aksi</th></tr></thead><tbody></tbody></table>
-<h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Kelas</h3>
-<table class="data-table" id="tableKelas"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('kelas', 'nama')">Nama Kelas</th><th class="sort-header" onclick="sortAndRender('kelas', 'namaSekolah')">Sekolah</th><th>Aksi</th></tr></thead><tbody></tbody></table>
-</div>
-
-<div id="manageSiswaDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Data Siswa</h1><div style="width:100px;"></div></header>
-
-<!-- Filter & Search -->
-<div style="background:var(--secondary-soft); padding:1.5rem; border-radius:var(--radius-md); margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
-    <div class="form-group" style="margin:0; flex:1; min-width:200px;">
-        <label class="form-label" style="font-size:0.8rem;">Cari Nama/NISN</label>
-        <input type="text" id="siswaSearchInput" class="form-input" placeholder="Ketik nama..." onkeyup="filterSiswaTable()">
-    </div>
-    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
-        <label class="form-label" style="font-size:0.8rem;">Sekolah</label>
-        <select id="siswaFilterSekolah" class="form-input" onchange="filterSiswaTable()"></select>
-    </div>
-    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
-        <label class="form-label" style="font-size:0.8rem;">Kelas</label>
-        <select id="siswaFilterKelas" class="form-input" onchange="filterSiswaTable()"></select>
-    </div>
-    <div style="display:flex; gap:0.5rem;">
-        <button class="btn btn-primary" onclick="document.getElementById('siswaFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button>
-        <button class="btn btn-secondary" onclick="printFilteredSiswa()"><i class="fas fa-print"></i> Cetak</button>
-    </div>
-</div>
-
-<table class="data-table" id="tableSiswa">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'nama')">Nama Siswa</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'nisn')">NISN</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'namaSekolah')">Sekolah</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'namaKelas')">Kelas</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody id="siswaTableBody"></tbody>
-</table>
-</div>
-
-<div id="manageJadwalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageJadwal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Jadwal WLC</h1><div style="width:100px;"></div></header>
-<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('jadwalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Jadwal / Observasi</button></div>
-<table class="data-table" id="jadwalTable" style="margin-top:2rem;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('jadwal', 'tanggal')">TANGGAL</th><th class="sort-header" onclick="sortAndRender('jadwal', 'namaSekolah')">NAMA SEKOLAH</th><th class="sort-header" onclick="sortAndRender('jadwal', 'status')">STATUS</th><th class="sort-header" onclick="sortAndRender('jadwal', 'catatan')">CATATAN</th><th>AKSI</th></tr></thead><tbody id="jadwalTableBody"><tr><td colspan="6" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="manageGrupDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageGrup()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Bagi Grup Observasi</h1><div style="width:100px;"></div></header>
-<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('grupFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Grup Baru</button></div>
-<div id="grupFormContainer" class="hidden">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h3 style="color: #1e293b; font-family: 'Outfit', sans-serif; margin: 0;"><i class="fas fa-users-cog"></i> Tambah Grup Asisten</h3>
-        <button class="btn btn-secondary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;" onclick="document.getElementById('grupFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;"></i></button>
-    </div>
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label class="form-label">0. Nama Grup Asisten</label>
-        <input type="text" class="form-input" id="newGrupNama" placeholder="Contoh: Grup A - Kelas 4A" style="width: 100%;">
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label class="form-label">1. Pilih Jadwal Pelaksanaan</label>
-            <select class="form-input" id="newGrupJadwal" style="width: 100%;" onchange="onJadwalGrupChange()"><option value="">-- Pilih Jadwal --</option></select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">2. Pilih Asisten Pendamping</label>
-            <select class="form-input" id="newGrupAsisten" style="width: 100%;"><option value="">-- Pilih Asisten --</option></select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label class="form-label">3. Filter Kelas (Opsional)</label>
-            <select class="form-input" id="newGrupKelas" style="width: 100%;" onchange="onKelasGrupChange()">
-                <option value="">-- Semua Kelas --</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">4. Jumlah Siswa Terfilter</label>
-            <input type="text" class="form-input" id="grupSiswaCounter" value="0 siswa tersedia" readonly style="width: 100%; background: var(--secondary-soft);">
-        </div>
-    </div>
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label class="form-label">5. Pilih Siswa (Pilih Max 7 Orang) - Tahan Ctrl/Cmd untuk pilih multiple</label>
-        <select class="form-input" id="newGrupSiswa" multiple style="width: 100%; height: 150px; padding: 0.5rem;"></select>
-    </div>
-    <button class="btn" onclick="tambahGrup()" style="width: 100%; margin-top: 1rem;">
-        <i class="fas fa-save"></i> Simpan Grup Observasi
-    </button>
-</div>
-<table class="data-table" id="grupTable">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th class="sort-header" onclick="sortAndRender('grup', 'nama')">NAMA GRUP</th>
-            <th class="sort-header" onclick="sortAndRender('grup', 'namaSekolah')">JADWAL (SEKOLAH)</th>
-            <th class="sort-header" onclick="sortAndRender('grup', 'asistenId')">ASISTEN PIC</th>
-            <th>JUMLAH SISWA</th>
-            <th>AKSI</th>
-        </tr>
-    </thead>
-    <tbody id="grupTableBody"><tr><td colspan="6" style="text-align:center;">Memuat data grup...</td></tr></tbody>
-</table>
-</div>
-<div id="manageSoalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
-<table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="manageCertDashboard" class="hidden">
-<div id="manageCertModal" style="display:contents;">
-    <header class="panel-header">
-        <button class="btn btn-secondary" onclick="exitManageCert()"><i class="fas fa-arrow-left"></i> Kembali</button>
-        <h1>Cetak Sertifikat WLC</h1>
-        <div style="width:100px;"></div>
-    </header>
-    <!-- Filter Massal -->
-    <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-        <h3 style="margin:0 0 1rem 0; color:var(--primary);"><i class="fas fa-filter"></i> Filter Cetak Massal</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Tipe Cetak</label>
-                <select id="certPrintType" class="form-input" onchange="onCertPrintTypeChange()">
-                    <option value="single">Satu Siswa</option>
-                    <option value="kelas">Per Kelas</option>
-                    <option value="sekolah">Per Sekolah</option>
-                    <option value="grup">Per Grup</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Pilih Sekolah</label>
-                <select id="certFilterSekolah" class="form-input" onchange="onCertSekolahChange()"></select>
-            </div>
-            <div class="form-group hidden" id="certFilterKelasGroup">
-                <label class="form-label">Pilih Kelas</label>
-                <select id="certFilterKelas" class="form-input" onchange="onCertKelasChange()"></select>
-            </div>
-            <div class="form-group hidden" id="certFilterGrupGroup">
-                <label class="form-label">Pilih Grup</label>
-                <select id="certFilterGrup" class="form-input"></select>
-            </div>
-        </div>
-        <div style="display:flex; gap:1rem; margin-top:1rem;">
-            <button class="btn btn-primary" onclick="previewCertMassal()" style="flex:1;"><i class="fas fa-eye"></i> Preview</button>
-            <button class="btn" onclick="printCertMassal()" id="btnCetakCert" disabled style="flex:1;"><i class="fas fa-print"></i> Cetak Sekarang</button>
-        </div>
-    </div>
-<!-- Filter Single -->
-    <div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-        <h3 style="margin:0 0 1.5rem 0; color:var(--primary);"><i class="fas fa-user"></i> Cetak Satu Siswa</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Pilih Sekolah</label>
-                <select id="certFilterSekolahSingle" class="form-input" onchange="onCertSekolahSingleChange()"></select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Pilih Kelas</label>
-                <select id="certFilterKelasSingle" class="form-input" onchange="onCertKelasSingleChange()"></select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Pilih Siswa</label>
-                <select id="certSiswaIdSingle" class="form-input" onchange="onCertSiswaSingleChange()"></select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Nama Instansi/Unit</label>
-                <input type="text" id="certOrgNameSingle" class="form-input" value="">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Tanggal Sertifikat</label>
-                <input type="date" id="certDateSingle" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Tingkat WLC</label>
-                <select id="certWlcTipeSingle" class="form-input">
-                    <option value="1">WLC 1</option>
-                    <option value="2">WLC 2</option>
-                    <option value="3">WLC 3</option>
-                </select>
-            </div>
-        </div>
-        <hr style="margin:2rem 0; border:0; border-top:1px solid var(--border);">
-        <h3 style="margin-bottom:1.5rem; color:var(--primary);"><i class="fas fa-tasks"></i> Input Skor Analisa Observasi</h3>
-        <div class="form-row">
-            <div class="form-group"><label class="form-label">Kesiapan Belajar</label><select id="certKesiapan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="langsung">Kesiapan Langsung</option><option value="diingatkan">Perlu Diingatkan</option><option value="menolak">Menolak/Enggan</option></select></div>
-            <div class="form-group"><label class="form-label">Keterlibatan & Fokus</label><select id="certFokus" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Fokus Stabil</option><option value="naikturun">Naik Turun</option><option value="distraksi">Mudah Distraksi</option></select></div>
-            <div class="form-group"><label class="form-label">Respons terhadap Instruksi</label><select id="certRespons" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="paham">Paham Langsung</option><option value="ulang">Perlu Pengulangan</option><option value="bingung">Tampak Bingung</option></select></div>
-        </div>
-        <div class="form-row" style="margin-top:1rem;">
-            <div class="form-group"><label class="form-label">Kemandirian Belajar</label><select id="certKemandirian" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="mandiri">Sangat Mandiri</option><option value="terbatas">Bantuan Terbatas</option><option value="bergantung">Sangat Bergantung</option></select></div>
-            <div class="form-group"><label class="form-label">Ketekunan Tantangan</label><select id="certKetekunan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="ulang">Mau Mencoba Ulang</option><option value="berhenti">Cepat Berhenti</option><option value="menolak">Menolak Mencoba</option></select></div>
-            <div class="form-group"><label class="form-label">Respons Kesulitan</label><select id="certEmosional" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Emosi Stabil</option><option value="dorongan">Butuh Dorongan</option><option value="frustrasi">Mudah Frustrasi</option></select></div>
-            <div class="form-group"><label class="form-label">Engagement Belajar</label><select id="certMinat" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="antusias">Sangat Antusias</option><option value="netral">Biasa Saja/Netral</option><option value="kurang">Kurang Berminat</option></select></div>
-        </div>
-        <button class="btn btn-primary" onclick="previewCertificate()" style="width:100%; margin-top:2rem; height:55px; font-size:1.1rem;"><i class="fas fa-save"></i> Simpan & Generate Sertifikat</button>
-        
-        <!-- Riwayat Kegiatan WLC & Sertifikat -->
-        <div id="certHistorySection" class="hidden" style="margin-top:2.5rem; padding-top:2rem; border-top:2px dashed var(--border);">
-            <h3 style="margin-bottom:1.5rem; color:var(--primary); font-family: 'Outfit', sans-serif;"><i class="fas fa-history"></i> Riwayat Kegiatan WLC & Sertifikat</h3>
-            <table class="data-table" id="certHistoryTable" style="margin-top:1rem;">
-                <thead>
-                    <tr>
-                        <th>Tingkat</th>
-                        <th>Tanggal Terbit</th>
-                        <th>Kesiapan</th>
-                        <th>Fokus</th>
-                        <th>Kemandirian</th>
-                        <th style="text-align:center; width:220px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="certHistoryTableBody">
-                    <tr><td colspan="6" style="text-align:center;">Belum ada riwayat sertifikat.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-</div>
-<div id="printSiswaDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div></header>
-<div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-    <div class="form-row">
-        <div class="form-group">
-            <label class="form-label">Tipe Filter</label>
-            <select id="printFilterType" class="form-input" onchange="onPrintFilterTypeChange()">
-                <option value="all">Semua Siswa</option>
-                <option value="sekolah">Per Sekolah</option>
-                <option value="kelas">Per Kelas</option>
-                <option value="grup">Per Group</option>
-            </select>
-        </div>
-        <div id="printFilterSekolahGroup" class="form-group hidden">
-            <label class="form-label">Pilih Sekolah</label>
-            <select id="printFilterSekolah" class="form-input" onchange="onPrintSekolahChange()"></select>
-        </div>
-        <div id="printFilterKelasGroup" class="form-group hidden">
-            <label class="form-label">Pilih Kelas</label>
-            <select id="printFilterKelas" class="form-input"></select>
-        </div>
-        <div id="printFilterGrupGroup" class="form-group hidden">
-            <label class="form-label">Pilih Group</label>
-            <select id="printFilterGrup" class="form-input"></select>
-        </div>
-    </div>
-    <div style="display:flex; gap:1rem; margin-top:1rem;">
-        <button class="btn btn-primary" onclick="previewPrintSiswa()" style="flex:1;"><i class="fas fa-search"></i> Tampilkan Data</button>
-        <button class="btn btn-secondary" onclick="executePrintSiswa()" id="btnCetakSiswa" disabled style="flex:1;"><i class="fas fa-print"></i> Cetak Sekarang</button>
-    </div>
-</div>
-<div id="printPreviewContainer" style="overflow-x:auto; background:white; padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); min-height:200px;">
-    <p style="text-align:center; color:var(--text-muted);">Pilih filter dan klik "Tampilkan Data" untuk preview.</p>
-</div>
-</div>
-</div> <!-- Akhir dari container utama -->
-<script src="wlc_kids.js"></script>
-<script src="wlc_teen_reports.js"></script>
-<script>
 const rubrikSkoring = {
     'Kesiapan': {
         1: 'Menolak/tantrum, tidak mau pindah dari bermain.',
@@ -844,7 +8,7 @@ const rubrikSkoring = {
     },
     'Fokus': {
         1: 'Berhenti >3 kali dalam 10 menit tanpa diminta, perlu terus diarahkan ulang.',
-        2: 'Berhenti 1–2 kali, baru kembali fokus setelah ditegur/diarahkan.',
+        2: 'Berhenti 1�2 kali, baru kembali fokus setelah ditegur/diarahkan.',
         3: 'Sesekali teralih (lihat sekitar, main alat tulis) tapi kembali fokus sendiri.',
         4: 'Mengerjakan tuntas secara berkelanjutan tanpa jeda observasional.'
     },
@@ -918,7 +82,7 @@ const rubrikSkoring = {
             window.setActiveSidebar(targetDashboardId);
         };
 
-        // === CONFIG TERPUSAT — ganti URL ini saat deploy ===
+        // === CONFIG TERPUSAT � ganti URL ini saat deploy ===
         const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? '/api.php'
             : ''; // empty = same-origin saat deploy ke server
@@ -943,10 +107,14 @@ const rubrikSkoring = {
             
             let finalUrl;
             try {
-                // Determine absolute URL safely. Handle both absolute URLs and paths.
-                const urlStr = (typeof endpoint === 'string') 
-                    ? (endpoint.startsWith('http') ? endpoint : (endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : (endpoint.startsWith('./') ? `${API_BASE}${endpoint.substring(1)}` : `${API_BASE}/${endpoint}`))) 
-                    : endpoint.url;
+                let urlStr = endpoint.url || endpoint;
+                if (typeof urlStr === 'string' && !urlStr.startsWith('http')) {
+                    if (API_BASE && urlStr.startsWith(API_BASE)) {
+                        // Already has API_BASE
+                    } else {
+                        urlStr = urlStr.startsWith('/') ? `${API_BASE}${urlStr}` : (urlStr.startsWith('./') ? `${API_BASE}${urlStr.substring(1)}` : `${API_BASE}/${urlStr}`);
+                    }
+                }
                 finalUrl = new URL(urlStr, window.location.origin);
             } catch (err) {
                 // Fallback to original fetch if URL parsing fails
@@ -962,12 +130,12 @@ const rubrikSkoring = {
                     localStorage.removeItem('wlc_role');
                     localStorage.removeItem('wlc_user');
                     document.getElementById('loginScreen').classList.remove('hidden');
-                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
                     document.getElementById('userInfo').classList.add('hidden');
-                    showToast('⚠️ Sesi Anda telah berakhir. Silakan login kembali.');
+                    showToast('?? Sesi Anda telah berakhir. Silakan login kembali.');
                 }
                 return res;
             } catch (err) {
@@ -983,7 +151,7 @@ const rubrikSkoring = {
                 try {
                     const parsed = new URL(endpoint);
                     path = parsed.pathname;
-                } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+                } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
             }
             const method = (options.method || 'GET').toUpperCase();
             
@@ -1185,41 +353,41 @@ const rubrikSkoring = {
         };
 
         const fallbackSoal = [
-            { "id": 1, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "“Kita mulai belajar ya.”", "indikator": "Seberapa cepat anak siap (duduk, fokus, mulai)" },
-            { "id": 2, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "“Sekarang waktunya belajar, simpan dulu mainannya ya.”", "indikator": "Transisi dari bermain ke belajar" },
-            { "id": 3, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "“Ambil pensil dan buku, kita mulai.”", "indikator": "Respons terhadap instruksi awal" },
-            { "id": 4, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "“Ayo duduk yang rapi dulu sebelum mulai.”", "indikator": "Kesiapan posisi & sikap belajar" },
-            { "id": 5, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "“Kita mulai dalam 3…2…1…”", "indikator": "Antisipasi & kesiapan saat aba-aba" },
-            { "id": 6, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "“Kerjakan soal ini sampai selesai ya.”", "indikator": "Lama anak bertahan mengerjakan" },
-            { "id": 7, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "“Tetap di soal ini dulu ya.”", "indikator": "Konsistensi perhatian" },
-            { "id": 8, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "(Tidak ada tambahan – Indikator natural)", "indikator": "Mudah terdistraksi atau tidak" },
-            { "id": 9, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "“Coba fokus ke kertasnya ya.”", "indikator": "Respons saat diarahkan kembali" },
-            { "id": 10, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "“Selesaikan dulu sebelum lihat yang lain.”", "indikator": "Ketahanan sampai tugas selesai" },
-            { "id": 11, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "“Kerjakan nomor 1 dulu.”", "indikator": "Pemahaman instruksi sederhana" },
-            { "id": 12, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "“Kalau tidak paham, boleh tanya ya.”", "indikator": "Inisiatif bertanya" },
-            { "id": 13, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "“Ikuti contoh ini ya.”", "indikator": "Kemampuan mengikuti langkah" },
-            { "id": 14, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "“Dengarkan dulu sebelum mulai.”", "indikator": "Kemampuan menerima instruksi" },
-            { "id": 15, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "“Sekarang ganti ke soal berikutnya.”", "indikator": "Respons terhadap perubahan instruksi" },
-            { "id": 16, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "“Coba kerjakan sendiri dulu ya.”", "indikator": "Inisiatif mandiri" },
+            { "id": 1, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "�Kita mulai belajar ya.�", "indikator": "Seberapa cepat anak siap (duduk, fokus, mulai)" },
+            { "id": 2, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "�Sekarang waktunya belajar, simpan dulu mainannya ya.�", "indikator": "Transisi dari bermain ke belajar" },
+            { "id": 3, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "�Ambil pensil dan buku, kita mulai.�", "indikator": "Respons terhadap instruksi awal" },
+            { "id": 4, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "�Ayo duduk yang rapi dulu sebelum mulai.�", "indikator": "Kesiapan posisi & sikap belajar" },
+            { "id": 5, "wlc": "1", "type": "A", "komponen": "Kesiapan", "pertanyaan": "�Kita mulai dalam 3�2�1��", "indikator": "Antisipasi & kesiapan saat aba-aba" },
+            { "id": 6, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "�Kerjakan soal ini sampai selesai ya.�", "indikator": "Lama anak bertahan mengerjakan" },
+            { "id": 7, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "�Tetap di soal ini dulu ya.�", "indikator": "Konsistensi perhatian" },
+            { "id": 8, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "(Tidak ada tambahan � Indikator natural)", "indikator": "Mudah terdistraksi atau tidak" },
+            { "id": 9, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "�Coba fokus ke kertasnya ya.�", "indikator": "Respons saat diarahkan kembali" },
+            { "id": 10, "wlc": "1", "type": "A", "komponen": "Fokus", "pertanyaan": "�Selesaikan dulu sebelum lihat yang lain.�", "indikator": "Ketahanan sampai tugas selesai" },
+            { "id": 11, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "�Kerjakan nomor 1 dulu.�", "indikator": "Pemahaman instruksi sederhana" },
+            { "id": 12, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "�Kalau tidak paham, boleh tanya ya.�", "indikator": "Inisiatif bertanya" },
+            { "id": 13, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "�Ikuti contoh ini ya.�", "indikator": "Kemampuan mengikuti langkah" },
+            { "id": 14, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "�Dengarkan dulu sebelum mulai.�", "indikator": "Kemampuan menerima instruksi" },
+            { "id": 15, "wlc": "1", "type": "A", "komponen": "Instruksi", "pertanyaan": "�Sekarang ganti ke soal berikutnya.�", "indikator": "Respons terhadap perubahan instruksi" },
+            { "id": 16, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "�Coba kerjakan sendiri dulu ya.�", "indikator": "Inisiatif mandiri" },
             { "id": 17, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "(Diam, tidak langsung bantu)", "indikator": "Apakah anak mencoba dulu" },
-            { "id": 18, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "“Lanjutkan ya.”", "indikator": "Kemampuan melanjutkan tanpa arahan detail" },
-            { "id": 19, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "“Kamu bisa coba sendiri.”", "indikator": "Ketergantungan vs mandiri" },
-            { "id": 20, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "“Selesaikan sampai akhir ya.”", "indikator": "Tanggung jawab menyelesaikan tugas" },
-            { "id": 21, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "“Kalau sulit, tetap dicoba ya.”", "indikator": "Reaksi saat kesulitan" },
-            { "id": 22, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "“Coba lagi sekali.”", "indikator": "Kemauan mencoba ulang" },
+            { "id": 18, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "�Lanjutkan ya.�", "indikator": "Kemampuan melanjutkan tanpa arahan detail" },
+            { "id": 19, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "�Kamu bisa coba sendiri.�", "indikator": "Ketergantungan vs mandiri" },
+            { "id": 20, "wlc": "1", "type": "A", "komponen": "Kemandirian", "pertanyaan": "�Selesaikan sampai akhir ya.�", "indikator": "Tanggung jawab menyelesaikan tugas" },
+            { "id": 21, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "�Kalau sulit, tetap dicoba ya.�", "indikator": "Reaksi saat kesulitan" },
+            { "id": 22, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "�Coba lagi sekali.�", "indikator": "Kemauan mencoba ulang" },
             { "id": 23, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "(Diberi soal sedikit lebih sulit)", "indikator": "Bertahan atau menyerah" },
-            { "id": 24, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "“Tidak apa-apa salah, coba lagi.”", "indikator": "Respon terhadap kesalahan" },
-            { "id": 25, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "“Kerjakan sampai kamu bisa.”", "indikator": "Daya tahan usaha" },
-            { "id": 26, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "“Bagus, kamu benar.”", "indikator": "Ekspresi saat berhasil" },
-            { "id": 27, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "“Ini belum tepat, coba lagi ya.”", "indikator": "Respon saat salah" },
+            { "id": 24, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "�Tidak apa-apa salah, coba lagi.�", "indikator": "Respon terhadap kesalahan" },
+            { "id": 25, "wlc": "1", "type": "A", "komponen": "Ketekunan", "pertanyaan": "�Kerjakan sampai kamu bisa.�", "indikator": "Daya tahan usaha" },
+            { "id": 26, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "�Bagus, kamu benar.�", "indikator": "Ekspresi saat berhasil" },
+            { "id": 27, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "�Ini belum tepat, coba lagi ya.�", "indikator": "Respon saat salah" },
             { "id": 28, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "(Biarkan anak mengalami kesulitan)", "indikator": "Tanda frustrasi / tenang" },
-            { "id": 29, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "“Santai saja, pelan-pelan.”", "indikator": "Kemampuan menenangkan diri" },
-            { "id": 30, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "“Tidak apa-apa, kita coba lagi.”", "indikator": "Stabilitas emosi saat belajar" },
-            { "id": 31, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "“Mau coba soal ini?”", "indikator": "Antusias / penolakan" },
-            { "id": 32, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "“Ini ada soal baru, coba lihat.”", "indikator": "Rasa ingin tahu" },
+            { "id": 29, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "�Santai saja, pelan-pelan.�", "indikator": "Kemampuan menenangkan diri" },
+            { "id": 30, "wlc": "1", "type": "A", "komponen": "Emosi", "pertanyaan": "�Tidak apa-apa, kita coba lagi.�", "indikator": "Stabilitas emosi saat belajar" },
+            { "id": 31, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "�Mau coba soal ini?�", "indikator": "Antusias / penolakan" },
+            { "id": 32, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "�Ini ada soal baru, coba lihat.�", "indikator": "Rasa ingin tahu" },
             { "id": 33, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "(Tambahkan variasi soal)", "indikator": "Ketertarikan terhadap aktivitas" },
-            { "id": 34, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "“Kamu mau lanjut atau berhenti?”", "indikator": "Motivasi melanjutkan" },
-            { "id": 35, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "“Bagian mana yang kamu suka?”", "indikator": "Preferensi & engagement" }
+            { "id": 34, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "�Kamu mau lanjut atau berhenti?�", "indikator": "Motivasi melanjutkan" },
+            { "id": 35, "wlc": "1", "type": "A", "komponen": "Minat", "pertanyaan": "�Bagian mana yang kamu suka?�", "indikator": "Preferensi & engagement" }
         ];
 
         let muridData = [];
@@ -1236,7 +404,7 @@ const rubrikSkoring = {
                     appSettings = await res.json();
                     applySettings();
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         // === Security helpers (anti-XSS) ===
@@ -1314,11 +482,11 @@ const rubrikSkoring = {
             document.getElementById('asistenDashboard').classList.add('hidden');
             document.getElementById('quizApp').classList.remove('hidden');
             updateDisplay();
-            showToast(`✅ Loaded ${soalBank.length} soal`);
+            showToast(`? Loaded ${soalBank.length} soal`);
         }
 
         window.showPanduan = function() {
-            showToast('📖 Panduan: Klik dot 1-5 untuk skor murid. ←→ navigasi soal.');
+            showToast('?? Panduan: Klik dot 1-5 untuk skor murid. ?? navigasi soal.');
         }
 
         window.resetAllData = function() {
@@ -1326,7 +494,7 @@ const rubrikSkoring = {
                 localStorage.removeItem('wlc_bank_soal');
                 scores = {};
                 showMenu();
-                showToast('🗑️ Semua data direset');
+                showToast('??? Semua data direset');
             }
         }
 
@@ -1365,7 +533,7 @@ const rubrikSkoring = {
                         }));
                     }
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         function updateDisplay() {
@@ -1465,7 +633,7 @@ const rubrikSkoring = {
                 currentIndex++;
                 updateDisplay();
             } else {
-                showToast('🎉 Observasi selesai!');
+                showToast('?? Observasi selesai!');
             }
         }
 
@@ -1486,9 +654,9 @@ const rubrikSkoring = {
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
                 });
-                if (res.ok) showToast('💾 Scores tersimpan!');
-                else showToast('⚠️ Tersimpan lokal.');
-            } catch (e) { showToast('💾 Tersimpan lokal browser!'); }
+                if (res.ok) showToast('?? Scores tersimpan!');
+                else showToast('?? Tersimpan lokal.');
+            } catch (e) { showToast('?? Tersimpan lokal browser!'); }
         }
 
         window.exportData = function() {
@@ -1530,7 +698,7 @@ const rubrikSkoring = {
                     document.getElementById('userInfo').classList.remove('hidden');
                     document.getElementById('loginScreen').classList.add('hidden');
                     showRoleDashboard(matchedUser.role);
-                    showToast('✅ Login offline berhasil!');
+                    showToast('? Login offline berhasil!');
                     return true;
                 }
                 return false;
@@ -1538,7 +706,7 @@ const rubrikSkoring = {
 
             if (isOffline) {
                 if (!performOfflineLogin()) {
-                    showToast('❌ Login offline gagal! Akun tidak terdaftar.');
+                    showToast('? Login offline gagal! Akun tidak terdaftar.');
                 }
                 return;
             }
@@ -1560,18 +728,18 @@ const rubrikSkoring = {
                         document.getElementById('userInfo').classList.remove('hidden');
                         document.getElementById('loginScreen').classList.add('hidden');
                         showRoleDashboard(data.user.role);
-                        showToast('✅ Login berhasil!');
+                        showToast('? Login berhasil!');
                     } else {
-                        showToast('❌ Login gagal!');
+                        showToast('? Login gagal!');
                     }
                 } else {
                     const err = await res.json().catch(() => ({}));
-                    showToast('❌ Login gagal: ' + escapeHtml(err.error || 'Password salah'));
+                    showToast('? Login gagal: ' + escapeHtml(err.error || 'Password salah'));
                 }
             } catch (e) {
                 console.warn('Backend login failed, trying offline fallback:', e);
                 if (!performOfflineLogin()) {
-                    showToast('⚠️ Backend offline & login lokal gagal');
+                    showToast('?? Backend offline & login lokal gagal');
                 }
             }
         };
@@ -1581,7 +749,7 @@ const rubrikSkoring = {
             localStorage.removeItem('wlc_user');
             localStorage.removeItem('wlc_token');
             document.getElementById('loginScreen').classList.remove('hidden');
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1599,11 +767,11 @@ const rubrikSkoring = {
             const overlay = document.getElementById('sidebarOverlay');
             if (overlay) overlay.classList.remove('open');
             
-            showToast('👋 Logout');
+            showToast('?? Logout');
         };
 
         window.showRoleDashboard = function(role) {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard', 'wlcKidsDashboard', 'wlcTeenDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1657,11 +825,11 @@ const rubrikSkoring = {
                     if (data.length === 0) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Belum ada data.</td></tr>';
                     else tbody.innerHTML = data.map((o, i) => `<tr><td>${i+1}</td><td>${escapeHtml(new Date(o.timestamp).toLocaleString())}</td><td>${escapeHtml(o.asistenId)}</td><td>${escapeHtml(o.nama)}</td><td>${escapeHtml(o.skor)} / 5</td></tr>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         window.manageUsers = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1689,14 +857,14 @@ const rubrikSkoring = {
                         </div>
                     </td></tr>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         window.saveNewUser = async function() {
             const username = document.getElementById('newUserUsername').value;
             const password = document.getElementById('newUserPassword').value;
             const role = document.getElementById('newUserRole').value;
-            if (!username || !password) return showToast('⚠️ Lengkapi form');
+            if (!username || !password) return showToast('?? Lengkapi form');
             try {
                 const res = await fetch(`${API_BASE}/api/users`, {
                     method: 'POST',
@@ -1707,15 +875,15 @@ const rubrikSkoring = {
                     body: JSON.stringify({ username, password, role })
                 });
                 if (res.ok) {
-                    showToast('✅ User ditambah!');
+                    showToast('? User ditambah!');
                     document.getElementById('usersFormContainer').classList.add('hidden');
                     await loadUsersTable();
-                } else showToast('❌ Gagal');
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+                } else showToast('? Gagal');
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         window.manageSiswa = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1726,7 +894,7 @@ const rubrikSkoring = {
         };
 
         window.manageSekolah = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1738,17 +906,17 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
-            document.getElementById('manageSoalDashboard').classList.remove('hidden');
-            window.setActiveSidebar('manageSoalDashboard');
+            document.getElementById('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard').classList.remove('hidden');
+            window.setActiveSidebar('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard');
             await loadSoalTable();
         };
 
         window.exitManageSoal = function() {
-            document.getElementById('manageSoalDashboard').classList.add('hidden');
+            document.getElementById('manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard').classList.add('hidden');
             document.getElementById('ownerDashboard').classList.remove('hidden');
         };
 
@@ -1764,14 +932,14 @@ const tbody = document.getElementById('soalTableBody');
                         <button class="btn-action btn-delete-alt" onclick="deleteData('bank_soal', ${s.id}, loadSoalTable)"><i class="fas fa-trash"></i></button>
                     </div>
                 </td></tr>`).join('');
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
 window.saveNewSoal = async function() {
             const komponen = document.getElementById('newSoalKomponen').value;
             const indikator = document.getElementById('newSoalIndikator').value;
             const pertanyaan = document.getElementById('newSoalPertanyaan').value;
-            if(!komponen || !indikator || !pertanyaan) return showToast('⚠️ Lengkapi form');
+            if(!komponen || !indikator || !pertanyaan) return showToast('?? Lengkapi form');
             try {
                 const res = await fetch(`${API_BASE}/api/bank-soal`, {
                     method: 'POST',
@@ -1779,13 +947,13 @@ window.saveNewSoal = async function() {
                     body: JSON.stringify({komponen, indikator, pertanyaan})
                 });
                 if(res.ok) {
-                    showToast('✅ Soal disimpan!');
+                    showToast('? Soal disimpan!');
                     document.getElementById('newSoalIndikator').value = '';
                     document.getElementById('newSoalPertanyaan').value = '';
                     document.getElementById('soalFormContainer').classList.add('hidden');
                     await loadSoalTable();
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.populateSiswaSekolahDropdown = async function() {
@@ -1798,7 +966,7 @@ window.saveNewSoal = async function() {
                     if (sel) sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                     document.getElementById('newSiswaKelas').innerHTML = '<option value="">-- Pilih Kelas --</option>';
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.updateKelasDropdownSiswa = async function(targetId = 'newSiswaKelas', schoolId = null) {
@@ -1814,7 +982,7 @@ window.saveNewSoal = async function() {
                     const data = await res.json();
                     targetEl.innerHTML = '<option value="">-- Pilih Kelas --</option>' + data.filter(k => k.sekolahId == sId).map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.nama)}</option>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.exitManageSiswa = function() {
@@ -1937,7 +1105,7 @@ window.saveNewSoal = async function() {
             const nisn = document.getElementById('newSiswaNisn').value;
             const sekolahId = document.getElementById('newSiswaSekolah').value;
             const kelasId = document.getElementById('newSiswaKelas').value;
-            if (!nama || !nisn || !sekolahId || !kelasId) return showToast('⚠️ Lengkapi form');
+            if (!nama || !nisn || !sekolahId || !kelasId) return showToast('?? Lengkapi form');
             try {
                 const res = await fetch(`${API_BASE}/api/siswa`, {
                     method: 'POST',
@@ -1948,13 +1116,13 @@ window.saveNewSoal = async function() {
                     body: JSON.stringify({ nama, nisn, sekolahId: parseInt(sekolahId), kelasId: parseInt(kelasId) })
                 });
                 if (res.ok) {
-                    showToast('✅ Siswa ditambah!');
+                    showToast('? Siswa ditambah!');
                     document.getElementById('newSiswaNama').value = '';
                     document.getElementById('newSiswaNisn').value = '';
                     document.getElementById('siswaFormContainer').classList.add('hidden');
                     await loadSiswaTable();
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
 
@@ -1968,7 +1136,7 @@ window.saveNewSoal = async function() {
             const nama = document.getElementById('sekolahNama').value;
             const alamat = document.getElementById('sekolahAlamat').value;
             const kota = document.getElementById('sekolahKota').value;
-            if (!nama) return showToast('⚠️ Nama wajib!');
+            if (!nama) return showToast('?? Nama wajib!');
             try {
                 const res = await fetch(`${API_BASE}/api/sekolah`, {
                     method: 'POST',
@@ -1979,7 +1147,7 @@ window.saveNewSoal = async function() {
                     body: JSON.stringify({nama, alamat, kota})
                 });
                 if (res.ok) {
-                    showToast('✅ Sekolah ditambah!');
+                    showToast('? Sekolah ditambah!');
                     document.getElementById('sekolahNama').value = '';
                     document.getElementById('sekolahAlamat').value = '';
                     document.getElementById('sekolahKota').value = '';
@@ -1987,14 +1155,14 @@ window.saveNewSoal = async function() {
                     await loadSekolah();
                     await populateSekolahDropdownKelas();
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.tambahKelas = async function() {
             const nama = document.getElementById('kelasNama').value;
             const tingkat = document.getElementById('kelasTingkat').value;
             const sekolahId = parseInt(document.getElementById('kelasSekolahId').value);
-            if (!nama || !sekolahId) return showToast('⚠️ Lengkapi form!');
+            if (!nama || !sekolahId) return showToast('?? Lengkapi form!');
             try {
                 const res = await fetch(`${API_BASE}/api/kelas`, {
                     method: 'POST',
@@ -2005,14 +1173,14 @@ window.saveNewSoal = async function() {
                     body: JSON.stringify({nama, tingkat, sekolahId})
                 });
                 if (res.ok) {
-                    showToast('✅ Kelas ditambah!');
+                    showToast('? Kelas ditambah!');
                     document.getElementById('kelasNama').value = '';
                     document.getElementById('kelasTingkat').value = '';
                     document.getElementById('kelasSekolahId').value = '';
                     document.getElementById('kelasFormContainer').classList.add('hidden');
                     await loadKelas();
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.populateSekolahDropdownKelas = async function() {
@@ -2024,7 +1192,7 @@ window.saveNewSoal = async function() {
                     let sel = document.getElementById('kelasSekolahId');
                     if (sel) sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         async function loadSekolah() {
@@ -2033,7 +1201,7 @@ window.saveNewSoal = async function() {
                 let data = await res.json();
                 data = getSortedData(data);
                 renderSekolahTable(data);
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
         function renderSekolahTable(data) {
             const tbody = document.querySelector('#tableSekolah tbody');
@@ -2051,7 +1219,7 @@ window.saveNewSoal = async function() {
                 let data = await res.json();
                 data = getSortedData(data);
                 renderKelasTable(data);
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
         function renderKelasTable(data) {
             const tbody = document.querySelector('#tableKelas tbody');
@@ -2064,7 +1232,7 @@ window.saveNewSoal = async function() {
         }
 
         window.manageJadwal = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2093,14 +1261,14 @@ window.saveNewSoal = async function() {
                         <button class="btn-action btn-delete-alt" onclick="deleteData('jadwal', ${j.id}, loadJadwal)"><i class="fas fa-trash"></i></button>
                     </div>
                 </td></tr>`}).join('');
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         window.tambahJadwal = async function() {
             const sekolahId = document.getElementById('newJadwalSekolah').value;
             const tanggal = document.getElementById('newJadwalTanggal').value;
             const catatan = document.getElementById('newJadwalCatatan').value;
-            if (!sekolahId || !tanggal) return showToast('⚠️ Lengkapi form');
+            if (!sekolahId || !tanggal) return showToast('?? Lengkapi form');
             try {
                 const res = await fetch(`${API_BASE}/api/jadwal`, {
                     method: 'POST',
@@ -2108,11 +1276,11 @@ window.saveNewSoal = async function() {
                     body: JSON.stringify({sekolahId, tanggal, catatan})
                 });
                 if (res.ok) {
-                    showToast('✅ Jadwal ditambah!');
+                    showToast('? Jadwal ditambah!');
                     document.getElementById('jadwalFormContainer').classList.add('hidden');
                     await loadJadwal();
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         }
 
         window.deleteData = async function(table, id, cb) {
@@ -2122,9 +1290,9 @@ window.saveNewSoal = async function() {
                     method: 'DELETE',
                     headers: { 'x-user-role': localStorage.getItem('wlc_role') }
                 });
-                if (res.ok) { showToast('🗑️ Terhapus!'); if (cb) cb(); }
-                else { showToast('❌ Gagal: ' + escapeHtml((await res.json()).error)); }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+                if (res.ok) { showToast('??? Terhapus!'); if (cb) cb(); }
+                else { showToast('? Gagal: ' + escapeHtml((await res.json()).error)); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.editData = async function(table, id, fields, cb) {
@@ -2158,22 +1326,9 @@ window.saveNewSoal = async function() {
                     input.className = 'form-input';
                     input.type = f.type || 'text';
                     input.value = f.val || '';
-                    if (f.type === 'password') {
-                        group.style.position = 'relative';
-                        input.style.paddingRight = '3rem';
-                    }
                 }
                 input.id = `edit_${escapeHtml(f.key)}`;
                 group.appendChild(input);
-                if (f.type === 'password') {
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-eye';
-                    icon.style.cssText = 'position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);';
-                    icon.onclick = function() {
-                        if(input.type==='password'){input.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{input.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}
-                    };
-                    group.appendChild(icon);
-                }
                 fieldsContainer.appendChild(group);
             });
             overlay.classList.add('show');
@@ -2193,9 +1348,9 @@ window.saveNewSoal = async function() {
                         },
                         body: JSON.stringify(updates)
                     });
-                    if (res.ok) { showToast('✏️ Diupdate!'); closeEditModal(); if (cb) cb(); }
-                    else { showToast('❌ Gagal: ' + escapeHtml((await res.json()).error)); }
-                } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+                    if (res.ok) { showToast('?? Diupdate!'); closeEditModal(); if (cb) cb(); }
+                    else { showToast('? Gagal: ' + escapeHtml((await res.json()).error)); }
+                } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
             };
         };
 
@@ -2283,7 +1438,7 @@ window.saveNewSoal = async function() {
                     let sel = document.getElementById('newJadwalSekolah');
                     if (sel) sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.onload = async () => {
@@ -2301,7 +1456,7 @@ window.saveNewSoal = async function() {
                     'manageUsersDashboard': window.manageUsers,
                     'manageSiswaDashboard': window.manageSiswa,
                     'manageSekolahDashboard': window.manageSekolah,
-                    'manageSoalDashboard': window.manageSoal,
+                    'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard': window.manageSoal,
                     'manageJadwalDashboard': window.manageJadwal,
                     'manageGrupDashboard': window.openManageGrup,
                     'printSiswaDashboard': window.openPrintSiswa,
@@ -2328,7 +1483,7 @@ let allJadwalData = [];
 let allKelasData = [];
 
 window.openManageGrup = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2363,7 +1518,10 @@ async function loadAsistenDropdown() {
 
 async function fetchAllSiswaAndKelas() {
     const resS = await fetch(`${API_BASE}/api/siswa`);
-    if(resS.ok) allSiswaData = await resS.json();
+    if(resS.ok) {
+        let json = await resS.json();
+        allSiswaData = json.data || [];
+    }
     const resK = await fetch(`${API_BASE}/api/kelas`);
     if(resK.ok) allKelasData = await resK.json();
 }
@@ -2395,15 +1553,15 @@ window.tambahGrup = async function() {
     const jId = document.getElementById('newGrupJadwal').value;
     const aId = document.getElementById('newGrupAsisten').value;
     const sIds = Array.from(document.getElementById('newGrupSiswa').selectedOptions).map(o => parseInt(o.value));
-    if(!nama || !jId || !aId || sIds.length === 0) return showToast('⚠️ Lengkapi form');
+    if(!nama || !jId || !aId || sIds.length === 0) return showToast('?? Lengkapi form');
     try {
         const res = await fetch(`${API_BASE}/api/grup`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({nama, jadwalId: parseInt(jId), asistenId: aId, siswaIds: JSON.stringify(sIds)})
         });
-        if(res.ok) { showToast('✅ Grup disimpan!'); await loadGrupTable(); document.getElementById('grupFormContainer').classList.add('hidden'); }
-    } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+        if(res.ok) { showToast('? Grup disimpan!'); await loadGrupTable(); document.getElementById('grupFormContainer').classList.add('hidden'); }
+    } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
 };
 
 async function loadGrupTable() {
@@ -2421,7 +1579,7 @@ async function loadGrupTable() {
 
 // === LOGIKA PRINT SISWA ===
 window.openPrintSiswa = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageGrupDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'manageGrupDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2446,7 +1604,7 @@ async function populatePrintSekolahDropdown() {
             data.sort((a, b) => a.nama.localeCompare(b.nama));
             document.getElementById('printFilterSekolah').innerHTML = '<option value="">-- Pilih Sekolah --</option>' + data.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
         }
-    } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+    } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
 }
 
 async function populatePrintGrupDropdown() {
@@ -2456,7 +1614,7 @@ async function populatePrintGrupDropdown() {
             const data = await res.json();
             document.getElementById('printFilterGrup').innerHTML = '<option value="">-- Pilih Group --</option>' + data.map(g => `<option value="${escapeHtml(g.id)}">${escapeHtml(g.nama)}</option>`).join('');
         }
-    } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+    } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
 }
 
 window.onPrintFilterTypeChange = function() {
@@ -2485,7 +1643,7 @@ window.onPrintSekolahChange = async function() {
                 const data = await res.json();
                 document.getElementById('printFilterKelas').innerHTML = '<option value="">-- Pilih Kelas --</option>' + data.filter(k => k.sekolahId == sId).map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.nama)}</option>`).join('');
             }
-        } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+        } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
     }
 };
 
@@ -2497,16 +1655,17 @@ window.previewPrintSiswa = async function() {
     
     try {
         const res = await fetch(`${API_BASE}/api/siswa`);
-        let students = await res.json();
+        let r = await res.json();
+        let students = r.data || [];
         
         if (type === 'sekolah') {
-            if (!sId) return showToast('⚠️ Pilih sekolah dulu');
+            if (!sId) return showToast('?? Pilih sekolah dulu');
             students = students.filter(s => s.sekolahId == sId);
         } else if (type === 'kelas') {
-            if (!kId) return showToast('⚠️ Pilih kelas dulu');
+            if (!kId) return showToast('?? Pilih kelas dulu');
             students = students.filter(s => s.kelasId == kId);
         } else if (type === 'grup') {
-            if (!gId) return showToast('⚠️ Pilih group dulu');
+            if (!gId) return showToast('?? Pilih group dulu');
             const grupRes = await fetch(`${API_BASE}/api/grup`);
             const grups = await grupRes.json();
             const selectedGrup = grups.find(g => g.id == gId);
@@ -2519,7 +1678,7 @@ window.previewPrintSiswa = async function() {
         displayPrintPreview(students);
         document.getElementById('btnCetakSiswa').disabled = students.length === 0;
     } catch (e) {
-        showToast('⚠️ Gagal memuat data');
+        showToast('?? Gagal memuat data');
     }
 };
 
@@ -2714,11 +1873,11 @@ window.executePrintSiswa = function() {
             kesiapan: {
                 langsung:   "Ananda menunjukkan kesiapan yang sangat baik dalam memasuki aktivitas belajar dan mampu melakukan transisi dari bermain ke belajar dengan cepat dan mandiri.",
                 diingatkan: "Ananda sedang membangun ritme transisi dari bermain ke belajar. Dengan sedikit panduan di awal sesi, Ananda sudah dapat mulai fokus dan berpartisipasi aktif dalam aktivitas yang diberikan.",
-                menolak:    "Ananda menunjukkan kepekaan terhadap perpindahan suasana — ia memerlukan waktu transisi yang lebih perlahan sebelum siap memasuki aktivitas belajar. Ini adalah bagian alami dari proses penyesuaian diri yang sedang berkembang."
+                menolak:    "Ananda menunjukkan kepekaan terhadap perpindahan suasana � ia memerlukan waktu transisi yang lebih perlahan sebelum siap memasuki aktivitas belajar. Ini adalah bagian alami dari proses penyesuaian diri yang sedang berkembang."
             },
             fokus: {
                 stabil:    "Ananda memiliki ketahanan perhatian yang baik dan mampu menyelesaikan tugas secara tuntas tanpa mudah terpengaruh oleh gangguan di lingkungan sekitarnya.",
-                naikturun: "Ananda menunjukkan kemampuan fokus yang sedang berkembang — dalam konteks aktivitas singkat, Ananda dapat terlibat dengan baik, meski sesekali memerlukan pengalihan perhatian kembali ke tugas yang sedang dikerjakan.",
+                naikturun: "Ananda menunjukkan kemampuan fokus yang sedang berkembang � dalam konteks aktivitas singkat, Ananda dapat terlibat dengan baik, meski sesekali memerlukan pengalihan perhatian kembali ke tugas yang sedang dikerjakan.",
                 distraksi: "Ananda adalah penjelajah alami yang sangat peka terhadap lingkungan sekitarnya. Saat ini, Ananda memerlukan struktur dan ruang belajar yang lebih terfokus agar energi eksplorasinya dapat diarahkan secara optimal."
             },
             respons: {
@@ -2727,24 +1886,24 @@ window.executePrintSiswa = function() {
                 bingung: "Ananda sedang dalam tahap membangun kepercayaan diri untuk mengomunikasikan pertanyaan saat menerima instruksi baru. Dengan pendampingan yang hangat dan sabar, kemampuan ini akan terus berkembang secara alami."
             },
             kemandirian: {
-                mandiri:    "Ananda menunjukkan inisiatif yang kuat untuk mencoba menyelesaikan tugas sederhana secara mandiri sebelum meminta bantuan — sebuah fondasi belajar yang sangat positif dan berharga.",
+                mandiri:    "Ananda menunjukkan inisiatif yang kuat untuk mencoba menyelesaikan tugas sederhana secara mandiri sebelum meminta bantuan � sebuah fondasi belajar yang sangat positif dan berharga.",
                 terbatas:   "Ananda mulai menunjukkan keberanian untuk mengambil langkah pertama secara mandiri. Dengan validasi dan dorongan yang tepat dari lingkungan terdekat, kepercayaan dirinya dalam belajar sendiri akan terus menguat.",
                 bergantung: "Ananda merasa paling nyaman belajar dalam suasana yang penuh pendampingan dan dukungan. Hubungan yang aman dengan pendamping belajar adalah titik awal yang kuat untuk secara bertahap membangun kemandiriannya."
             },
             ketekunan: {
-                ulang:   "Ananda menunjukkan daya juang yang baik — saat menghadapi tantangan, Ananda memilih untuk mencoba kembali daripada menyerah. Karakter belajar seperti ini adalah bekal yang sangat berharga untuk jangka panjang.",
+                ulang:   "Ananda menunjukkan daya juang yang baik � saat menghadapi tantangan, Ananda memilih untuk mencoba kembali daripada menyerah. Karakter belajar seperti ini adalah bekal yang sangat berharga untuk jangka panjang.",
                 berhenti: "Ananda cenderung berhati-hati saat menemui soal atau tugas yang terasa sulit. Dengan dorongan kecil yang konsisten dari lingkungan terdekat, Ananda akan belajar bahwa berhenti sejenak bukan berarti menyerah.",
-                menolak:  "Ananda menunjukkan kepekaan yang tinggi terhadap tantangan — saat kesulitan muncul, Ananda membutuhkan ruang untuk memproses perasaannya sebelum melanjutkan. Proses ini adalah bagian penting dari membangun ketangguhan belajar jangka panjang."
+                menolak:  "Ananda menunjukkan kepekaan yang tinggi terhadap tantangan � saat kesulitan muncul, Ananda membutuhkan ruang untuk memproses perasaannya sebelum melanjutkan. Proses ini adalah bagian penting dari membangun ketangguhan belajar jangka panjang."
             },
             emosional: {
                 stabil:   "Ananda menunjukkan kematangan emosional yang stabil selama sesi observasi, baik saat berhasil menyelesaikan tugas maupun saat menghadapi kendala dan tantangan.",
                 dorongan: "Ananda merespons aktivitas belajar dengan sikap yang positif dan kooperatif. Sesekali, Ananda memerlukan penguatan rasa aman dari pendamping agar dapat tetap tenang saat menghadapi bagian yang lebih menantang.",
-                frustrasi: "Ananda adalah anak yang sangat ekspresif dan merasakan pengalaman belajarnya secara mendalam. Ekspresi yang kuat ini menunjukkan kepedulian terhadap prosesnya — dengan bimbingan yang tepat, energi ini akan menjadi kekuatan besar dalam belajar."
+                frustrasi: "Ananda adalah anak yang sangat ekspresif dan merasakan pengalaman belajarnya secara mendalam. Ekspresi yang kuat ini menunjukkan kepedulian terhadap prosesnya � dengan bimbingan yang tepat, energi ini akan menjadi kekuatan besar dalam belajar."
             },
             minat: {
                 antusias: "Ananda menunjukkan ketertarikan dan keterlibatan aktif yang tinggi terhadap berbagai aktivitas pembelajaran yang diberikan selama sesi observasi berlangsung.",
                 netral:   "Ananda mengikuti rangkaian aktivitas dengan sikap yang kooperatif dan tertib. Dengan eksplorasi format belajar yang lebih beragam, keterlibatan aktifnya berpotensi untuk terus meningkat secara signifikan.",
-                kurang:   "Ananda sedang dalam tahap menemukan gaya dan konteks belajar yang paling sesuai dengannya. Setiap anak memiliki pintu masuk minat yang berbeda — dan menemukan pintu tersebut adalah langkah pertama yang paling berarti."
+                kurang:   "Ananda sedang dalam tahap menemukan gaya dan konteks belajar yang paling sesuai dengannya. Setiap anak memiliki pintu masuk minat yang berbeda � dan menemukan pintu tersebut adalah langkah pertama yang paling berarti."
             }
         };
 
@@ -2766,44 +1925,44 @@ window.executePrintSiswa = function() {
         // strategyMap v3: mid dan low dibedakan, masing-masing punya visi sendiri
         const strategyMap = {
             kesiapan: {
-                mid: "pertahankan rutinitas harian yang konsisten — misalnya waktu belajar yang sama setiap hari — agar Ananda memiliki pola transisi yang makin alami",
-                low: "berikan aba-aba waktu sebelum sesi belajar dimulai, seperti: 'Lima menit lagi kita mulai belajar ya' — sehingga Ananda memiliki ruang untuk menyiapkan diri secara mental sebelum berpindah aktivitas",
+                mid: "pertahankan rutinitas harian yang konsisten � misalnya waktu belajar yang sama setiap hari � agar Ananda memiliki pola transisi yang makin alami",
+                low: "berikan aba-aba waktu sebelum sesi belajar dimulai, seperti: 'Lima menit lagi kita mulai belajar ya' � sehingga Ananda memiliki ruang untuk menyiapkan diri secara mental sebelum berpindah aktivitas",
                 visi_mid: "transisi belajarnya akan semakin lancar dan terasa ringan setiap harinya.",
                 visi_low: "proses transisinya akan menjadi lebih tenang dan stabil dari waktu ke waktu."
             },
             fokus: {
-                mid: "lakukan sesi belajar dalam durasi pendek (15–20 menit) dengan jeda aktif di antaranya, agar ritme fokus Ananda terbentuk secara bertahap dan konsisten",
-                low: "ciptakan zona belajar khusus yang bebas dari layar, suara latar, dan gangguan visual — sehingga Ananda memiliki ruang yang kondusif untuk membangun konsentrasinya secara perlahan",
+                mid: "lakukan sesi belajar dalam durasi pendek (15�20 menit) dengan jeda aktif di antaranya, agar ritme fokus Ananda terbentuk secara bertahap dan konsisten",
+                low: "ciptakan zona belajar khusus yang bebas dari layar, suara latar, dan gangguan visual � sehingga Ananda memiliki ruang yang kondusif untuk membangun konsentrasinya secara perlahan",
                 visi_mid: "konsistensi dan durasi fokus belajarnya akan terus meningkat secara alami.",
                 visi_low: "kemampuan konsentrasinya akan berkembang bertahap dalam lingkungan yang mendukung."
             },
             respons: {
-                mid: "biasakan memberikan instruksi satu langkah pada satu waktu, lalu tunggu Ananda menyelesaikannya sebelum melanjutkan ke langkah berikutnya — ini melatih ketelitian dan pemahaman prosedural",
-                low: "gunakan pendekatan 'tunjukkan dulu, baru minta lakukan' — contohkan langkah pertama bersama Ananda sebelum memintanya mencoba sendiri, agar ia merasa aman dan paham arah yang dituju",
+                mid: "biasakan memberikan instruksi satu langkah pada satu waktu, lalu tunggu Ananda menyelesaikannya sebelum melanjutkan ke langkah berikutnya � ini melatih ketelitian dan pemahaman prosedural",
+                low: "gunakan pendekatan 'tunjukkan dulu, baru minta lakukan' � contohkan langkah pertama bersama Ananda sebelum memintanya mencoba sendiri, agar ia merasa aman dan paham arah yang dituju",
                 visi_mid: "kemampuan eksekusi tugasnya akan semakin presisi dan percaya diri.",
                 visi_low: "keberanian Ananda untuk bertanya dan merespons instruksi akan tumbuh secara alami."
             },
             kemandirian: {
-                mid: "berikan Ananda ruang untuk mencoba langkah pertama sendiri sebelum memberikan bantuan — tahan dorongan untuk langsung membantu, dan beri pujian atas usaha mencobanya, bukan hanya atas hasilnya",
-                low: "mulai dari tugas yang sangat kecil dan pasti bisa diselesaikan Ananda sendiri, lalu rayakan setiap keberhasilan sekecil apapun — ini membangun fondasi kepercayaan diri yang kuat dan tahan lama",
+                mid: "berikan Ananda ruang untuk mencoba langkah pertama sendiri sebelum memberikan bantuan � tahan dorongan untuk langsung membantu, dan beri pujian atas usaha mencobanya, bukan hanya atas hasilnya",
+                low: "mulai dari tugas yang sangat kecil dan pasti bisa diselesaikan Ananda sendiri, lalu rayakan setiap keberhasilan sekecil apapun � ini membangun fondasi kepercayaan diri yang kuat dan tahan lama",
                 visi_mid: "rasa percaya diri dan kemandiriannya dalam belajar akan semakin menguat setiap harinya.",
                 visi_low: "kepercayaan dirinya untuk mencoba sendiri akan tumbuh satu langkah demi satu langkah."
             },
             ketekunan: {
-                mid: "fokus memuji proses 'mau mencoba lagi' daripada sekadar kebenaran hasilnya — kalimat seperti 'Hebat, kamu mau coba lagi!' jauh lebih bermakna dari sekadar 'Benar!'",
-                low: "normalkan jeda dan istirahat sejenak saat Ananda menghadapi kesulitan — ajarkan bahwa berhenti untuk menarik napas bukan berarti menyerah, melainkan bagian dari strategi belajar yang bijak",
+                mid: "fokus memuji proses 'mau mencoba lagi' daripada sekadar kebenaran hasilnya � kalimat seperti 'Hebat, kamu mau coba lagi!' jauh lebih bermakna dari sekadar 'Benar!'",
+                low: "normalkan jeda dan istirahat sejenak saat Ananda menghadapi kesulitan � ajarkan bahwa berhenti untuk menarik napas bukan berarti menyerah, melainkan bagian dari strategi belajar yang bijak",
                 visi_mid: "mental pantang menyerah dan ketekunan belajarnya akan terbentuk secara alami dan konsisten.",
                 visi_low: "ketangguhan belajarnya akan tumbuh perlahan namun pasti, dengan dukungan yang hangat dan konsisten."
             },
             emosional: {
-                mid: "sediakan 'kata penguatan' yang konsisten saat Ananda mulai tampak ragu atau cemas — kalimat sederhana seperti 'Kamu pasti bisa, Ayah/Bunda ada di sini' sangat efektif membangun rasa aman",
-                low: "prioritaskan suasana belajar yang hangat dan bebas tekanan sebelum memikirkan hasil — ketika Ananda merasa aman secara emosional, kapasitas belajarnya akan jauh lebih terbuka dan berkembang",
+                mid: "sediakan 'kata penguatan' yang konsisten saat Ananda mulai tampak ragu atau cemas � kalimat sederhana seperti 'Kamu pasti bisa, Ayah/Bunda ada di sini' sangat efektif membangun rasa aman",
+                low: "prioritaskan suasana belajar yang hangat dan bebas tekanan sebelum memikirkan hasil � ketika Ananda merasa aman secara emosional, kapasitas belajarnya akan jauh lebih terbuka dan berkembang",
                 visi_mid: "kestabilan emosinya saat belajar akan semakin kokoh dan menjadi modal besar untuk ke depan.",
                 visi_low: "rasa aman dalam belajar akan menjadi fondasi yang memungkinkan seluruh potensinya berkembang dengan bebas."
             },
             minat: {
-                mid: "hubungkan materi belajar dengan hal yang disukai Ananda — jika ia suka kendaraan, gunakan kendaraan sebagai konteks soal; jika suka memasak, gunakan resep sebagai latihan membaca",
-                low: "eksplorasi berbagai format aktivitas belajar bersama Ananda — menggambar, bercerita, bermain peran, atau eksperimen sederhana — untuk menemukan pintu masuk minat belajar yang paling resonan baginya",
+                mid: "hubungkan materi belajar dengan hal yang disukai Ananda � jika ia suka kendaraan, gunakan kendaraan sebagai konteks soal; jika suka memasak, gunakan resep sebagai latihan membaca",
+                low: "eksplorasi berbagai format aktivitas belajar bersama Ananda � menggambar, bercerita, bermain peran, atau eksperimen sederhana � untuk menemukan pintu masuk minat belajar yang paling resonan baginya",
                 visi_mid: "keterlibatan aktifnya dalam belajar akan terus meningkat seiring makin dikenalnya gaya belajar terbaiknya.",
                 visi_low: "belajar akan perlahan menjadi aktivitas yang ditunggu-tunggu, bukan dihindari."
             }
@@ -2820,7 +1979,7 @@ window.executePrintSiswa = function() {
             const lowAreas  = keys.filter(k => scores[k] === _lowMap[k]);
             const focusAreas = [...lowAreas, ...midAreas]; // low diprioritaskan
 
-            // ── Kasus: semua komponen High ──
+            // -- Kasus: semua komponen High --
             if (focusAreas.length === 0 && strengths.length > 0) {
                 const topK = strengths[0];
                 return certNarratives[topK][scores[topK]] +
@@ -2829,12 +1988,12 @@ window.executePrintSiswa = function() {
                     "motivasi dan rasa ingin tahunya tetap hidup. Dengan demikian, potensi belajar Ananda akan terus berkembang ke level yang lebih tinggi.";
             }
 
-            // ── Apresiasi: dari komponen terkuat berdasarkan weighted priority ──
+            // -- Apresiasi: dari komponen terkuat berdasarkan weighted priority --
             let apresiasi = strengths.length > 0
                 ? certNarratives[strengths[0]][scores[strengths[0]]]
                 : "Ananda menunjukkan proses belajar yang sangat berharga dengan keunikan ritme belajarnya sendiri.";
 
-            // ── Rekomendasi: tampilkan max 3 focus area secara detail untuk menghemat ruang ──
+            // -- Rekomendasi: tampilkan max 3 focus area secara detail untuk menghemat ruang --
             const displayAreas = focusAreas.slice(0, 3);
             const remainingAreas = focusAreas.slice(3);
 
@@ -2855,7 +2014,7 @@ window.executePrintSiswa = function() {
 
             let recommendationText = rekParts.join('\n\n');
             
-            // ── Sisa focus area (ke 4-7): format ringkas 1 kalimat ──
+            // -- Sisa focus area (ke 4-7): format ringkas 1 kalimat --
             const briefStrategyMap = {
                 kesiapan: "Upayakan rutinitas belajar harian yang konsisten untuk membantu kelancaran transisi belajarnya.",
                 fokus: "Sediakan area belajar khusus yang minim distraksi suara dan visual guna menopang konsentrasinya.",
@@ -2870,7 +2029,7 @@ window.executePrintSiswa = function() {
                 recommendationText += "\n\nSelain itu, disarankan agar Ayah/Bunda juga: " + remainingAreas.map(k => briefStrategyMap[k]).join(' ');
             }
 
-            // ── Penutup Laporan berbasis profil dominan ──
+            // -- Penutup Laporan berbasis profil dominan --
             let penutup = "";
             if (strengths.length >= 5) {
                 penutup = "Dengan potensi unggul yang dominan di berbagai aspek, pendampingan dapat difokuskan pada pemberian tantangan baru yang menyenangkan agar motivasi belajarnya terus terjaga.";
@@ -2883,7 +2042,7 @@ window.executePrintSiswa = function() {
             return `${apresiasi}\n\n${recommendationText}\n\n${penutup}`;
         };
 
-        // ── generateFullObservationNarrative ────────────────────────────────
+        // -- generateFullObservationNarrative --------------------------------
         // Generate paragraf narasi observasi lengkap 7 komponen untuk Observation Report
         window.generateFullObservationNarrative = function(scores) {
             return Object.keys(scores)
@@ -2965,7 +2124,7 @@ window.executePrintSiswa = function() {
                         document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                     }
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.loadCertSiswaByKelas = async function() {
@@ -3001,7 +2160,7 @@ window.executePrintSiswa = function() {
                         singleSiswa.innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                     }
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.previewCertMassal = async function() {
@@ -3012,14 +2171,15 @@ window.executePrintSiswa = function() {
             
             try {
                 const res = await fetch(`${API_BASE}/api/siswa`);
-                let students = await res.json();
+                let r = await res.json();
+                let students = r.data || [];
                 
                 if (printType === 'sekolah' || printType === 'kelas') {
-                    if (!sId) return showToast('⚠️ Pilih sekolah dulu');
+                    if (!sId) return showToast('?? Pilih sekolah dulu');
                     students = students.filter(s => s.sekolahId == sId);
                     if (printType === 'kelas' && kId) students = students.filter(s => s.kelasId == kId);
                 } else if (printType === 'grup') {
-                    if (!gId) return showToast('⚠️ Pilih grup dulu');
+                    if (!gId) return showToast('?? Pilih grup dulu');
                     const grupRes = await fetch(`${API_BASE}/api/grup`);
                     const grups = await grupRes.json();
                         const selectedGrup = grups.find(g => g.id == gId);
@@ -3029,11 +2189,11 @@ window.executePrintSiswa = function() {
                     }
                 }
                 
-                if (students.length === 0) return showToast('⚠️ Tidak ada siswa ditemukan');
-                showToast(`📋 ${students.length} siswa siap dicetak`);
+                if (students.length === 0) return showToast('?? Tidak ada siswa ditemukan');
+                showToast(`?? ${students.length} siswa siap dicetak`);
                 document.getElementById('btnCetakCert').disabled = false;
             } catch (e) {
-                showToast('⚠️ Gagal memuat data');
+                showToast('?? Gagal memuat data');
             }
         };
 
@@ -3049,11 +2209,11 @@ window.executePrintSiswa = function() {
                 let students = result.data || result || [];
                 
                 if (printType === 'sekolah' || printType === 'kelas') {
-                    if (!sId) return showToast('⚠️ Pilih sekolah dulu');
+                    if (!sId) return showToast('?? Pilih sekolah dulu');
                     students = students.filter(s => s.sekolahId == sId);
                     if (printType === 'kelas' && kId) students = students.filter(s => s.kelasId == kId);
                 } else if (printType === 'grup') {
-                    if (!gId) return showToast('⚠️ Pilih grup dulu');
+                    if (!gId) return showToast('?? Pilih grup dulu');
                     const grupRes = await fetch(`${API_BASE}/api/grup`);
                     const grups = await grupRes.json();
                     const selectedGrup = grups.find(g => g.id == gId);
@@ -3063,9 +2223,9 @@ window.executePrintSiswa = function() {
                     }
                 }
                 
-                if (students.length === 0) return showToast('⚠️ Tidak ada siswa ditemukan');
+                if (students.length === 0) return showToast('?? Tidak ada siswa ditemukan');
                 
-                showToast(`⏳ Mempersiapkan cetak massal ${students.length} sertifikat...`);
+                showToast(`? Mempersiapkan cetak massal ${students.length} sertifikat...`);
                 
                 // Fetch observations
                 const resO = await fetch(`${API_BASE}/api/observasi`);
@@ -3119,7 +2279,7 @@ window.executePrintSiswa = function() {
                     );
                 });
                 
-                if (certPagesHtml === '') return showToast('⚠️ Tidak ada siswa dengan data observasi');
+                if (certPagesHtml === '') return showToast('?? Tidak ada siswa dengan data observasi');
                 
                 // Templating dasar yang mengambil CSS dari previewCertificate
                 const massHtml = `
@@ -3446,10 +2606,10 @@ window.executePrintSiswa = function() {
                 `;
                 
                 window.printHtml(massHtml);
-                showToast(`✅ ${students.length} sertifikat berhasil dicetak!`);
+                showToast(`? ${students.length} sertifikat berhasil dicetak!`);
             } catch (err) {
                 console.error(err);
-                showToast('⚠️ Gagal memuat data cetak massal');
+                showToast('?? Gagal memuat data cetak massal');
             }
         };
 
@@ -3464,7 +2624,7 @@ window.executePrintSiswa = function() {
                     const filtered = students.filter(s => s.sekolahId == sId);
                     document.getElementById('certSiswaId').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.onCertSekolahSingleChange = async function() {
@@ -3482,7 +2642,7 @@ window.executePrintSiswa = function() {
                     document.getElementById('certFilterKelasSingle').innerHTML = '<option value="">-- Pilih Kelas --</option>' + filtered.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.nama)}</option>`).join('');
                     document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>';
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.onCertKelasSingleChange = async function() {
@@ -3500,7 +2660,7 @@ window.executePrintSiswa = function() {
                     const filtered = students.filter(s => s.sekolahId == sId && s.kelasId == kId);
                     document.getElementById('certSiswaIdSingle').innerHTML = '<option value="">-- Pilih Siswa --</option>' + filtered.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.nama)}</option>`).join('');
                 }
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            } catch (e) { console.error(e); showToast('?? Terjadi kesalahan sistem.'); }
         };
 
         window.exitManageCert = function() {
@@ -3516,7 +2676,7 @@ window.executePrintSiswa = function() {
                 document.getElementById('certHistorySection').classList.add('hidden');
                 return;
             }
-            showToast('🔍 Mengambil data observasi terbaru...');
+            showToast('?? Mengambil data observasi terbaru...');
             try {
                 const resO = await fetch(`${API_BASE}/api/observasi`);
                 const obs = await resO.json();
@@ -3526,7 +2686,7 @@ window.executePrintSiswa = function() {
                 // Load history regardless of whether there are new observations
                 await loadCertHistory(sId);
 
-                if (studentObs.length === 0) { showToast('ℹ️ Belum ada data observasi terbaru.'); return; }
+                if (studentObs.length === 0) { showToast('?? Belum ada data observasi terbaru.'); return; }
 
                 const components = { 'Kesiapan': [], 'Fokus': [], 'Instruksi': [], 'Kemandirian': [], 'Ketekunan': [], 'Emosi': [], 'Minat': [] };
                 studentObs.forEach(o => {
@@ -3550,8 +2710,8 @@ window.executePrintSiswa = function() {
                         document.getElementById(idMap[comp]).value = indicatorVal;
                     }
                 });
-                showToast('✅ Data observasi berhasil ditarik otomatis!');
-            } catch (e) { showToast('⚠️ Gagal sinkronisasi data observasi.'); }
+                showToast('? Data observasi berhasil ditarik otomatis!');
+            } catch (e) { showToast('?? Gagal sinkronisasi data observasi.'); }
         };
 
         window.loadCertHistory = async function(siswaId) {
@@ -3613,7 +2773,7 @@ window.executePrintSiswa = function() {
         window.copyShareLink = function() {
             if (window.currentShareLink) {
                 navigator.clipboard.writeText(window.currentShareLink);
-                showToast('📋 Tautan berhasil disalin ke clipboard!');
+                showToast('?? Tautan berhasil disalin ke clipboard!');
             }
         };
 
@@ -3625,14 +2785,14 @@ window.executePrintSiswa = function() {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('wlc_token') }
                 });
                 if (res.ok) {
-                    showToast('🗑️ Riwayat sertifikat berhasil dihapus!');
+                    showToast('??? Riwayat sertifikat berhasil dihapus!');
                     const sId = document.getElementById('certSiswaIdSingle').value;
                     await loadCertHistory(sId);
                 } else {
-                    showToast('⚠️ Gagal menghapus riwayat.');
+                    showToast('?? Gagal menghapus riwayat.');
                 }
             } catch (e) {
-                showToast('⚠️ Terjadi kesalahan sistem.');
+                showToast('?? Terjadi kesalahan sistem.');
             }
         };
 
@@ -3640,7 +2800,7 @@ window.executePrintSiswa = function() {
             const siswaId = document.getElementById('certSiswaIdSingle').value;
             const certDate = document.getElementById('certDateSingle').value || new Date().toISOString().split('T')[0];
             const wlc_tipe = document.getElementById('certWlcTipeSingle').value;
-            if (!siswaId) { showToast('⚠️ Pilih siswa terlebih dahulu'); return; }
+            if (!siswaId) { showToast('?? Pilih siswa terlebih dahulu'); return; }
 
             const payload = {
                 siswaId: parseInt(siswaId),
@@ -3657,12 +2817,12 @@ window.executePrintSiswa = function() {
             };
 
             if (!payload.kesiapan || !payload.fokus || !payload.respons || !payload.kemandirian || !payload.ketekunan || !payload.emosional || !payload.minat) {
-                showToast('⚠️ Data observasi belum lengkap. Harap lengkapi semua komponen sebelum mencetak sertifikat!');
+                showToast('?? Data observasi belum lengkap. Harap lengkapi semua komponen sebelum mencetak sertifikat!');
                 return;
             }
 
             try {
-                showToast('⏳ Menyimpan kegiatan WLC...');
+                showToast('? Menyimpan kegiatan WLC...');
                 const res = await fetch(`${API_BASE}/api/kegiatan-wlc`, {
                     method: 'POST',
                     headers: {
@@ -3673,15 +2833,15 @@ window.executePrintSiswa = function() {
                 });
                 if (res.ok) {
                     const result = await res.json();
-                    showToast('✅ Kegiatan WLC disimpan!');
+                    showToast('? Kegiatan WLC disimpan!');
                     await loadCertHistory(siswaId);
                     window.open(`${API_BASE}/share.html?id=${result.id}&v=${Date.now()}`, '_blank');
                 } else {
-                    showToast('⚠️ Gagal menyimpan kegiatan.');
+                    showToast('?? Gagal menyimpan kegiatan.');
                 }
             } catch (e) {
                 console.error(e);
-                showToast('⚠️ Terjadi kesalahan koneksi.');
+                showToast('?? Terjadi kesalahan koneksi.');
             }
         };
 
@@ -3772,7 +2932,7 @@ window.executePrintSiswa = function() {
                 
             } catch (e) {
                 console.error(e);
-                showToast('⚠️ Gagal memuat data analitik.');
+                showToast('?? Gagal memuat data analitik.');
             }
         };
 
@@ -3784,12 +2944,12 @@ window.executePrintSiswa = function() {
         };
 
         window.exportAllReports = async function() {
-            showToast('📥 Mempersiapkan ekspor laporan...');
+            showToast('?? Mempersiapkan ekspor laporan...');
             try {
                 const res = await fetch(`${API_BASE}/api/observasi`);
                 const data = await res.json();
                 
-                if (data.length === 0) return showToast('⚠️ Belum ada data observasi untuk diekspor');
+                if (data.length === 0) return showToast('?? Belum ada data observasi untuk diekspor');
                 
                 let csvContent = "data:text/csv;charset=utf-8,";
                 csvContent += "No,Timestamp,Asisten,Nama Siswa,NISN,Sekolah,Kelas,Pertanyaan,Skor\n";
@@ -3816,10 +2976,10 @@ window.executePrintSiswa = function() {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                showToast('✅ Laporan berhasil diunduh!');
+                showToast('? Laporan berhasil diunduh!');
             } catch (e) {
                 console.error(e);
-                showToast('⚠️ Gagal mengekspor laporan.');
+                showToast('?? Gagal mengekspor laporan.');
             }
         };
 
@@ -3847,7 +3007,7 @@ window.executePrintSiswa = function() {
                 }
             } catch (e) {
                 console.error(e);
-                showToast('⚠️ Gagal memuat data Growth Check');
+                showToast('?? Gagal memuat data Growth Check');
             }
         };
 
@@ -3881,7 +3041,7 @@ window.executePrintSiswa = function() {
             const t1 = document.getElementById('growthSession1').value;
             const t2 = document.getElementById('growthSession2').value;
             
-            if (!sId || !t1 || !t2) return showToast('⚠️ Pilih siswa dan dua sesi terlebih dahulu');
+            if (!sId || !t1 || !t2) return showToast('?? Pilih siswa dan dua sesi terlebih dahulu');
             
             const studentObs = allObservationsForGrowth.filter(o => o.siswaId == sId);
             const obs1 = studentObs.filter(o => o.timestamp.startsWith(t1));
@@ -3912,7 +3072,7 @@ window.executePrintSiswa = function() {
             const scores2 = calculateScores(obs2);
             
             const compKeys = ['kesiapan', 'fokus', 'respons', 'kemandirian', 'ketekunan', 'emosional', 'minat'];
-            const compLabels = ['Kesiapan', 'Fokus', 'Instruksi/Respons', 'Kemandirian', 'Ketekunan', 'Emosional', 'Minat'];
+            const compLabels = ['Transisi ke Belajar', 'Keterlibatan Tugas', 'Penerapan Instruksi', 'Inisiatif Penyelesaian', 'Respons terhadap Kendala', 'Ekspresi Perilaku', 'Partisipasi Aktif'];
             
             const data1 = compKeys.map(k => scores1[k]);
             const data2 = compKeys.map(k => scores2[k]);
@@ -3967,11 +3127,11 @@ window.executePrintSiswa = function() {
                 const delta = s2 - s1;
                 let deltaHtml = '';
                 if (delta > 0) {
-                    deltaHtml = `<span style="color:var(--success); font-weight:bold;">+${escapeHtml(delta.toFixed(1))} ▲</span>`;
+                    deltaHtml = `<span style="color:var(--success); font-weight:bold;">+${escapeHtml(delta.toFixed(1))} ?</span>`;
                 } else if (delta < 0) {
-                    deltaHtml = `<span style="color:var(--danger); font-weight:bold;">${escapeHtml(delta.toFixed(1))} ▼</span>`;
+                    deltaHtml = `<span style="color:var(--danger); font-weight:bold;">${escapeHtml(delta.toFixed(1))} ?</span>`;
                 } else {
-                    deltaHtml = `<span style="color:var(--text-muted);">0.0 ▬</span>`;
+                    deltaHtml = `<span style="color:var(--text-muted);">0.0 ?</span>`;
                 }
                 
                 return `<tr>
@@ -4020,7 +3180,7 @@ window.executePrintSiswa = function() {
                 </tr>`).join('');
             } catch (e) {
                 console.error(e);
-                showToast('⚠️ Gagal memuat data refleksi orang tua.');
+                showToast('?? Gagal memuat data refleksi orang tua.');
             }
         };
 
@@ -4032,7 +3192,7 @@ window.executePrintSiswa = function() {
         };
 
         window.hideAllDashboards = function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard', 'wlcKidsDashboard', 'wlcTeenDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4060,14 +3220,14 @@ window.executePrintSiswa = function() {
         window.handleLogoFileSelect = function(input) {
             const file = input.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) { showToast('⚠️ File terlalu besar (Max 2MB)'); return; }
+            if (file.size > 2 * 1024 * 1024) { showToast('?? File terlalu besar (Max 2MB)'); return; }
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64 = e.target.result;
                 document.getElementById('setAppLogo').value = base64;
                 document.getElementById('setLogoPreview').innerHTML = `<img src="${escapeHtml(base64)}" style="width:100%;height:100%;object-fit:contain;">`;
-                showToast('📸 Gambar terpilih!');
+                showToast('?? Gambar terpilih!');
             };
             reader.readAsDataURL(file);
         };
@@ -4087,47 +3247,10 @@ window.executePrintSiswa = function() {
                     body: JSON.stringify({ app_name, app_logo })
                 });
                 if (res.ok) {
-                    showToast('✅ Pengaturan disimpan!');
+                    showToast('? Pengaturan disimpan!');
                     await loadSettings();
                 }
-            } catch (e) { showToast('❌ Gagal menyimpan'); }
+            } catch (e) { showToast('? Gagal menyimpan'); }
         };
 
-        window.uploadRestoreDatabase = async function(input) {
-            if (!input.files || input.files.length === 0) return;
-            const file = input.files[0];
-            if (!confirm(`Anda yakin ingin melakukan restore database menggunakan file ${file.name}? Seluruh data saat ini akan ditimpa!`)) {
-                input.value = '';
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('backup_file', file);
-            
-            try {
-                showToast('⏳ Sedang melakukan restore...', 'info');
-                const res = await fetch('/api/restore', {
-                    method: 'POST',
-                    headers: {
-                        'x-user-role': localStorage.getItem('wlc_role'),
-                        'Authorization': `Bearer ${localStorage.getItem('wlc_token')}`
-                    },
-                    body: formData
-                });
-                
-                if (res.ok) {
-                    showToast('✅ Restore database berhasil! Halaman akan direfresh...', 'success');
-                    setTimeout(() => window.location.reload(), 2000);
-                } else {
-                    const data = await res.json();
-                    showToast('❌ Gagal restore: ' + (data.error || 'Unknown error'), 'error');
-                }
-            } catch (e) {
-                showToast('❌ Terjadi kesalahan jaringan.', 'error');
-            }
-            input.value = '';
-        };
 
-</script>
-</body>
-</html>

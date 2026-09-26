@@ -1,840 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2563eb">
-<link rel="manifest" href="./manifest.json">
-<title>WLC - Komponen Observasi</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root{--primary:#D1B073;--primary-soft:rgba(209, 176, 115, 0.15);--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--secondary:#A0AAB2;--secondary-soft:#1e1e1e;--background:#0B0C10;--surface:#15161A;--text-main:#F8F9FA;--text-muted:#A0AAB2;--border:rgba(209, 176, 115, 0.15);--radius-md:12px;--radius-lg:20px;--shadow-sm:0 1px 3px rgba(0,0,0,0.5);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.5);--shadow-lg:0 20px 25px -5px rgba(0,0,0,0.8);}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',system-ui,-apple-system,sans-serif;}
-body{background-color:var(--background);color:var(--text-main);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:2rem 1rem;transition: background 0.3s ease;}
-.container{width:100%;max-width:1200px;margin:0 auto;transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);}
-.container:has(#loginScreen:not(.hidden)){max-width:fit-content;}
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-[id$='Dashboard'],#quizApp{background:var(--surface);backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:2.5rem;min-height:80vh;animation:fadeInUp 0.5s ease-out;border: 1px solid var(--border);position: relative;}
-[id$='FormContainer']{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4000;background:#141414;color:#f5f5f5;padding:2rem;border-radius:var(--radius-lg);box-shadow:0 0 0 100vw rgba(0,0,0,0.8),var(--shadow-lg);width:90%;max-width:550px;max-height:85vh;overflow-y:auto;display:block;border:1px solid var(--border);}
-[id$='FormContainer'].hidden{display:none !important;}
-.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
-.panel-header h1{font-size:1.75rem;margin:0;color:var(--primary);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.85rem 1.75rem;font-weight:600;font-size:0.95rem;border-radius:var(--radius-md);cursor:pointer;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border:none;background-color:var(--primary);color:#0B0C10;box-shadow:var(--shadow-sm);}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(209, 176, 115, 0.3);filter:brightness(1.05);}
-.btn-primary{background-color:var(--primary);color:#0B0C10;}
-.btn-secondary{background-color:transparent;color:var(--text-main);border:1px solid rgba(255,255,255,0.1);}
-.btn-secondary:hover{background-color:rgba(255,255,255,0.05);color:var(--text-main);border-color:rgba(255,255,255,0.2);box-shadow:none;}
-.btn-danger{background-color:var(--danger);color:white;}
-.data-table{width:100%;border-collapse:collapse;margin:1.5rem 0;}
-.data-table th{text-align:left;padding:1.25rem 1rem;background:#1e1e1e;color:var(--primary);font-weight:700;text-transform:uppercase;font-size:0.8rem;letter-spacing:0.075em;border-bottom:2px solid var(--border);}
-.data-table td{padding:1rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text-main);}
-.data-table tr:hover td{background-color:#1a1a1a;}
-.form-group{margin-bottom:1.5rem;}
-.form-label{display:block;margin-bottom:0.6rem;font-weight:700;font-size:0.95rem;color:var(--primary);letter-spacing:0.01em;}
-.form-input{width:100%;padding:0.85rem 1.25rem;border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-size:0.95rem;transition:all 0.3s ease;background:rgba(20, 22, 26, 0.6);color:#f5f5f5;}
-.form-input:focus{outline:none;border-color:var(--primary);background:rgba(20, 22, 26, 0.9);box-shadow:0 0 0 4px rgba(209, 176, 115, 0.15);}
-.form-row{display:flex;gap:1.5rem;flex-wrap:wrap;}
-.form-row .form-group{flex:1;min-width:200px;}
-.menu-buttons{display:grid;grid-template-columns:repeat(3, 1fr);gap:1.5rem;margin-top:2rem;}
-.menu-btn{background:var(--surface);backdrop-filter: blur(5px);border:1px solid rgba(255,255,255,0.05);padding:2.5rem;border-radius:var(--radius-lg);text-align:center;cursor:pointer;transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);display:flex;flex-direction:column;align-items:center;gap:1.2rem;color:var(--text-main);font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-.menu-btn:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(209,176,115,0.1);border-color:rgba(209,176,115,0.3);background: linear-gradient(145deg, rgba(30, 32, 38, 0.9) 0%, rgba(20, 22, 26, 1) 100%);}
-.form-group{margin-bottom:1.5rem;}
-.login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:10000;padding:1rem;}
-.login-card{background:linear-gradient(145deg, rgba(21, 22, 26, 0.9) 0%, rgba(11, 12, 16, 1) 100%);padding:clamp(2rem,5vw,4rem);border-radius:clamp(1rem,3vw,2rem);box-shadow:0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(209,176,115,0.05);width:100%;max-width:min(90vw,450px);border:1px solid rgba(209, 176, 115, 0.15);text-align:center;}
-.hidden{display:none !important;}
-.sidebar{width:260px;background:var(--surface);backdrop-filter: blur(15px);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:fixed;left:-260px;top:0;height:100vh;z-index:1000;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:var(--shadow-lg);}
-.sidebar.open{left:0;}
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;visibility:hidden;transition:all 0.35s ease;}
-.sidebar-overlay.open{opacity:1;visibility:visible;}
-.sidebar-nav{list-style:none;padding:0;margin:0;flex:1;overflow-y:auto;}
-.sidebar-nav a{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;font-size:0.9rem;transition:all 0.2s ease;border-left:3px solid transparent;}
-.sidebar-nav a:hover,.sidebar-nav a.active{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);}
-.sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
-@media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
-@media(min-width:1025px){body.has-sidebar .sidebar{left:0;}body.has-sidebar .container{margin-left:260px;max-width:calc(100% - 260px);}.sidebar-overlay{display:none!important;}}
-.notification{position:fixed;bottom:2rem;right:2rem;background:#27272a;color:white;padding:1rem 1.5rem;border-radius:8px;font-weight:500;box-shadow:var(--shadow-lg);z-index:2000;}
-.soal-counter{text-align:center;margin-bottom:2rem;}
-.soal-number{font-size:3rem;color:var(--primary);font-weight:800;line-height:1;}
-.soal-text{font-size:1.25rem;line-height:1.6;margin:1rem auto;max-width:800px;color:var(--text-main);background:#f1f5f9;padding:1.5rem;border-radius:var(--radius-md);text-align:center;}
-.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;margin:1.5rem auto;max-width:100%;overflow:hidden;}
-.progress-fill{height:100%;background:var(--primary);transition:width 0.3s ease;}
-.rating-dots{display:flex;gap:0.6rem;justify-content:flex-start;flex-wrap:nowrap;}
-.rating-dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.3s;background:#ffffff;color:var(--text-muted);}
-.rating-dot:hover{border-color:var(--primary);color:var(--primary);transform:scale(1.1);background:var(--primary-soft);}
-.rating-dot.active{background-color:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 10px rgba(37, 99, 235, 0.3);transform:scale(1.05);}
-.murid-card{display:flex;align-items:center;justify-content:space-between;background:#fff;padding:1rem 1.5rem;border-radius:var(--radius-md);margin-bottom:1rem;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
-.murid-header{display:flex;align-items:center;gap:1rem;}
-.murid-avatar{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:1.1rem;}
-.murid-name{font-weight:600;font-size:1.1rem;}
-.menu-btn i { font-size: 3.5rem; color: var(--primary); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.menu-btn:hover i { transform: scale(1.15); }
-.sidebar-nav a i { font-size: 1.25rem; width: 28px; text-align: center; transition: transform 0.2s ease; }
-.sidebar-nav a:hover i { transform: scale(1.1); }
-.sidebar-group-label { display: block; padding: 0.6rem 1.5rem 0.3rem; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(209,176,115,0.45); margin-top: 0.5rem; }
-.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:3000;opacity:0;visibility:hidden;transition:all 0.3s;}
-.edit-modal-overlay.show{opacity:1;visibility:visible;}
-.edit-modal-card{background:white;padding:2rem;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:var(--shadow-lg);transform:translateY(20px);transition:all 0.3s;max-height:90vh;overflow-y:auto;}
-.edit-modal-overlay.show .edit-modal-card{transform:translateY(0);}
-.action-dropdown{position:relative;display:inline-block;}
-.action-menu{position:absolute;right:0;top:110%;background:white;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);border:1px solid var(--border);z-index:100;min-width:180px;display:none;flex-direction:column;overflow:hidden;}
-.action-menu.show{display:flex;}
-.action-item{padding:0.8rem 1.2rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;gap:0.75rem;color:var(--text-main);font-weight:500;font-size:0.9rem;border:none;background:none;width:100%;text-align:left;}
-.action-item:hover{background:var(--primary-soft);color:var(--primary);}
-.action-item i{color:var(--primary);width:20px;text-align:center;}
-.btn-action{padding:0.5rem;border-radius:var(--radius-md);border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;font-size:0.9rem;}
-.btn-edit-alt{background:var(--primary-soft);color:var(--primary);}
-.btn-edit-alt:hover{background:var(--primary);color:white;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
-.btn-delete-alt{background:#fee2e2;color:#ef4444;}
-.btn-delete-alt:hover{background:#ef4444;color:white;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
-.action-group{display:flex;gap:0.5rem;align-items:center;}
-.sort-header{cursor:pointer;position:relative;user-select:none;transition:all 0.2s;}
-.sort-header:hover{background:var(--primary-soft) !important;color:var(--primary);}
-.sort-header::after{content:' \f0dc';font-family:'Font Awesome 5 Free';font-weight:900;font-size:0.7rem;opacity:0.3;margin-left:0.5rem;vertical-align:middle;}
-.sort-header.asc::after{content:' \f0de';opacity:1;color:var(--primary);}
-.sort-header.desc::after{content:' \f0dd';opacity:1;color:var(--primary);}
 
-/* --- MOBILE RESPONSIVENESS AND ANDROID OPTIMIZATIONS --- */
-@media (max-width: 768px) {
-  body {
-    padding: 0.5rem;
-  }
-  [id$='Dashboard'], #quizApp {
-    padding: 1.25rem 1rem;
-    border-radius: var(--radius-md);
-    min-height: auto;
-  }
-  .panel-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-  }
-  .panel-header h1 {
-    font-size: 1.4rem;
-    text-align: center;
-  }
-  .panel-header .btn {
-    width: 100%;
-  }
-  .data-table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .form-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .form-row .form-group {
-    width: 100%;
-    margin-bottom: 0;
-  }
-  .menu-buttons {
-    grid-template-columns: 1fr !important;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  .menu-btn {
-    padding: 1.5rem 1rem;
-    gap: 0.75rem;
-  }
-  .menu-btn i {
-    font-size: 2.5rem;
-  }
-  [id$='FormContainer'] {
-    width: 95%;
-    padding: 1.5rem;
-    max-height: 90vh;
-  }
-}
-
-@media (max-width: 576px) {
-  .murid-card {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  .murid-header {
-    justify-content: flex-start;
-  }
-  .rating-dots {
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  .rating-dot {
-    width: 40px;
-    height: 40px;
-  }
-  .edit-modal-card {
-    padding: 1.25rem 1rem;
-  }
-}
-.bars-container { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
-.bars-option { display: flex; align-items: center; padding: 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; background: var(--surface); transition: all 0.2s; }
-.bars-option:hover { border-color: var(--primary); background: var(--primary-soft); }
-.bars-option.active { background: var(--primary); color: white; border-color: var(--primary); }
-.bars-number { font-weight: bold; font-size: 1.2rem; margin-right: 1rem; min-width: 24px; }
-.bars-text { font-size: 0.95rem; line-height: 1.4; }
-/* OVERRIDE UNTUK SERTIFIKAT LAMA DI DATABASE (Fix Halaman 2 Terpotong) */
-.report-container { padding: 3mm 6mm !important; }
-.report-title { font-size: 1.5rem !important; }
-.student-name { font-size: 1.2rem !important; }
-.section-title { font-size: 0.75rem !important; margin-bottom: 1mm !important; }
-.report-box { padding: 2.5mm 3mm !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
-.narrative-box { min-height: 20mm !important; }
-.report-note, .report-footer, .sponsor-footer { font-size: 0.65rem !important; margin-top: 1mm !important; padding-top: 1mm !important; }
-.report-header { margin-bottom: 1mm !important; padding-bottom: 2mm !important; }
-</style>
-</head>
-<body>
-<div id="protocolWarning" class="hidden" style="background:#fee2e2;color:#b91c1c;padding:1rem;text-align:center;font-weight:bold;border-bottom:2px solid #ef4444;position:sticky;top:0;z-index:9999;">
-⚠️ PERINGATAN: Anda membuka aplikasi via FILE. Fitur Database TIDAK AKAN JALAN.<br>
-Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:underline;color:#b91c1c;">http://localhost:3000</a><br>
-<span style="font-size:0.8rem; font-weight:normal;">Jika sudah membuka via localhost tapi tidak ada perubahan, tekan <b>CTRL + F5</b> untuk Hard Refresh.</span>
-</div>
-
-<!-- FORM CONTAINERS AS TOP-LEVEL MODALS -->
-<div id="usersFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
-    <div class="form-group" style="position:relative;"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******" style="padding-right:3rem;"><i class="fas fa-eye" style="position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('newUserPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i></div>
-    <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
-    <button class="btn btn-primary" onclick="saveNewUser()" style="width:100%;margin-top:1rem;"><i class="fas fa-save"></i> Simpan User</button>
-</div>
-
-<div id="sekolahFormContainer" class="hidden">
-    <div style="background:var(--surface); padding:1rem; border-radius:var(--radius-md);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="margin:0;">Tambah Sekolah Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('sekolahFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-        <div class="form-group"><label class="form-label">Nama Sekolah</label><input type="text" class="form-input" id="sekolahNama" placeholder="Contoh: SD Negeri 01"></div>
-        <div class="form-group"><label class="form-label">Alamat</label><input type="text" class="form-input" id="sekolahAlamat" placeholder="Jl. Merdeka No. 123"></div>
-        <div class="form-group"><label class="form-label">Kota</label><input type="text" class="form-input" id="sekolahKota" placeholder="Contoh: Jakarta"></div>
-        <button class="btn btn-primary" onclick="tambahSekolah()" style="width:100%;"><i class="fas fa-plus"></i> Simpan Sekolah</button>
-    </div>
-</div>
-
-<div id="kelasFormContainer" class="hidden">
-    <div style="background:var(--surface); padding:1rem; border-radius:var(--radius-md);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="margin:0;">Tambah Kelas Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('kelasFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-        <div class="form-group"><label class="form-label">Nama Kelas</label><input type="text" class="form-input" id="kelasNama" placeholder="Contoh: Kelas 1-A"></div>
-        <div class="form-group"><label class="form-label">Tingkat</label><input type="text" class="form-input" id="kelasTingkat" placeholder="Contoh: SD / SMP"></div>
-        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="kelasSekolahId"></select></div>
-        <button class="btn btn-primary" onclick="tambahKelas()" style="width:100%;"><i class="fas fa-plus"></i> Simpan Kelas</button>
-    </div>
-</div>
-
-<div id="siswaFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;font-size:1.5rem;margin:0;"><i class="fas fa-user-plus"></i> Tambah Siswa Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('siswaFormContainer').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Nama Lengkap Siswa</label><input type="text" class="form-input" id="newSiswaNama" placeholder="Contoh: Budi Santoso"></div>
-        <div class="form-group"><label class="form-label">NISN / Nomor Induk</label><input type="text" class="form-input" id="newSiswaNisn" placeholder="Contoh: 12345678"></div>
-    </div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newSiswaSekolah" onchange="updateKelasDropdownSiswa()"></select></div>
-        <div class="form-group"><label class="form-label">Kelas</label><select class="form-input" id="newSiswaKelas"></select></div>
-    </div>
-    <button class="btn btn-primary" onclick="saveNewSiswa()" style="width:100%;margin-top:1.5rem;height:50px;font-weight:700;"><i class="fas fa-save"></i> Simpan Siswa</button>
-</div>
-
-<div id="soalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
-            <option value="Kesiapan">Kesiapan</option>
-            <option value="Fokus">Fokus</option>
-            <option value="Instruksi">Instruksi</option>
-            <option value="Kemandirian">Kemandirian</option>
-            <option value="Ketekunan">Ketekunan</option>
-            <option value="Emosi">Emosi</option>
-            <option value="Minat">Minat</option>
-        </select></div>
-        <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
-    </div>
-    <div class="form-group"><label class="form-label">Pertanyaan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pertanyaan lengkap..."></div>
-    <button class="btn btn-primary" onclick="saveNewSoal()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Soal</button>
-</div>
-
-<div id="jadwalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;"><i class="fas fa-calendar-plus"></i> Tambah Jadwal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('jadwalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newJadwalSekolah"></select></div>
-        <div class="form-group"><label class="form-label">Tanggal</label><input type="date" class="form-input" id="newJadwalTanggal"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Catatan</label><input type="text" class="form-input" id="newJadwalCatatan" placeholder="Kunjungan rutin / Observasi khusus"></div>
-    <button class="btn btn-primary" onclick="tambahJadwal()" style="width:100%;"><i class="fas fa-calendar-check"></i> Simpan Jadwal</button>
-</div>
-
-<!-- EDIT MODAL OVERLAY (ESSENTIAL FOR EDITING) -->
-<div id="editModalOverlay" class="edit-modal-overlay">
-    <div class="edit-modal-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1rem;">
-            <h3 id="editModalTitle" style="margin:0;color:var(--primary);">Edit Data</h3>
-            <button class="btn btn-secondary" style="border-radius:50%;width:34px;height:34px;padding:0;" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="editModalFields"></div>
-        <div style="margin-top:2rem;display:flex;gap:1rem;">
-            <button class="btn btn-secondary" style="flex:1" onclick="closeEditModal()">Batal</button>
-            <button class="btn btn-primary" id="editModalSaveBtn" style="flex:1">Simpan Perubahan</button>
-        </div>
-    </div>
-</div>
-
-<!-- QR CODE SHARE MODAL -->
-<div id="qrShareModal" class="edit-modal-overlay hidden" style="z-index: 10000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
-    <div class="edit-modal-card" style="background: white; padding: 2rem; border-radius: var(--radius-md); max-width: 400px; width: 100%; text-align: center; box-shadow: var(--shadow-lg);">
-        <h3 style="margin: 0 0 1rem 0; color: var(--primary); font-family: 'Outfit', sans-serif;"><i class="fas fa-qrcode"></i> Bagikan QR Code</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Orang tua dapat memindai QR Code ini untuk melihat sertifikat perkembangan anak secara langsung.</p>
-        
-        <div style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 8px; padding: 1.5rem; display: inline-block; margin-bottom: 1.5rem;">
-            <img id="qrShareImage" src="" style="width: 180px; height: 180px; display: block; margin: 0 auto;" alt="QR Code Share">
-        </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <button class="btn btn-primary" onclick="copyShareLink()" style="width:100%; height: 45px;"><i class="fas fa-copy"></i> Salin Tautan</button>
-            <button class="btn btn-secondary" onclick="closeQrShareModal()" style="width:100%; height: 45px;">Tutup</button>
-        </div>
-    </div>
-</div>
-<nav id="ownerSidebar" class="sidebar hidden">
-<div class="sidebar-brand" style="cursor:pointer;padding:1rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;" onclick="window.location.href='index.html#hero';">
-<div style="background:transparent;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-    <img src="logo_wahidin.png" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
-</div>
-<div style="display:flex;flex-direction:column;line-height:1.1;">
-<h2 style="font-family:'Playfair Display',serif;font-size:0.85rem;font-weight:700;letter-spacing:1px;color:#b38e5d;margin:0;">WLC Admin</h2>
-</div>
-</div>
-<ul class="sidebar-nav">
-<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> Beranda</a></li>
-
-<li><span class="sidebar-group-label">Data</span></li>
-<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
-<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> Sekolah & Kelas</a></li>
-<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Group</a></li>
-<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Instrumen</a></li>
-
-<li><span class="sidebar-group-label">WLC</span></li>
-<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> WLC Kids</a></li>
-<li><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</a></li>
-<li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> Growth Check</a></li>
-<li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> Refleksi Ortu</a></li>
-<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> Jadwal</a></li>
-<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat</a></li>
-
-<li><span class="sidebar-group-label">Pengaturan</span></li>
-<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> User</a></li>
-<li><a href="#" onclick="window.location.href='export.php'" data-nav="backupDashboard"><i class="fas fa-database"></i> Backup Database</a></li>
-<li><a href="#" onclick="document.getElementById('restoreUploadInput').click();return false;" data-nav="restoreDashboard"><i class="fas fa-upload"></i> Restore Database</a></li>
-</ul>
-<input type="file" id="restoreUploadInput" class="hidden" accept=".db,.sqlite,.sqlite3" onchange="uploadRestoreDatabase(this)">
-<div class="sidebar-footer" style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center;">
-<button class="btn" onclick="logout()" style="width:auto;min-width:120px;border-radius:8px;height:34px;padding:0 1rem;font-size:0.8rem;background:linear-gradient(135deg, #d4af37, #aa7c11);color:#0a0a0a;font-weight:700;border:none;box-shadow:0 3px 8px rgba(212, 175, 55, 0.2);letter-spacing:0.5px;transition:all 0.2s ease;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-</div>
-</nav>
-<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-<button id="sidebarToggle" class="sidebar-toggle hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-<div id="loginScreen" class="login-screen">
-<div class="login-card">
-<div style="background:transparent;width:105px;height:105px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;cursor:pointer;" onclick="window.location.href='index.html#hero';">
-    <img src="logo_wahidin.png" alt="WLC Logo" style="width:100%; height:100%; object-fit:contain;">
-</div>
-<h2 style="font-family:'Outfit',sans-serif;font-size:1.15rem;line-height:1.3;color:var(--primary);margin-bottom:0.5rem;font-weight:700;">Exclusive Portal</h2>
-<p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.75rem;line-height:1.4;">Akses terbatas khusus bagi Klien & Evaluator tersertifikasi.</p>
-<div style="text-align:left;margin-bottom:1.5rem;">
-<label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginUsername">Username</label>
-<input type="text" id="loginUsername" class="form-input" placeholder="Masukkan username" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
-</div>
-<div style="text-align:left;margin-bottom:2.5rem;position:relative;">
-<label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginPassword">Password</label>
-<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 3rem 0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
-<i class="fas fa-eye" id="toggleLoginPassword" style="position:absolute;right:1rem;top:2.7rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('loginPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i>
-<div style="text-align:right; margin-top:0.5rem;">
-<a href="forgot_password.html" style="color:var(--primary); font-size:0.9rem; text-decoration:none;">Lupa Password?</a>
-</div>
-</div>
-<button class="btn btn-primary" onclick="doLogin()" style="width:100%;height:50px;font-weight:700;font-size:0.95rem;border-radius:0.75rem;background:var(--primary);color:#0a0a0a;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 8px 12px -3px rgba(212, 175, 55, 0.3);letter-spacing:1px;">
-SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
-</button>
-</div>
-</div>
-<div class="container">
-<div id="userInfo" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; background: var(--surface); padding: 1rem 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
-<div style="font-weight: bold; color: var(--text-main);">Role Anda: <span id="loggedRole" style="color: var(--primary); text-transform: uppercase;"></span></div>
-<div id="quizUserInfo" style="font-weight: 600; color: var(--secondary);"></div>
-</div>
-
-<div id="wlcKidsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
-<div id="landingView" style="margin-top:1rem;">
-<div id="wlcKidsContent"><p style="color:var(--text-muted);">Memuat data siswa...</p></div>
-</div>
-</div>
-
-<div id="wlcTeenDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Teen - Laporan Evaluasi</h1><div style="width:100px;"></div></header>
-<div id="wlcTeenContent" style="margin-top:1rem;">
-    <p style="color:var(--text-muted);">Memuat laporan WLC Teen...</p>
-</div>
-</div>
-
-<div id="manageSettingsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSettings()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Pengaturan Aplikasi</h1><div style="width:100px;"></div></header>
-<div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-    <div class="form-group">
-        <label class="form-label">Nama Aplikasi</label>
-        <input type="text" id="setAppName" class="form-input" placeholder="Contoh: WLC Kumon Wahidin">
-    </div>
-    <div class="form-group">
-        <label class="form-label">Logo Aplikasi</label>
-        <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
-            <div id="setLogoPreview" style="width:80px; height:80px; border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f8fafc; overflow:hidden;">
-                <i class="fas fa-image" style="font-size:2rem; color:var(--border);"></i>
-            </div>
-            <div style="flex:1;">
-                <input type="text" id="setAppLogo" class="form-input" placeholder="URL Logo (Opsional)" style="margin-bottom:0.5rem;">
-                <input type="file" id="uploadLogoInput" class="hidden" accept="image/*" onchange="handleLogoFileSelect(this)">
-                <button class="btn btn-secondary" onclick="document.getElementById('uploadLogoInput').click()" style="width:100%; font-size:0.8rem;">
-                    <i class="fas fa-upload"></i> Unggah Gambar
-                </button>
-            </div>
-        </div>
-        <p style="font-size:0.8rem; color:var(--text-muted);">Pilih salah satu: Masukkan URL atau unggah file gambar.</p>
-    </div>
-    <div style="margin-top:2rem;">
-        <button class="btn btn-primary" onclick="saveSettings()" style="width:100%; height:50px; font-weight:700;">
-            <i class="fas fa-save"></i> SIMPAN PENGATURAN
-        </button>
-    </div>
-</div>
-</div>
-<div id="asistenDashboard" class="hidden">
-<header class="panel-header"><h1>Asisten Dashboard</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<div style="margin-bottom:2rem;"><h3 style="color:var(--text-main);margin-bottom:0.5rem;"><i class="fas fa-clipboard-list"></i> Jadwal Tugas Anda</h3><p style="color:var(--text-muted);font-size:0.9rem;">Daftar sekolah dan siswa yang harus Anda observasi hari ini.</p></div>
-<div id="asistenGroupList" class="menu-buttons" style="grid-template-columns:1fr;">
-<button class="menu-btn" onclick="startQuiz()" style="background:var(--primary-soft); border-color:var(--primary); color:var(--primary);">
-<i class="fas fa-play-circle" style="font-size:2rem;"></i> Mulai Sesi Observasi
-</button>
-</div>
-</div>
-<div id="quizApp" class="hidden">
-<header class="panel-header" style="margin-bottom: 1rem; padding-bottom: 1rem;">
-<div>
-<h2 style="font-size: 1.5rem; margin:0;"><i class="fas fa-list-check"></i> Form Observasi Siswa</h2>
-<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Berikan skor 1 (Kurang) s/d 5 (Sangat Baik)</p>
-</div>
-<button class="btn btn-secondary" onclick="showMenu()"><i class="fas fa-home"></i> Kembali</button>
-</header>
-<div class="soal-counter">Soal <span id="soalCounter" class="soal-number">1</span></div>
-<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%;"></div></div>
-<div id="progressText" style="text-align: center; margin-bottom: 1rem; font-weight:600;">0%</div>
-<div class="soal-text" id="soalText">Memuat pertanyaan...</div>
-<div id="muridContainer" style="margin-top: 2rem;"></div>
-<div style="display:flex; justify-content:space-between; margin-top:3rem;">
-<button class="btn btn-secondary" onclick="prevSoal()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
-<button class="btn btn-primary" onclick="nextSoal()">Selanjutnya <i class="fas fa-arrow-right"></i></button>
-</div>
-<div style="margin-top:2rem; text-align:center; padding-top: 2rem; border-top: 1px solid var(--border);">
-<button class="btn btn-danger" onclick="saveScores()"><i class="fas fa-cloud-upload-alt"></i> Simpan Hasil Observasi</button>
-</div>
-</div>
-<div id="evaluatorDashboard" class="hidden">
-<header class="panel-header"><h1>Evaluator Mode</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<p style="color:var(--text-muted);margin-bottom:2rem;">Analisis & Laporan Hasil Observasi.</p>
-<div class="menu-buttons">
-<button class="menu-btn" onclick="viewReports()"><i class="fas fa-chart-bar"></i> Lihat Laporan</button>
-<button class="menu-btn" onclick="analyticsOverview()"><i class="fas fa-analytics"></i> Analitik Siswa</button>
-<button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
-<button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
-<button class="menu-btn" onclick="exportAllReports()"><i class="fas fa-download"></i> Export Data</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids</button>
-<button class="menu-btn" onclick="openWlcTeenReports()"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</button>
-</div>
-</div>
-<div id="ownerDashboard" class="hidden">
-<header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<div class="menu-buttons">
-<button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
-<button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah & Kelas</button>
-<button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Group</button>
-<button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Instrumen</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> WLC Kids</button>
-<button class="menu-btn" onclick="openWlcTeenReports()"><i class="fas fa-user-graduate"></i> WLC Teen (Reports)</button>
-<button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
-<button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
-<button class="menu-btn" onclick="manageJadwal()"><i class="fas fa-calendar-alt"></i> Jadwal</button>
-<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat</button>
-<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> User</button>
-<button class="menu-btn" onclick="window.location.href='export.php'"><i class="fas fa-database"></i> Backup Database</button>
-<button class="menu-btn" onclick="document.getElementById('restoreUploadInput').click()"><i class="fas fa-upload"></i> Restore Database</button>
-<button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
-<button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
-<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
-</div>
-</div>
-
-<div id="growthCheckDashboard" class="hidden">
-    <header class="panel-header">
-        <button class="btn btn-secondary" onclick="exitGrowthCheck()"><i class="fas fa-arrow-left"></i> Kembali</button>
-        <h1>Growth Check (Perbandingan Sesi)</h1>
-        <div style="width:100px;"></div>
-    </header>
-    <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:2rem;">
-        <div class="form-row">
-            <div class="form-group" style="flex:1;">
-                <label class="form-label">Pilih Siswa</label>
-                <select id="growthSiswaId" class="form-input" onchange="onGrowthSiswaChange()"></select>
-            </div>
-            <div class="form-group" style="flex:1;">
-                <label class="form-label">Sesi Awal (Lama)</label>
-                <select id="growthSession1" class="form-input"></select>
-            </div>
-            <div class="form-group" style="flex:1;">
-                <label class="form-label">Sesi Pembanding (Baru)</label>
-                <select id="growthSession2" class="form-input"></select>
-            </div>
-        </div>
-        <button class="btn btn-primary" onclick="compareSessions()" style="width:100%; margin-top:1rem; height:50px; font-weight:bold;">
-            <i class="fas fa-balance-scale"></i> BANDINGKAN SESI
-        </button>
-    </div>
-    
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:2rem;">
-        <div style="background:white; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); min-height:300px;">
-            <h3 style="margin-bottom:1rem;"><i class="fas fa-chart-bar"></i> Radar Perkembangan</h3>
-            <div style="height: 250px; position: relative;">
-                <canvas id="growthRadarChart"></canvas>
-            </div>
-        </div>
-        <div style="background:white; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); min-height:300px;">
-            <h3 style="margin-bottom:1rem;"><i class="fas fa-list-ul"></i> Analisis Perubahan</h3>
-            <table class="data-table" id="growthComparisonTable" style="margin:0;">
-                <thead>
-                    <tr>
-                        <th>Komponen</th>
-                        <th>Sesi Awal</th>
-                        <th>Sesi Pembanding</th>
-                        <th>Delta</th>
-                    </tr>
-                </thead>
-                <tbody id="growthComparisonTableBody">
-                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Pilih siswa dan bandingkan sesi untuk melihat hasil.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div id="parentReflectionsDashboard" class="hidden">
-    <header class="panel-header">
-        <button class="btn btn-secondary" onclick="exitParentReflections()"><i class="fas fa-arrow-left"></i> Kembali</button>
-        <h1>Daftar Refleksi Orang Tua (WLC-2)</h1>
-        <div style="width:100px;"></div>
-    </header>
-    <div style="overflow-x:auto;">
-        <table class="data-table" id="reflectionsTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Waktu</th>
-                    <th>Siswa</th>
-                    <th>Orang Tua</th>
-                    <th>Kesiapan</th>
-                    <th>Fokus</th>
-                    <th>Kemandirian</th>
-                    <th>Ketekunan</th>
-                    <th>Emosi</th>
-                    <th>Minat</th>
-                    <th>Catatan</th>
-                </tr>
-            </thead>
-            <tbody id="reflectionsTableBody">
-                <tr><td colspan="11" style="text-align:center; padding:2rem;">Memuat data refleksi...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-<div id="manageUsersDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageUsers()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Users & Asisten</h1><div style="width:100px;"></div></header>
-<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('usersFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Akun</button></div>
-<table class="data-table" id="usersTable"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('users', 'role')">Role Akses</th><th class="sort-header" onclick="sortAndRender('users', 'username')">Username Login</th><th>Aksi</th></tr></thead><tbody id="usersTableBody"><tr><td colspan="4" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="viewReportsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitViewReports()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Laporan Observasi</h1><div style="width:100px;"></div></header>
-<table class="data-table" id="reportsTable" style="margin-top:0;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('reports', 'timestamp')">Waktu Input</th><th class="sort-header" onclick="sortAndRender('reports', 'asistenId')">Asisten</th><th class="sort-header" onclick="sortAndRender('reports', 'nama')">Data Siswa</th><th class="sort-header" onclick="sortAndRender('reports', 'skor')">Skor Observasi</th></tr></thead><tbody id="reportsTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="analyticsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitAnalytics()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Analitik Performa Siswa</h1></header>
-<div class="menu-buttons" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:2rem;">
-<div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Total Observasi</h4><p id="statTotalObs" style="font-size:2.5rem;font-weight:800;color:var(--primary);">0</p></div>
-<div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Rata-rata Skor</h4><p id="statAvgScore" style="font-size:2.5rem;font-weight:800;color:var(--success);">0.0</p></div>
-</div>
-<div style="background:white;padding:2rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:2rem;"><h3 style="margin-bottom:1.5rem;"><i class="fas fa-chart-line"></i> Grafik Progress Skor Murid</h3><canvas id="analyticsChart" height="150"></canvas></div>
-</div>
-<div id="manageSekolahDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSekolah()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Sekolah</h1><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary" onclick="document.getElementById('sekolahFormContainer').classList.toggle('hidden')"><i class="fas fa-school"></i> Sekolah</button><button class="btn btn-primary" onclick="populateSekolahDropdownKelas().then(() => document.getElementById('kelasFormContainer').classList.toggle('hidden'))"><i class="fas fa-door-open"></i> Kelas</button></div></header>
-<h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Sekolah</h3>
-<table class="data-table" id="tableSekolah"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('sekolah', 'nama')">Nama Sekolah</th><th class="sort-header" onclick="sortAndRender('sekolah', 'kota')">Kota</th><th>Aksi</th></tr></thead><tbody></tbody></table>
-<h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Kelas</h3>
-<table class="data-table" id="tableKelas"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('kelas', 'nama')">Nama Kelas</th><th class="sort-header" onclick="sortAndRender('kelas', 'namaSekolah')">Sekolah</th><th>Aksi</th></tr></thead><tbody></tbody></table>
-</div>
-
-<div id="manageSiswaDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Data Siswa</h1><div style="width:100px;"></div></header>
-
-<!-- Filter & Search -->
-<div style="background:var(--secondary-soft); padding:1.5rem; border-radius:var(--radius-md); margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
-    <div class="form-group" style="margin:0; flex:1; min-width:200px;">
-        <label class="form-label" style="font-size:0.8rem;">Cari Nama/NISN</label>
-        <input type="text" id="siswaSearchInput" class="form-input" placeholder="Ketik nama..." onkeyup="filterSiswaTable()">
-    </div>
-    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
-        <label class="form-label" style="font-size:0.8rem;">Sekolah</label>
-        <select id="siswaFilterSekolah" class="form-input" onchange="filterSiswaTable()"></select>
-    </div>
-    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
-        <label class="form-label" style="font-size:0.8rem;">Kelas</label>
-        <select id="siswaFilterKelas" class="form-input" onchange="filterSiswaTable()"></select>
-    </div>
-    <div style="display:flex; gap:0.5rem;">
-        <button class="btn btn-primary" onclick="document.getElementById('siswaFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button>
-        <button class="btn btn-secondary" onclick="printFilteredSiswa()"><i class="fas fa-print"></i> Cetak</button>
-    </div>
-</div>
-
-<table class="data-table" id="tableSiswa">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'nama')">Nama Siswa</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'nisn')">NISN</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'namaSekolah')">Sekolah</th>
-            <th class="sort-header" onclick="sortAndRender('siswa', 'namaKelas')">Kelas</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody id="siswaTableBody"></tbody>
-</table>
-</div>
-
-<div id="manageJadwalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageJadwal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Jadwal WLC</h1><div style="width:100px;"></div></header>
-<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('jadwalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Jadwal / Observasi</button></div>
-<table class="data-table" id="jadwalTable" style="margin-top:2rem;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('jadwal', 'tanggal')">TANGGAL</th><th class="sort-header" onclick="sortAndRender('jadwal', 'namaSekolah')">NAMA SEKOLAH</th><th class="sort-header" onclick="sortAndRender('jadwal', 'status')">STATUS</th><th class="sort-header" onclick="sortAndRender('jadwal', 'catatan')">CATATAN</th><th>AKSI</th></tr></thead><tbody id="jadwalTableBody"><tr><td colspan="6" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="manageGrupDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageGrup()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Bagi Grup Observasi</h1><div style="width:100px;"></div></header>
-<div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('grupFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Grup Baru</button></div>
-<div id="grupFormContainer" class="hidden">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h3 style="color: #1e293b; font-family: 'Outfit', sans-serif; margin: 0;"><i class="fas fa-users-cog"></i> Tambah Grup Asisten</h3>
-        <button class="btn btn-secondary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;" onclick="document.getElementById('grupFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;"></i></button>
-    </div>
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label class="form-label">0. Nama Grup Asisten</label>
-        <input type="text" class="form-input" id="newGrupNama" placeholder="Contoh: Grup A - Kelas 4A" style="width: 100%;">
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label class="form-label">1. Pilih Jadwal Pelaksanaan</label>
-            <select class="form-input" id="newGrupJadwal" style="width: 100%;" onchange="onJadwalGrupChange()"><option value="">-- Pilih Jadwal --</option></select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">2. Pilih Asisten Pendamping</label>
-            <select class="form-input" id="newGrupAsisten" style="width: 100%;"><option value="">-- Pilih Asisten --</option></select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label class="form-label">3. Filter Kelas (Opsional)</label>
-            <select class="form-input" id="newGrupKelas" style="width: 100%;" onchange="onKelasGrupChange()">
-                <option value="">-- Semua Kelas --</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">4. Jumlah Siswa Terfilter</label>
-            <input type="text" class="form-input" id="grupSiswaCounter" value="0 siswa tersedia" readonly style="width: 100%; background: var(--secondary-soft);">
-        </div>
-    </div>
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label class="form-label">5. Pilih Siswa (Pilih Max 7 Orang) - Tahan Ctrl/Cmd untuk pilih multiple</label>
-        <select class="form-input" id="newGrupSiswa" multiple style="width: 100%; height: 150px; padding: 0.5rem;"></select>
-    </div>
-    <button class="btn" onclick="tambahGrup()" style="width: 100%; margin-top: 1rem;">
-        <i class="fas fa-save"></i> Simpan Grup Observasi
-    </button>
-</div>
-<table class="data-table" id="grupTable">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th class="sort-header" onclick="sortAndRender('grup', 'nama')">NAMA GRUP</th>
-            <th class="sort-header" onclick="sortAndRender('grup', 'namaSekolah')">JADWAL (SEKOLAH)</th>
-            <th class="sort-header" onclick="sortAndRender('grup', 'asistenId')">ASISTEN PIC</th>
-            <th>JUMLAH SISWA</th>
-            <th>AKSI</th>
-        </tr>
-    </thead>
-    <tbody id="grupTableBody"><tr><td colspan="6" style="text-align:center;">Memuat data grup...</td></tr></tbody>
-</table>
-</div>
-<div id="manageSoalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
-<table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
-</div>
-<div id="manageCertDashboard" class="hidden">
-<div id="manageCertModal" style="display:contents;">
-    <header class="panel-header">
-        <button class="btn btn-secondary" onclick="exitManageCert()"><i class="fas fa-arrow-left"></i> Kembali</button>
-        <h1>Cetak Sertifikat WLC</h1>
-        <div style="width:100px;"></div>
-    </header>
-    <!-- Filter Massal -->
-    <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-        <h3 style="margin:0 0 1rem 0; color:var(--primary);"><i class="fas fa-filter"></i> Filter Cetak Massal</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Tipe Cetak</label>
-                <select id="certPrintType" class="form-input" onchange="onCertPrintTypeChange()">
-                    <option value="single">Satu Siswa</option>
-                    <option value="kelas">Per Kelas</option>
-                    <option value="sekolah">Per Sekolah</option>
-                    <option value="grup">Per Grup</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Pilih Sekolah</label>
-                <select id="certFilterSekolah" class="form-input" onchange="onCertSekolahChange()"></select>
-            </div>
-            <div class="form-group hidden" id="certFilterKelasGroup">
-                <label class="form-label">Pilih Kelas</label>
-                <select id="certFilterKelas" class="form-input" onchange="onCertKelasChange()"></select>
-            </div>
-            <div class="form-group hidden" id="certFilterGrupGroup">
-                <label class="form-label">Pilih Grup</label>
-                <select id="certFilterGrup" class="form-input"></select>
-            </div>
-        </div>
-        <div style="display:flex; gap:1rem; margin-top:1rem;">
-            <button class="btn btn-primary" onclick="previewCertMassal()" style="flex:1;"><i class="fas fa-eye"></i> Preview</button>
-            <button class="btn" onclick="printCertMassal()" id="btnCetakCert" disabled style="flex:1;"><i class="fas fa-print"></i> Cetak Sekarang</button>
-        </div>
-    </div>
-<!-- Filter Single -->
-    <div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-        <h3 style="margin:0 0 1.5rem 0; color:var(--primary);"><i class="fas fa-user"></i> Cetak Satu Siswa</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Pilih Sekolah</label>
-                <select id="certFilterSekolahSingle" class="form-input" onchange="onCertSekolahSingleChange()"></select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Pilih Kelas</label>
-                <select id="certFilterKelasSingle" class="form-input" onchange="onCertKelasSingleChange()"></select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Pilih Siswa</label>
-                <select id="certSiswaIdSingle" class="form-input" onchange="onCertSiswaSingleChange()"></select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Nama Instansi/Unit</label>
-                <input type="text" id="certOrgNameSingle" class="form-input" value="">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Tanggal Sertifikat</label>
-                <input type="date" id="certDateSingle" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Tingkat WLC</label>
-                <select id="certWlcTipeSingle" class="form-input">
-                    <option value="1">WLC 1</option>
-                    <option value="2">WLC 2</option>
-                    <option value="3">WLC 3</option>
-                </select>
-            </div>
-        </div>
-        <hr style="margin:2rem 0; border:0; border-top:1px solid var(--border);">
-        <h3 style="margin-bottom:1.5rem; color:var(--primary);"><i class="fas fa-tasks"></i> Input Skor Analisa Observasi</h3>
-        <div class="form-row">
-            <div class="form-group"><label class="form-label">Kesiapan Belajar</label><select id="certKesiapan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="langsung">Kesiapan Langsung</option><option value="diingatkan">Perlu Diingatkan</option><option value="menolak">Menolak/Enggan</option></select></div>
-            <div class="form-group"><label class="form-label">Keterlibatan & Fokus</label><select id="certFokus" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Fokus Stabil</option><option value="naikturun">Naik Turun</option><option value="distraksi">Mudah Distraksi</option></select></div>
-            <div class="form-group"><label class="form-label">Respons terhadap Instruksi</label><select id="certRespons" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="paham">Paham Langsung</option><option value="ulang">Perlu Pengulangan</option><option value="bingung">Tampak Bingung</option></select></div>
-        </div>
-        <div class="form-row" style="margin-top:1rem;">
-            <div class="form-group"><label class="form-label">Kemandirian Belajar</label><select id="certKemandirian" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="mandiri">Sangat Mandiri</option><option value="terbatas">Bantuan Terbatas</option><option value="bergantung">Sangat Bergantung</option></select></div>
-            <div class="form-group"><label class="form-label">Ketekunan Tantangan</label><select id="certKetekunan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="ulang">Mau Mencoba Ulang</option><option value="berhenti">Cepat Berhenti</option><option value="menolak">Menolak Mencoba</option></select></div>
-            <div class="form-group"><label class="form-label">Respons Kesulitan</label><select id="certEmosional" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Emosi Stabil</option><option value="dorongan">Butuh Dorongan</option><option value="frustrasi">Mudah Frustrasi</option></select></div>
-            <div class="form-group"><label class="form-label">Engagement Belajar</label><select id="certMinat" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="antusias">Sangat Antusias</option><option value="netral">Biasa Saja/Netral</option><option value="kurang">Kurang Berminat</option></select></div>
-        </div>
-        <button class="btn btn-primary" onclick="previewCertificate()" style="width:100%; margin-top:2rem; height:55px; font-size:1.1rem;"><i class="fas fa-save"></i> Simpan & Generate Sertifikat</button>
-        
-        <!-- Riwayat Kegiatan WLC & Sertifikat -->
-        <div id="certHistorySection" class="hidden" style="margin-top:2.5rem; padding-top:2rem; border-top:2px dashed var(--border);">
-            <h3 style="margin-bottom:1.5rem; color:var(--primary); font-family: 'Outfit', sans-serif;"><i class="fas fa-history"></i> Riwayat Kegiatan WLC & Sertifikat</h3>
-            <table class="data-table" id="certHistoryTable" style="margin-top:1rem;">
-                <thead>
-                    <tr>
-                        <th>Tingkat</th>
-                        <th>Tanggal Terbit</th>
-                        <th>Kesiapan</th>
-                        <th>Fokus</th>
-                        <th>Kemandirian</th>
-                        <th style="text-align:center; width:220px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="certHistoryTableBody">
-                    <tr><td colspan="6" style="text-align:center;">Belum ada riwayat sertifikat.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-</div>
-<div id="printSiswaDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div></header>
-<div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
-    <div class="form-row">
-        <div class="form-group">
-            <label class="form-label">Tipe Filter</label>
-            <select id="printFilterType" class="form-input" onchange="onPrintFilterTypeChange()">
-                <option value="all">Semua Siswa</option>
-                <option value="sekolah">Per Sekolah</option>
-                <option value="kelas">Per Kelas</option>
-                <option value="grup">Per Group</option>
-            </select>
-        </div>
-        <div id="printFilterSekolahGroup" class="form-group hidden">
-            <label class="form-label">Pilih Sekolah</label>
-            <select id="printFilterSekolah" class="form-input" onchange="onPrintSekolahChange()"></select>
-        </div>
-        <div id="printFilterKelasGroup" class="form-group hidden">
-            <label class="form-label">Pilih Kelas</label>
-            <select id="printFilterKelas" class="form-input"></select>
-        </div>
-        <div id="printFilterGrupGroup" class="form-group hidden">
-            <label class="form-label">Pilih Group</label>
-            <select id="printFilterGrup" class="form-input"></select>
-        </div>
-    </div>
-    <div style="display:flex; gap:1rem; margin-top:1rem;">
-        <button class="btn btn-primary" onclick="previewPrintSiswa()" style="flex:1;"><i class="fas fa-search"></i> Tampilkan Data</button>
-        <button class="btn btn-secondary" onclick="executePrintSiswa()" id="btnCetakSiswa" disabled style="flex:1;"><i class="fas fa-print"></i> Cetak Sekarang</button>
-    </div>
-</div>
-<div id="printPreviewContainer" style="overflow-x:auto; background:white; padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); min-height:200px;">
-    <p style="text-align:center; color:var(--text-muted);">Pilih filter dan klik "Tampilkan Data" untuk preview.</p>
-</div>
-</div>
-</div> <!-- Akhir dari container utama -->
-<script src="wlc_kids.js"></script>
-<script src="wlc_teen_reports.js"></script>
-<script>
 const rubrikSkoring = {
     'Kesiapan': {
         1: 'Menolak/tantrum, tidak mau pindah dari bermain.',
@@ -943,10 +107,14 @@ const rubrikSkoring = {
             
             let finalUrl;
             try {
-                // Determine absolute URL safely. Handle both absolute URLs and paths.
-                const urlStr = (typeof endpoint === 'string') 
-                    ? (endpoint.startsWith('http') ? endpoint : (endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : (endpoint.startsWith('./') ? `${API_BASE}${endpoint.substring(1)}` : `${API_BASE}/${endpoint}`))) 
-                    : endpoint.url;
+                let urlStr = endpoint.url || endpoint;
+                if (typeof urlStr === 'string' && !urlStr.startsWith('http')) {
+                    if (API_BASE && urlStr.startsWith(API_BASE)) {
+                        // Already has API_BASE
+                    } else {
+                        urlStr = urlStr.startsWith('/') ? `${API_BASE}${urlStr}` : (urlStr.startsWith('./') ? `${API_BASE}${urlStr.substring(1)}` : `${API_BASE}/${urlStr}`);
+                    }
+                }
                 finalUrl = new URL(urlStr, window.location.origin);
             } catch (err) {
                 // Fallback to original fetch if URL parsing fails
@@ -962,7 +130,7 @@ const rubrikSkoring = {
                     localStorage.removeItem('wlc_role');
                     localStorage.removeItem('wlc_user');
                     document.getElementById('loginScreen').classList.remove('hidden');
-                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
@@ -1581,7 +749,7 @@ const rubrikSkoring = {
             localStorage.removeItem('wlc_user');
             localStorage.removeItem('wlc_token');
             document.getElementById('loginScreen').classList.remove('hidden');
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1603,7 +771,7 @@ const rubrikSkoring = {
         };
 
         window.showRoleDashboard = function(role) {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard', 'wlcKidsDashboard', 'wlcTeenDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1661,7 +829,7 @@ const rubrikSkoring = {
         }
 
         window.manageUsers = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1715,7 +883,7 @@ const rubrikSkoring = {
         }
 
         window.manageSiswa = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1726,7 +894,7 @@ const rubrikSkoring = {
         };
 
         window.manageSekolah = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1738,7 +906,7 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2064,7 +1232,7 @@ window.saveNewSoal = async function() {
         }
 
         window.manageJadwal = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2158,22 +1326,9 @@ window.saveNewSoal = async function() {
                     input.className = 'form-input';
                     input.type = f.type || 'text';
                     input.value = f.val || '';
-                    if (f.type === 'password') {
-                        group.style.position = 'relative';
-                        input.style.paddingRight = '3rem';
-                    }
                 }
                 input.id = `edit_${escapeHtml(f.key)}`;
                 group.appendChild(input);
-                if (f.type === 'password') {
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-eye';
-                    icon.style.cssText = 'position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);';
-                    icon.onclick = function() {
-                        if(input.type==='password'){input.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{input.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}
-                    };
-                    group.appendChild(icon);
-                }
                 fieldsContainer.appendChild(group);
             });
             overlay.classList.add('show');
@@ -2328,7 +1483,7 @@ let allJadwalData = [];
 let allKelasData = [];
 
 window.openManageGrup = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2363,7 +1518,10 @@ async function loadAsistenDropdown() {
 
 async function fetchAllSiswaAndKelas() {
     const resS = await fetch(`${API_BASE}/api/siswa`);
-    if(resS.ok) allSiswaData = await resS.json();
+    if(resS.ok) {
+        let json = await resS.json();
+        allSiswaData = json.data || [];
+    }
     const resK = await fetch(`${API_BASE}/api/kelas`);
     if(resK.ok) allKelasData = await resK.json();
 }
@@ -2421,7 +1579,7 @@ async function loadGrupTable() {
 
 // === LOGIKA PRINT SISWA ===
 window.openPrintSiswa = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageGrupDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'manageGrupDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2497,7 +1655,8 @@ window.previewPrintSiswa = async function() {
     
     try {
         const res = await fetch(`${API_BASE}/api/siswa`);
-        let students = await res.json();
+        let r = await res.json();
+        let students = r.data || [];
         
         if (type === 'sekolah') {
             if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -3012,7 +2171,8 @@ window.executePrintSiswa = function() {
             
             try {
                 const res = await fetch(`${API_BASE}/api/siswa`);
-                let students = await res.json();
+                let r = await res.json();
+                let students = r.data || [];
                 
                 if (printType === 'sekolah' || printType === 'kelas') {
                     if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -3912,7 +3072,7 @@ window.executePrintSiswa = function() {
             const scores2 = calculateScores(obs2);
             
             const compKeys = ['kesiapan', 'fokus', 'respons', 'kemandirian', 'ketekunan', 'emosional', 'minat'];
-            const compLabels = ['Kesiapan', 'Fokus', 'Instruksi/Respons', 'Kemandirian', 'Ketekunan', 'Emosional', 'Minat'];
+            const compLabels = ['Transisi ke Belajar', 'Keterlibatan Tugas', 'Penerapan Instruksi', 'Inisiatif Penyelesaian', 'Respons terhadap Kendala', 'Ekspresi Perilaku', 'Partisipasi Aktif'];
             
             const data1 = compKeys.map(k => scores1[k]);
             const data2 = compKeys.map(k => scores2[k]);
@@ -4032,7 +3192,7 @@ window.executePrintSiswa = function() {
         };
 
         window.hideAllDashboards = function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard', 'wlcKidsDashboard', 'wlcTeenDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4093,41 +3253,4 @@ window.executePrintSiswa = function() {
             } catch (e) { showToast('❌ Gagal menyimpan'); }
         };
 
-        window.uploadRestoreDatabase = async function(input) {
-            if (!input.files || input.files.length === 0) return;
-            const file = input.files[0];
-            if (!confirm(`Anda yakin ingin melakukan restore database menggunakan file ${file.name}? Seluruh data saat ini akan ditimpa!`)) {
-                input.value = '';
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('backup_file', file);
-            
-            try {
-                showToast('⏳ Sedang melakukan restore...', 'info');
-                const res = await fetch('/api/restore', {
-                    method: 'POST',
-                    headers: {
-                        'x-user-role': localStorage.getItem('wlc_role'),
-                        'Authorization': `Bearer ${localStorage.getItem('wlc_token')}`
-                    },
-                    body: formData
-                });
-                
-                if (res.ok) {
-                    showToast('✅ Restore database berhasil! Halaman akan direfresh...', 'success');
-                    setTimeout(() => window.location.reload(), 2000);
-                } else {
-                    const data = await res.json();
-                    showToast('❌ Gagal restore: ' + (data.error || 'Unknown error'), 'error');
-                }
-            } catch (e) {
-                showToast('❌ Terjadi kesalahan jaringan.', 'error');
-            }
-            input.value = '';
-        };
 
-</script>
-</body>
-</html>

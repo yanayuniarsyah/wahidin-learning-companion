@@ -169,7 +169,7 @@
             if (!currentSessionId) {
                 const res = await fetchWithAuth(`${API_BASE}/api/v2/student/session`, {
                     method: 'POST',
-                    body: JSON.stringify({ methodology: 'SMP Self-Report' })
+                    body: JSON.stringify({ methodology: 'SELF_REPORT_QUESTIONNAIRE' })
                 });
                 if (res && res.ok) {
                     const json = await res.json();

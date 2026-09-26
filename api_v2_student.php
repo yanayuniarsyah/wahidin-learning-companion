@@ -47,10 +47,10 @@ if ($uri === '/api/v2/student/session/active' && $method === 'GET') {
 }
 
 if ($uri === '/api/v2/student/session' && $method === 'POST') {
-    $methodology = $inputBody['methodology'] ?? 'SMP Self-Report';
+    $methodology = $inputBody['methodology'] ?? 'SELF_REPORT_QUESTIONNAIRE';
     
     // Validate Instrument
-    $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE methodology = ? AND status IN ('active', 'provisional') ORDER BY version DESC LIMIT 1");
+    $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE methodology = ? AND UPPER(status) IN ('ACTIVE', 'PROVISIONAL') ORDER BY version DESC LIMIT 1");
     $stmt->execute([$methodology]);
     $instrument = $stmt->fetch(PDO::FETCH_ASSOC);
     
