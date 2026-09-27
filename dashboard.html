@@ -1904,7 +1904,7 @@ window.loadWLCInstruments = async function(audience, targetGrade) {
             <td>${escapeHtml(s.text)}</td>
             <td>
                 <div class="action-group">
-                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="alert('Fitur edit segera hadir.')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="showToast('Fitur edit segera hadir.')"><i class="fas fa-edit"></i> Edit</button>
                 </div>
             </td>
         </tr>`).join('');
@@ -2021,7 +2021,7 @@ window.saveNewSoal = async function() {
             const tbody = document.getElementById('siswaTableBody');
             tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td>
                 <div class="action-group">
-                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>`n                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
                     <button class="btn-action btn-delete-alt" onclick="deleteData('siswa', ${s.id}, loadSiswaTable)"><i class="fas fa-trash"></i></button>
                 </div>
             </td></tr>`).join('');
