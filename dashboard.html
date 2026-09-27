@@ -1025,9 +1025,22 @@ const rubrikSkoring = {
             let finalUrl;
             try {
                 // Determine absolute URL safely. Handle both absolute URLs and paths.
-                const urlStr = (typeof endpoint === 'string') 
-                    ? (endpoint.startsWith('http') ? endpoint : (endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : (endpoint.startsWith('./') ? `${API_BASE}${endpoint.substring(1)}` : `${API_BASE}/${endpoint}`))) 
-                    : endpoint.url;
+                let urlStr;
+if (typeof endpoint === 'string') {
+    if (endpoint.startsWith('http')) {
+        urlStr = endpoint;
+    } else if (API_BASE !== '' && endpoint.startsWith(API_BASE)) {
+        urlStr = endpoint; // Already prepended
+    } else if (endpoint.startsWith('/')) {
+        urlStr = `${API_BASE}${endpoint}`;
+    } else if (endpoint.startsWith('./')) {
+        urlStr = `${API_BASE}${endpoint.substring(1)}`;
+    } else {
+        urlStr = `${API_BASE}/${endpoint}`;
+    }
+} else {
+    urlStr = endpoint.url;
+}
                 finalUrl = new URL(urlStr, window.location.origin);
             } catch (err) {
                 // Fallback to original fetch if URL parsing fails
