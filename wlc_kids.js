@@ -72,6 +72,10 @@ async function startKidsGroupObservation(targetGrade) {
             if (item.skor !== null && item.skor !== undefined) {
                 KIDS_STATE.localScores[`${KIDS_STATE.siswaList[0].id}_${item.item_id}`] = Number(item.skor);
             }
+            KIDS_STATE.siswaList.forEach(s => {
+                const draft = localStorage.getItem(`wlc_obs_draft_${s.id}_${item.item_id}`);
+                if (draft) KIDS_STATE.localScores[`${s.id}_${item.item_id}`] = Number(draft);
+            });
         });
         KIDS_STATE.currentIndex = 0;
 
@@ -122,6 +126,7 @@ function renderKidsGroupQuestion() {
                 <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-lg" style="background:${color}">${initial}</div>
                 <div class="font-bold truncate" title="${s.nama}">${s.nama}</div>
             </div>
+            <button class="btn btn-secondary text-xs px-2 py-1" onclick="markAbsentKids(${s.id})">Tidak Hadir</button>
             
             <div class="flex justify-between gap-1">
                 ${[1, 2, 3, 4].map(val => `
@@ -154,6 +159,7 @@ function renderKidsGroupQuestion() {
 async function autoSaveKidsGroup(siswaId, itemId, skor, btnElement) {
     if (typeof KIDS_STATE.localScores === 'undefined') KIDS_STATE.localScores = {};
     KIDS_STATE.localScores[`${siswaId}_${itemId}`] = skor;
+    localStorage.setItem(`wlc_obs_draft_${siswaId}_${itemId}`, skor);
     
     // Update UI
     const container = btnElement.parentElement;
@@ -214,4 +220,20 @@ async function submitKidsGroup() {
             <button class="btn btn-primary" onclick="openWlcKids()">Kembali ke Menu</button>
         </div>
     `;
+}
+
+async function markAbsentKids(siswaId) {
+    if (!confirm('Tandai siswa ini tidak hadir? Data tidak akan diobservasi.')) return;
+    try {
+        await fetch(`${API_BASE}/api/siswa/absen`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('wlc_token')}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ siswa_id: siswaId })
+        });
+        KIDS_STATE.siswaList = KIDS_STATE.siswaList.filter(s => s.id !== siswaId);
+        renderKidsGroupQuestion();
+    } catch (e) {
+        console.error(e);
+        alert('Gagal menandai absen');
+    }
 }

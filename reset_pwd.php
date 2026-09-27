@@ -1,0 +1,1 @@
+<?php $db = new PDO('sqlite:wlc.db'); $pwd = password_hash('KumonWahidin123!', PASSWORD_BCRYPT, ['cost' => 10]); $db->exec("UPDATE users SET password = '$pwd' WHERE role='owner'"); echo 'Passwords reset!';

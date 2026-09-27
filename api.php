@@ -744,7 +744,7 @@ if ($uri === '/api/login' && $method === 'POST') {
     echo json_encode([
         'success' => true,
         'token' => $token,
-        'user' => ['role' => $user['role'], 'username' => $user['username']]
+        'user' => ['role' => $user['role'], 'username' => $user['username'], 'email' => $user['email'] ?? '']
     ]);
     exit;
 }
@@ -916,6 +916,18 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
 }
 
 // 6. Siswa Endpoints
+// 6.X Mark Siswa Absent
+if ($uri === '/api/siswa/absen' && $method === 'POST') {
+    authenticateToken();
+    $siswaId = $inputBody['siswa_id'] ?? null;
+    if ($siswaId) {
+        $db->prepare("UPDATE siswa SET status = 'absent' WHERE id = ?")->execute([$siswaId]);
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(400); echo json_encode(['error' => 'Missing siswa_id']);
+    }
+    exit;
+}
 if ($uri === '/api/siswa') {
     if ($method === 'GET') {
         authenticateToken();
