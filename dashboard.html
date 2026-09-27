@@ -56,10 +56,10 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
 @media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
 @media(min-width:1025px){
-  body.has-sidebar .sidebar { left: -260px; width: 260px; transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
-  body.has-sidebar .sidebar::after { content: ""; position: absolute; right: -20px; top: 0; bottom: 0; width: 20px; background: transparent; }
-  body.has-sidebar .sidebar:hover { left: 0; box-shadow: var(--shadow-lg); }
-  body.has-sidebar .container { margin-left: 0; max-width: 100%; transition: margin-left 0.3s, max-width 0.3s; }
+  .sidebar { left: -260px !important; width: 260px; transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  .sidebar::after { content: ""; position: absolute; right: -30px; top: 0; bottom: 0; width: 30px; background: transparent; z-index: 1001; }
+  .sidebar:hover { left: 0 !important; box-shadow: var(--shadow-lg); }
+  .container { margin-left: 0 !important; max-width: 100% !important; transition: margin-left 0.3s, max-width 0.3s; }
   .sidebar-overlay { display: none!important; }
 }
 /* Scrollbar Styling */
