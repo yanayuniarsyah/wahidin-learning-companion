@@ -243,6 +243,12 @@ if (preg_match('/^\/api\/v2\/observer\/session\/(\d+)\/submit$/', $uri, $matches
 }
 
 if ($uri === '/api/v2/observer/report/latest' && $method === 'GET') {
+    $siswa_id = $_GET['siswa_id'] ?? null;
+    if (!$siswa_id || !ctype_digit((string)$siswa_id)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'siswa_id required']);
+        exit;
+    }
     $stmt = $db->prepare("SELECT id, submitted_at, instrument_id FROM wlc_sessions WHERE siswa_id = ? AND observer_id = ? AND UPPER(status) = 'SUBMITTED' ORDER BY submitted_at DESC LIMIT 1");
     $stmt->execute([$siswa_id, $observer_id]);
     $session = $stmt->fetch(PDO::FETCH_ASSOC);

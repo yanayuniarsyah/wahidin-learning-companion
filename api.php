@@ -657,12 +657,27 @@ if ($uri === '/api/login' && $method === 'POST') {
 
 // 5.5 Reset Password Endpoint
 if ($uri === '/api/reset-password' && $method === 'POST') {
+    // Password reset is an administrative operation until a verified recovery
+    // flow (email/OTP) exists. Never allow an anonymous caller to take over an
+    // account by supplying its username.
+    $user = authenticateToken();
+    if (($user['role'] ?? null) !== 'owner') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Hanya owner yang dapat mereset password akun.']);
+        exit;
+    }
+
     $username = $inputBody['username'] ?? '';
     $new_password = $inputBody['new_password'] ?? '';
 
     if (!$username || !$new_password) {
         http_response_code(400);
         echo json_encode(['error' => 'Username dan password baru wajib diisi']);
+        exit;
+    }
+    if (strlen($new_password) < 8) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Password baru minimal 8 karakter']);
         exit;
     }
 
