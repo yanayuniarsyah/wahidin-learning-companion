@@ -491,16 +491,16 @@ if ($uri === '/api/restore' && $method === 'POST') {
     
 if ($uri === '/api/wlc-instruments' && $method === 'GET') {
     authenticateToken();
-    $audience = $_GET['audience'] ?? 'KIDS'; // 'KIDS' or 'SMP Self-Report'
+    $audience = $_GET['audience'] ?? 'KIDS'; // 'KIDS' or 'TEEN'
     $targetGrade = $_GET['target_grade'] ?? 'TK';
     
-    // Find the instrument ID
+    // Resolve the current instrument for the selected WLC pathway and grade.
     if ($audience === 'KIDS') {
-        $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE audience = ? AND target_grade = ?");
+        $stmt = $db->prepare("SELECT id, version, status, audience, target_grade, methodology FROM wlc_instruments WHERE audience = ? AND target_grade = ? AND UPPER(status) IN ('ACTIVE', 'PROVISIONAL') ORDER BY version DESC, id DESC LIMIT 1");
         $stmt->execute([$audience, $targetGrade]);
     } else {
-        $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE audience = ?");
-        $stmt->execute([$audience]);
+        $stmt = $db->prepare("SELECT id, version, status, audience, target_grade, methodology FROM wlc_instruments WHERE audience = ? AND (target_grade = ? OR target_grade IS NULL OR target_grade = '') AND UPPER(status) IN ('ACTIVE', 'PROVISIONAL') ORDER BY version DESC, id DESC LIMIT 1");
+        $stmt->execute([$audience, $targetGrade]);
     }
     
     $inst = $stmt->fetch();
@@ -511,7 +511,7 @@ if ($uri === '/api/wlc-instruments' && $method === 'GET') {
     
     $instId = $inst['id'];
     
-    // Fetch constructs and items
+    // Return the selected instrument's constructs and points as one coherent tool.
     $stmt = $db->prepare("
         SELECT i.id, c.name as construct_name, i.text, i.is_reverse 
         FROM wlc_items i 
@@ -520,7 +520,7 @@ if ($uri === '/api/wlc-instruments' && $method === 'GET') {
         ORDER BY c.id, i.id
     ");
     $stmt->execute([$instId]);
-    echo json_encode($stmt->fetchAll());
+    echo json_encode(['instrument' => $inst, 'items' => $stmt->fetchAll()]);
     exit;
 }
 

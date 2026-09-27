@@ -15,6 +15,7 @@ Methodology: **STRUCTURED OBSERVATION**
 - **UI Entry Point**: `dashboard.html` (Menu: *Observasi WLC Kids* via `wlc_kids.js`)
 - **Flow**: Observer Login -> Dashboard -> Pilih Target Anak -> Start Session -> Form Observasi (Autosave) -> Submit -> Generate "Learning Habits Profile"
 - **Instrument**: `PROVISIONAL`. Seed saat ini memuat 42 aitem kandidat (14 per kelompok usia, dua per construct) dengan deskripsi perilaku yang dapat diamati. Aitem ini belum melewati validasi SME, uji reliabilitas antar-observer, atau validasi empiris.
+- **Instrument Catalog**: Menu owner **Instrumen WLC** menampilkan tiga alat observasi terpisah (TK, SD 1–3, SD 4–6). Setiap alat memuat construct/variabel dan butir yang benar-benar tersimpan untuk instrumen jenjang tersebut.
 - **Catatan kesesuaian variabel**: Tujuh construct operasional saat ini adalah Transisi ke Belajar, Keterlibatan terhadap Aktivitas, Penerapan Instruksi, Inisiatif Penyelesaian, Respons terhadap Kendala, Partisipasi Aktif, dan Lingkungan Belajar. Belum ada matriks definisi operasional dan pemetaan indikator Kids yang membuktikan seluruh aitem mengukur variabel yang dimaksud. Aitem pada construct Lingkungan Belajar, misalnya, sebagian masih mengukur perilaku anak (penggunaan/penyimpanan alat), bukan kondisi lingkungan secara langsung.
 - **Narrative Framing**: "Dalam sesi yang diamati..."
 
@@ -30,6 +31,7 @@ Methodology: **SELF_REPORT_QUESTIONNAIRE**
 - **UI Entry Point**: `student.html`
 - **Flow**: Student Login -> Landing/Dashboard Siswa -> Start Questionnaire -> Form Kuisioner 14-item (Autosave) -> Submit -> Generate Report
 - **Instrument**: `PROVISIONAL` (14-items candidate tersedia).
+- **Instrument Catalog**: Menu owner **Instrumen WLC** juga menampilkan alat kuesioner laporan diri Teen SMP 7–9 beserta construct/variabel dan butir yang dipakai portal siswa.
 - **Narrative Framing**: "Menurut jawaban siswa..."
 
 ---

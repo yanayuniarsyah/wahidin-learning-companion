@@ -707,8 +707,31 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </table>
 </div>
 <div id="manageSoalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
-<table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Instrumen WLC</h1><div style="width:100px;"></div></header>
+<p style="color:var(--text-muted);margin:0 0 1.25rem;">Kumpulan alat pengumpulan data untuk kegiatan WLC Kids dan WLC Teen.</p>
+<div class="card" style="padding:1.25rem;margin-bottom:1.5rem;">
+    <h3 style="color:var(--primary);margin:0 0 1rem;"><i class="fas fa-child"></i> WLC Kids — Observasi Terstruktur</h3>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-instrument="KIDS|TK" onclick="loadWLCInstruments('KIDS','TK')">TK</button>
+        <button class="btn btn-secondary" data-instrument="KIDS|SD 1-3" onclick="loadWLCInstruments('KIDS','SD 1-3')">SD 1–3</button>
+        <button class="btn btn-secondary" data-instrument="KIDS|SD 4-6" onclick="loadWLCInstruments('KIDS','SD 4-6')">SD 4–6</button>
+    </div>
+    <p style="color:var(--text-muted);font-size:.85rem;margin:.75rem 0 0;">Diisi observer berdasarkan perilaku siswa yang terlihat selama kegiatan.</p>
+</div>
+<div class="card" style="padding:1.25rem;margin-bottom:1.5rem;">
+    <h3 style="color:var(--primary);margin:0 0 1rem;"><i class="fas fa-clipboard-list"></i> WLC Teen — Kuesioner Laporan Diri</h3>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-instrument="TEEN|SMP" onclick="loadWLCInstruments('TEEN','SMP')">SMP 7–9</button>
+    </div>
+    <p style="color:var(--text-muted);font-size:.85rem;margin:.75rem 0 0;">Diisi siswa untuk melaporkan kebiasaan belajarnya sendiri.</p>
+</div>
+<div id="instrumentPanel" class="card" style="padding:1.25rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div><h2 id="instrumentTitle" style="margin:0;color:var(--primary);">Pilih instrumen</h2><p id="instrumentMethodology" style="margin:.35rem 0 0;color:var(--text-muted);"></p></div>
+        <span id="instrumentItemCount" style="color:var(--text-muted);"></span>
+    </div>
+    <table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:55px;">No</th><th style="width:240px;">Variabel / Konstruk</th><th>Butir Instrumen</th><th style="width:130px;">Arah Butir</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">Pilih alat WLC di atas untuk melihat konstruk dan butirnya.</td></tr></tbody></table>
+</div>
 </div>
 <div id="manageCertDashboard" class="hidden">
 <div id="manageCertModal" style="display:contents;">
@@ -1777,18 +1800,14 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
+            window.hideAllDashboards();
             document.getElementById('manageSoalDashboard').classList.remove('hidden');
             window.setActiveSidebar('manageSoalDashboard');
             await loadSoalTable();
         };
 
         window.exitManageSoal = function() {
-            document.getElementById('manageSoalDashboard').classList.add('hidden');
-            document.getElementById('ownerDashboard').classList.remove('hidden');
+            window.showRoleDashboard(localStorage.getItem('wlc_role') || 'owner');
         };
 
         async function loadSoalTable() {
@@ -1796,33 +1815,49 @@ const rubrikSkoring = {
         }
 
         window.loadWLCInstruments = async function(audience, targetGrade) {
+            const title = document.getElementById('instrumentTitle');
+            const methodology = document.getElementById('instrumentMethodology');
+            const count = document.getElementById('instrumentItemCount');
+            const tbody = document.getElementById('soalTableBody');
+            document.querySelectorAll('[data-instrument]').forEach(button => {
+                const isActive = button.dataset.instrument === `${audience}|${targetGrade}`;
+                button.classList.toggle('btn-primary', isActive);
+                button.classList.toggle('btn-secondary', !isActive);
+            });
+            title.textContent = audience === 'KIDS' ? `WLC Kids — ${targetGrade}` : 'WLC Teen — SMP 7–9';
+            methodology.textContent = audience === 'KIDS'
+                ? 'Metode: Observasi Terstruktur · Responden: Observer · Subjek: Siswa'
+                : 'Metode: Kuesioner Laporan Diri · Responden: Siswa SMP';
+            count.textContent = 'Memuat butir…';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Memuat instrumen…</td></tr>';
             try {
                 let url = `${API_BASE}/api/wlc-instruments?audience=${encodeURIComponent(audience)}`;
                 if (targetGrade) url += `&target_grade=${encodeURIComponent(targetGrade)}`;
                 
-                const res = await fetch(url); 
-                let data = await res.json();
-                
-                let title = audience === 'KIDS' ? `WLC Kids - ${targetGrade}` : 'WLC Teen (Kuesioner SMP)';
-                document.getElementById('instrumentTitle').textContent = title;
-                
-                const tbody = document.getElementById('soalTableBody');
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada data.</td></tr>';
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const payload = await res.json();
+                const data = Array.isArray(payload) ? payload : (payload.items || []);
+                if (!Array.isArray(data) || data.length === 0) {
+                    count.textContent = 'Instrumen belum tersedia';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">Instrumen belum tersedia untuk jenjang ini.</td></tr>';
                     return;
                 }
-                
-                tbody.innerHTML = data.map((s, i) => `<tr>
-                    <td>${i+1}</td>
-                    <td>${escapeHtml(s.construct_name)}</td>
-                    <td>${escapeHtml(s.text)}</td>
-                    <td>
-                        <div class="action-group">
-                            <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="alert('Fitur edit segera hadir.')"><i class="fas fa-edit"></i> Edit</button>
-                        </div>
-                    </td>
+                const instrumentInfo = payload.instrument || {};
+                const instrumentStatus = instrumentInfo.status ? ` · ${String(instrumentInfo.status).toUpperCase()}` : '';
+                const instrumentVersion = instrumentInfo.version ? ` · v${instrumentInfo.version}` : '';
+                count.textContent = `${data.length} butir${instrumentVersion}${instrumentStatus}`;
+                tbody.innerHTML = data.map((item, index) => `<tr>
+                    <td>${index + 1}</td>
+                    <td>${escapeHtml(item.construct_name || '—')}</td>
+                    <td>${escapeHtml(item.text || '')}</td>
+                    <td>${Number(item.is_reverse) === 1 ? 'Terbalik' : 'Langsung'}</td>
                 </tr>`).join('');
-            } catch (e) { console.error(e); showToast('❌ Terjadi kesalahan sistem.'); }
+            } catch (e) {
+                console.error('Gagal memuat instrumen WLC:', e);
+                count.textContent = 'Gagal dimuat';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--danger);">Instrumen gagal dimuat. Periksa koneksi atau akses API, lalu coba pilih kembali.</td></tr>';
+            }
         };
 
 window.saveNewSoal = async function() {
