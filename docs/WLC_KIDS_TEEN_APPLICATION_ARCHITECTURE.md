@@ -14,7 +14,8 @@ Methodology: **STRUCTURED OBSERVATION**
 - **API Scope**: `/api/v2/observer/*` (`api_v2_observer.php`)
 - **UI Entry Point**: `dashboard.html` (Menu: *Observasi WLC Kids* via `wlc_kids.js`)
 - **Flow**: Observer Login -> Dashboard -> Pilih Target Anak -> Start Session -> Form Observasi (Autosave) -> Submit -> Generate "Learning Habits Profile"
-- **Instrument**: `PROVISIONAL` (Struktur 7 construct terpasang, item fisik masih ditandai `[CONTENT_NOT_AVAILABLE]`).
+- **Instrument**: `PROVISIONAL`. Seed saat ini memuat 42 aitem kandidat (14 per kelompok usia, dua per construct) dengan deskripsi perilaku yang dapat diamati. Aitem ini belum melewati validasi SME, uji reliabilitas antar-observer, atau validasi empiris.
+- **Catatan kesesuaian variabel**: Tujuh construct operasional saat ini adalah Transisi ke Belajar, Keterlibatan terhadap Aktivitas, Penerapan Instruksi, Inisiatif Penyelesaian, Respons terhadap Kendala, Partisipasi Aktif, dan Lingkungan Belajar. Belum ada matriks definisi operasional dan pemetaan indikator Kids yang membuktikan seluruh aitem mengukur variabel yang dimaksud. Aitem pada construct Lingkungan Belajar, misalnya, sebagian masih mengukur perilaku anak (penggunaan/penyimpanan alat), bukan kondisi lingkungan secara langsung.
 - **Narrative Framing**: "Dalam sesi yang diamati..."
 
 ---

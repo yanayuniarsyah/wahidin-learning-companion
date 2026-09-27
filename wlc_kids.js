@@ -25,8 +25,15 @@ function openWlcKids() {
     `;
 }
 
+function exitWlcKids() {
+    if (typeof window.hideAllDashboards === 'function') window.hideAllDashboards();
+    const role = localStorage.getItem('wlc_role') || 'owner';
+    if (typeof window.showRoleDashboard === 'function') window.showRoleDashboard(role);
+}
+
 async function startKidsGroupObservation(targetGrade) {
     KIDS_STATE.targetGrade = targetGrade;
+    KIDS_STATE.localScores = {};
     document.getElementById('wlcKidsContent').innerHTML = '<div class="text-center mt-10"><i class="fas fa-spinner fa-spin text-4xl text-yellow-500"></i><p class="mt-4">Menyiapkan sesi observasi kelompok...</p></div>';
     
     try {
@@ -54,11 +61,18 @@ async function startKidsGroupObservation(targetGrade) {
 
         // 3. Fetch items using the first student's session (assuming they all share the same instrument)
         const firstSessionId = KIDS_STATE.sessions[KIDS_STATE.siswaList[0].id];
-        const iRes = await fetch(`${API_BASE}/api/v2/observer/session/${firstSessionId}/items?siswa_id=${KIDS_STATE.siswaList[0].id}`, {
+        if (!firstSessionId) throw new Error('Sesi observasi tidak berhasil dibuat.');
+        const iRes = await fetch(`${API_BASE}/api/v2/observer/session/${firstSessionId}/items`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('wlc_token')}` }
         });
+        if (!iRes.ok) throw new Error('Gagal memuat butir observasi.');
         const iJson = await iRes.json();
         KIDS_STATE.items = iJson.data || [];
+        KIDS_STATE.items.forEach(item => {
+            if (item.skor !== null && item.skor !== undefined) {
+                KIDS_STATE.localScores[`${KIDS_STATE.siswaList[0].id}_${item.item_id}`] = Number(item.skor);
+            }
+        });
         KIDS_STATE.currentIndex = 0;
 
         renderKidsGroupQuestion();
@@ -110,7 +124,7 @@ function renderKidsGroupQuestion() {
             </div>
             
             <div class="flex justify-between gap-1">
-                ${[1, 2, 3, 4, 5].map(val => `
+                ${[1, 2, 3, 4].map(val => `
                     <button class="flex-1 py-2 rounded font-bold transition-colors ${score == val ? 'bg-yellow-500 text-gray-900' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
                         onclick="autoSaveKidsGroup(${s.id}, ${item.item_id}, ${val}, this)">
                         ${val}

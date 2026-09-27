@@ -56,10 +56,8 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
 @media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
 @media(min-width:1025px){
-  .sidebar { left: -260px !important; width: 260px; transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
-  .sidebar::after { content: ""; position: absolute; right: -30px; top: 0; bottom: 0; width: 30px; background: transparent; z-index: 1001; }
-  .sidebar:hover { left: 0 !important; box-shadow: var(--shadow-lg); }
-  .container { margin-left: 0 !important; max-width: 100% !important; transition: margin-left 0.3s, max-width 0.3s; }
+  body.has-sidebar .sidebar { left: 0; width: 260px; }
+  body.has-sidebar .container { margin-left: 260px; max-width: calc(100% - 260px); transition: margin-left 0.3s, max-width 0.3s; }
   .sidebar-overlay { display: none!important; }
 }
 /* Scrollbar Styling */
@@ -383,7 +381,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 
 <div id="wlcKidsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitWlcKids()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
 <div id="landingView" style="margin-top:1rem;">
 <div id="wlcKidsContent"><p style="color:var(--text-muted);">Memuat data siswa...</p></div>
 </div>
@@ -620,7 +618,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
     </div>
     <div class="form-group" style="margin:0; flex:1; min-width:150px;">
         <label class="form-label" style="font-size:0.8rem;">Sekolah</label>
-        <select id="siswaFilterSekolah" class="form-input" onchange="filterSiswaTable()"></select>
+        <select id="siswaFilterSekolah" class="form-input" onchange="updateSiswaClassFilter()"></select>
     </div>
     <div class="form-group" style="margin:0; flex:1; min-width:150px;">
         <label class="form-label" style="font-size:0.8rem;">Kelas</label>
@@ -908,8 +906,8 @@ const rubrikSkoring = {
             const sidebar = document.getElementById('ownerSidebar');
             const overlay = document.getElementById('sidebarOverlay');
             if (sidebar && overlay) {
-                sidebar.classList.toggle('open');
-                overlay.classList.toggle('open');
+                const isOpen = sidebar.classList.toggle('open');
+                overlay.classList.toggle('open', isOpen);
             }
         };
 
@@ -941,6 +939,26 @@ const rubrikSkoring = {
             }
             window.setActiveSidebar(targetDashboardId);
         };
+
+        // Clear every section before the selected navigation handler opens its
+        // destination. Several legacy handlers only hide a partial list.
+        document.getElementById('ownerSidebar')?.addEventListener('click', function(event) {
+            const link = event.target.closest('a[data-nav]');
+            if (!link) return;
+            window.hideAllDashboards();
+            const targetId = link.getAttribute('data-nav');
+            if (targetId && document.getElementById(targetId)) {
+                history.pushState({ wlcDashboard: targetId }, '', `#${targetId}`);
+            }
+        }, true);
+
+        window.addEventListener('popstate', function(event) {
+            const targetId = event.state?.wlcDashboard;
+            if (!targetId || !document.getElementById(targetId) || !localStorage.getItem('wlc_token')) return;
+            window.hideAllDashboards();
+            document.getElementById(targetId).classList.remove('hidden');
+            window.setActiveSidebar(targetId);
+        });
 
         // === CONFIG TERPUSAT — ganti URL ini saat deploy ===
         const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -1639,6 +1657,11 @@ const rubrikSkoring = {
             const toggleBtn = document.getElementById('sidebarToggle');
             if (toggleBtn) toggleBtn.classList.remove('hidden');
 
+            if (!history.state?.wlcDashboard) {
+                const homeId = role === 'asisten' ? 'asistenDashboard' : role === 'evaluator' ? 'evaluatorDashboard' : 'ownerDashboard';
+                history.replaceState({ wlcDashboard: homeId }, '', `#${homeId}`);
+            }
+
             if (role === 'owner') {
                 document.getElementById('ownerDashboard').classList.remove('hidden');
                 window.setActiveSidebar('ownerDashboard');
@@ -1834,8 +1857,7 @@ window.saveNewSoal = async function() {
         };
 
         window.exitManageSiswa = function() {
-            document.getElementById('manageSiswaDashboard').classList.add('hidden');
-            document.getElementById('ownerDashboard').classList.remove('hidden');
+            window.showRoleDashboard(localStorage.getItem('wlc_role') || 'owner');
         };
 
         async function loadSiswaTable() {
@@ -1845,7 +1867,7 @@ window.saveNewSoal = async function() {
                     const result = await res.json();
                     allSiswaData = result.data || [];
                     renderSiswaTable();
-                    populateSiswaFilters();
+                    await populateSiswaFilters();
                 }
             } catch (e) {
                 console.error('Error loading siswa table:', e);
@@ -1863,15 +1885,39 @@ window.saveNewSoal = async function() {
             </td></tr>`).join('');
         }
 
-        function populateSiswaFilters() {
-            const schools = [...new Set(allSiswaData.map(s => s.namaSekolah))].sort();
-            const classes = [...new Set(allSiswaData.map(s => s.namaKelas))].sort();
-            
+        async function populateSiswaFilters() {
             const selSekolah = document.getElementById('siswaFilterSekolah');
+            if (selSekolah) {
+                const selectedSchool = selSekolah.value;
+                const schools = [...new Map(allSiswaData.filter(s => s.sekolahId && s.namaSekolah)
+                    .map(s => [String(s.sekolahId), s.namaSekolah])).entries()]
+                    .sort((a, b) => a[1].localeCompare(b[1]));
+                selSekolah.innerHTML = '<option value="">Semua Sekolah</option>' +
+                    schools.map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`).join('');
+                if (schools.some(([id]) => id === selectedSchool)) selSekolah.value = selectedSchool;
+            }
+            await updateSiswaClassFilter();
+        }
+
+        window.updateSiswaClassFilter = async function() {
+            const schoolId = document.getElementById('siswaFilterSekolah')?.value || '';
             const selKelas = document.getElementById('siswaFilterKelas');
-            
-            if(selSekolah) selSekolah.innerHTML = '<option value="">Semua Sekolah</option>' + schools.filter(n=>n).map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-            if(selKelas) selKelas.innerHTML = '<option value="">Semua Kelas</option>' + classes.filter(n=>n).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            if (!selKelas) return;
+            const previouslySelected = selKelas.value;
+            let classes = allKelasData;
+            if (!classes.length) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/kelas`);
+                    if (response.ok) allKelasData = await response.json();
+                    classes = allKelasData;
+                } catch (e) { console.error('Gagal memuat kelas:', e); }
+            }
+            classes = classes.filter(k => !schoolId || String(k.sekolahId) === schoolId)
+                .sort((a, b) => a.nama.localeCompare(b.nama));
+            selKelas.innerHTML = '<option value="">Semua Kelas</option>' +
+                classes.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.nama)}</option>`).join('');
+            if (classes.some(k => String(k.id) === previouslySelected)) selKelas.value = previouslySelected;
+            filterSiswaTable();
         }
 
         function filterSiswaTable() {
@@ -1881,8 +1927,8 @@ window.saveNewSoal = async function() {
             
             const filtered = allSiswaData.filter(s => {
                 const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
-                const matchesSchool = !school || s.namaSekolah === school;
-                const matchesKelas = !kelas || s.namaKelas === kelas;
+                const matchesSchool = !school || String(s.sekolahId) === school;
+                const matchesKelas = !kelas || String(s.kelasId) === kelas;
                 return matchesSearch && matchesSchool && matchesKelas;
             });
             renderSiswaTable(filtered);
@@ -1895,12 +1941,14 @@ window.saveNewSoal = async function() {
             
             const filtered = allSiswaData.filter(s => {
                 const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
-                const matchesSchool = !school || s.namaSekolah === school;
-                const matchesKelas = !kelas || s.namaKelas === kelas;
+                const matchesSchool = !school || String(s.sekolahId) === school;
+                const matchesKelas = !kelas || String(s.kelasId) === kelas;
                 return matchesSearch && matchesSchool && matchesKelas;
             });
 
-            const filterText = escapeHtml((school || "Semua Sekolah") + " / " + (kelas || "Semua Kelas"));
+            const schoolName = document.getElementById('siswaFilterSekolah').selectedOptions[0]?.textContent || 'Semua Sekolah';
+            const className = document.getElementById('siswaFilterKelas').selectedOptions[0]?.textContent || 'Semua Kelas';
+            const filterText = escapeHtml(schoolName + " / " + className);
             const tableHtml = `
                 <table border="1" style="width:100%; border-collapse:collapse;">
                     <thead>
@@ -2311,6 +2359,14 @@ window.saveNewSoal = async function() {
                 document.getElementById('loggedRole').textContent = escapeHtml(role);
                 document.getElementById('userInfo').classList.remove('hidden');
                 document.getElementById('loginScreen').classList.add('hidden');
+
+                // Restoring a saved section bypasses showRoleDashboard(), so
+                // restore the sidebar state here as well as the content panel.
+                if (['owner', 'evaluator', 'asisten'].includes(role)) {
+                    document.body.classList.add('has-sidebar');
+                    document.getElementById('ownerSidebar')?.classList.remove('hidden');
+                    document.getElementById('sidebarToggle')?.classList.remove('hidden');
+                }
                 
                 const activeNav = sessionStorage.getItem('wlc_active_nav');
                 const navMap = {
@@ -2326,7 +2382,8 @@ window.saveNewSoal = async function() {
                     'growthCheckDashboard': window.openGrowthCheck,
                     'parentReflectionsDashboard': window.openParentReflections,
                     'manageSettingsDashboard': window.openManageSettings,
-                    'analyticsDashboard': window.analyticsOverview
+                    'analyticsDashboard': window.analyticsOverview,
+                    'wlcKidsDashboard': window.openWlcKids
                 };
                 
                 if (activeNav && navMap[activeNav]) {
