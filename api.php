@@ -531,7 +531,55 @@ if ($uri === '/api/wlc-items' && $method === 'POST') {
         echo json_encode(['error' => 'Unauthorized']);
         exit;
     }
-    // Note: Creating items requires selecting construct. For simplicity, we just update for now.
+    
+    $audience = $inputBody['audience'] ?? 'KIDS';
+    $targetGrade = $inputBody['target_grade'] ?? null;
+    $constructName = $inputBody['construct_name'] ?? '';
+    $text = $inputBody['text'] ?? '';
+    
+    if (empty($constructName) || empty($text)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing data']);
+        exit;
+    }
+    
+    // Find instrument
+    if ($audience === 'KIDS') {
+        $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE audience = ? AND target_grade = ?");
+        $stmt->execute([$audience, $targetGrade]);
+    } else {
+        // Assume SMP/TEEN
+        $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE audience = ? OR audience = 'SMP Self-Report'");
+        $stmt->execute([$audience]);
+    }
+    
+    $inst = $stmt->fetch();
+    if (!$inst) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Instrument not found']);
+        exit;
+    }
+    $instId = $inst['id'];
+    
+    // Find or create construct
+    $stmt = $db->prepare("SELECT id FROM wlc_constructs WHERE instrument_id = ? AND name = ?");
+    $stmt->execute([$instId, $constructName]);
+    $construct = $stmt->fetch();
+    
+    if ($construct) {
+        $constructId = $construct['id'];
+    } else {
+        $stmt = $db->prepare("INSERT INTO wlc_constructs (instrument_id, name) VALUES (?, ?)");
+        $stmt->execute([$instId, $constructName]);
+        $constructId = $db->lastInsertId();
+    }
+    
+    // Insert item
+    $stmt = $db->prepare("INSERT INTO wlc_items (construct_id, text, is_reverse) VALUES (?, ?, 0)");
+    $stmt->execute([$constructId, $text]);
+    
+    echo json_encode(['success' => true]);
+    exit;
 }
 
 // 2. Bank Soal Endpoints
