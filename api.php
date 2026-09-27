@@ -17,6 +17,9 @@ if ($allowedOrigins = getenv('WLC_ALLOWED_ORIGINS')) {
     }
 }
 header("Content-Type: application/json; charset=UTF-8");
+header('Cache-Control: no-store');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: same-origin');
 
 session_set_cookie_params([
     'lifetime' => 0, 'path' => '/', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
@@ -156,10 +159,11 @@ function authenticateToken() {
         if (!$account) { http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit; }
         $decoded['reference_id'] = (int)$account['id'];
     } else {
-        $stmt = $db->prepare('SELECT id, username, role FROM users WHERE id = ?');
+        $stmt = $db->prepare('SELECT id, username, role, token_version FROM users WHERE id = ?');
         $stmt->execute([(int)($decoded['id'] ?? 0)]);
         $account = $stmt->fetch();
-        if (!$account || $account['role'] !== ($decoded['role'] ?? '') || $account['username'] !== ($decoded['username'] ?? '')) {
+        if (!$account || $account['role'] !== ($decoded['role'] ?? '') || $account['username'] !== ($decoded['username'] ?? '') ||
+            (int)($account['token_version'] ?? 0) !== (int)($decoded['token_version'] ?? -1)) {
             http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit;
         }
     }
@@ -170,6 +174,7 @@ function enforceRateLimit(PDO $db, string $scope, int $limit, int $windowSeconds
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $key = hash_hmac('sha256', $scope . '|' . $ip, JWT_SECRET);
     $now = time();
+    if ($now % 60 === 0) $db->exec('DELETE FROM api_rate_limits WHERE window_start < ' . (int)($now - 86400));
     $stmt = $db->prepare("INSERT INTO api_rate_limits (rate_key, window_start, request_count) VALUES (?, ?, 1)
         ON CONFLICT(rate_key) DO UPDATE SET
         request_count = CASE WHEN window_start < ? THEN 1 ELSE request_count + 1 END,
@@ -359,6 +364,7 @@ function initDatabase($db) {
         minat TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    try { $db->exec('ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0'); } catch (Exception $e) {}
     try { $db->exec('ALTER TABLE kegiatan_wlc ADD COLUMN share_token TEXT'); } catch (Exception $e) {}
     // Backfill unguessable share keys for certificates that predate this migration.
     $db->exec("UPDATE kegiatan_wlc SET share_token = lower(hex(randomblob(32))) WHERE share_token IS NULL OR share_token = ''");
@@ -797,7 +803,8 @@ if ($uri === '/api/login' && $method === 'POST') {
     $token = jwt_encode([
         'id' => $user['id'],
         'username' => $user['username'],
-        'role' => $user['role']
+        'role' => $user['role'],
+        'token_version' => (int)($user['token_version'] ?? 0)
     ], JWT_SECRET, 24);
 
     echo json_encode([
@@ -846,7 +853,7 @@ if ($uri === '/api/reset-password' && $method === 'POST') {
     }
 
     $hashed = password_hash($new_password, PASSWORD_BCRYPT, ['cost' => 10]);
-    $stmtUpgrade = $db->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmtUpgrade = $db->prepare('UPDATE users SET password = ?, token_version = token_version + 1 WHERE id = ?');
     $stmtUpgrade->execute([$hashed, $user['id']]);
 
     echo json_encode(['success' => true]);
@@ -948,7 +955,7 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
     if (strlen($new_password) < 8) {
         http_response_code(400); echo json_encode(['error' => 'Password baru minimal 8 karakter']); exit;
     }
-    enforceRateLimit($db, 'reset-otp:' . strtolower((string)$email), 8, 600);
+    enforceRateLimit($db, 'reset-otp:' . strtolower((string)$email), 5, 600);
 
     $sanitizedEmail = filter_var($email, FILTER_SANITIZE_EMAIL);
     $stmt = $db->prepare('SELECT id, otp_hash, otp_expires FROM users WHERE email = ?');
@@ -976,7 +983,7 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
 
     // OTP Valid. Reset password.
     $hashed = password_hash($new_password, PASSWORD_BCRYPT, ['cost' => 10]);
-    $db->prepare('UPDATE users SET password = ?, otp_hash = NULL, otp_expires = NULL, otp_attempts = 0 WHERE id = ?')
+    $db->prepare('UPDATE users SET password = ?, token_version = token_version + 1, otp_hash = NULL, otp_expires = NULL, otp_attempts = 0 WHERE id = ?')
        ->execute([$hashed, $user['id']]);
     unset($_SESSION['otp_failures']);
 
@@ -987,8 +994,11 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
 // 6. Siswa Endpoints
 // 6.X Mark Siswa Absent
 if ($uri === '/api/siswa/absen' && $method === 'POST') {
-    authenticateToken();
-    $siswaId = $inputBody['siswa_id'] ?? null;
+    $user = authenticateToken();
+    $siswaId = (int)($inputBody['siswa_id'] ?? 0);
+    if (!in_array($user['role'] ?? '', ['owner', 'evaluator', 'asisten'], true) || !$siswaId || !observerCanAccessStudent($db, $user, $siswaId)) {
+        http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
+    }
     if ($siswaId) {
         $db->prepare("UPDATE siswa SET status = 'absent' WHERE id = ?")->execute([$siswaId]);
         echo json_encode(['success' => true]);
@@ -999,34 +1009,41 @@ if ($uri === '/api/siswa/absen' && $method === 'POST') {
 }
 if ($uri === '/api/siswa') {
     if ($method === 'GET') {
-        authenticateToken();
-        $page = (int)($queryParams['page'] ?? 1);
-        $limit = (int)($queryParams['limit'] ?? 50);
-        $offset = ($page - 1) * $limit;
-        
-        $sekolahId = $queryParams['sekolahId'] ?? null;
-        if ($sekolahId) {
-            $sql = "SELECT s.*, sk.nama as namaSekolah, k.nama as namaKelas 
-                    FROM siswa s 
-                    LEFT JOIN sekolah sk ON s.sekolahId = sk.id 
-                    LEFT JOIN kelas k ON s.kelasId = k.id
-                    WHERE s.sekolahId = ?
-                    ORDER BY s.nama LIMIT ? OFFSET ?";
-            $params = [$sekolahId, $limit, $offset];
-            
-            $sqlCount = "SELECT COUNT(*) as total FROM siswa s WHERE s.sekolahId = ?";
-            $paramsCount = [$sekolahId];
-        } else {
-            $sql = "SELECT s.*, sk.nama as namaSekolah, k.nama as namaKelas 
-                    FROM siswa s 
-                    LEFT JOIN sekolah sk ON s.sekolahId = sk.id 
-                    LEFT JOIN kelas k ON s.kelasId = k.id
-                    ORDER BY s.nama LIMIT ? OFFSET ?";
-            $params = [$limit, $offset];
-            
-            $sqlCount = "SELECT COUNT(*) as total FROM siswa s";
-            $paramsCount = [];
+        $user = authenticateToken();
+        if (!in_array($user['role'] ?? '', ['owner', 'evaluator', 'asisten', 'siswa'], true)) {
+            http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
         }
+        $page = max(1, (int)($queryParams['page'] ?? 1));
+        $limit = min(500, max(1, (int)($queryParams['limit'] ?? 50)));
+        $offset = ($page - 1) * $limit;
+        $conditions = [];
+        $params = [];
+        if ($user['role'] === 'siswa') {
+            $conditions[] = 's.id = ?'; $params[] = (int)$user['reference_id'];
+        } elseif ($user['role'] === 'asisten') {
+            $groupStmt = $db->prepare('SELECT siswaIds FROM grup WHERE asistenId = ?');
+            $groupStmt->execute([$user['username']]);
+            $assignedIds = [];
+            foreach ($groupStmt->fetchAll(PDO::FETCH_COLUMN) as $jsonIds) {
+                $ids = json_decode((string)$jsonIds, true);
+                if (is_array($ids)) $assignedIds = array_merge($assignedIds, array_map('intval', $ids));
+            }
+            $assignedIds = array_values(array_unique(array_filter($assignedIds, static fn($id) => $id > 0)));
+            if (!$assignedIds) {
+                echo json_encode(['data' => [], 'pagination' => ['page' => $page, 'limit' => $limit, 'total' => 0, 'totalPages' => 0]]); exit;
+            }
+            $conditions[] = 's.id IN (' . implode(',', array_fill(0, count($assignedIds), '?')) . ')';
+            $params = array_merge($params, $assignedIds);
+        }
+        $sekolahId = $queryParams['sekolahId'] ?? null;
+        if ($sekolahId) { $conditions[] = 's.sekolahId = ?'; $params[] = $sekolahId; }
+        $whereSql = $conditions ? ' WHERE ' . implode(' AND ', $conditions) : '';
+        $sql = "SELECT s.*, sk.nama as namaSekolah, k.nama as namaKelas FROM siswa s
+                LEFT JOIN sekolah sk ON s.sekolahId = sk.id LEFT JOIN kelas k ON s.kelasId = k.id
+                {$whereSql} ORDER BY s.nama LIMIT ? OFFSET ?";
+        $sqlCount = 'SELECT COUNT(*) as total FROM siswa s' . $whereSql;
+        $paramsCount = $params;
+        $params[] = $limit; $params[] = $offset;
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
@@ -1259,7 +1276,7 @@ if ($uri === '/api/observasi') {
         $asistenId = $user['username'];
 
         $soalId = (int)$soalId;
-        if ($siswaId < 1 || $soalId < 1 || !is_numeric($skor) || (int)$skor < 1 || (int)$skor > 4 || !observerCanAccessStudent($db, $user, $siswaId)) {
+        if ($siswaId < 1 || $soalId < 1 || !is_numeric($skor) || (int)$skor < 1 || (int)$skor > 5 || !observerCanAccessStudent($db, $user, $siswaId)) {
             http_response_code(400); echo json_encode(['error' => 'Data observasi tidak valid atau siswa bukan tanggung jawab asisten']); exit;
         }
         $check = $db->prepare('SELECT 1 FROM siswa WHERE id = ?'); $check->execute([$siswaId]);
@@ -1291,7 +1308,7 @@ if ($uri === '/api/observasi/bulk' && $method === 'POST') {
             $soalId = (int)$soalIndex + 1;
             foreach ($muridScores as $muridId => $skor) {
                 $studentId = (int)$muridId;
-                if ($studentId < 1 || !is_numeric($skor) || (int)$skor < 1 || (int)$skor > 4 || !observerCanAccessStudent($db, $user, $studentId)) {
+                if ($studentId < 1 || !is_numeric($skor) || (int)$skor < 1 || (int)$skor > 5 || !observerCanAccessStudent($db, $user, $studentId)) {
                     throw new RuntimeException('Invalid observation assignment or score');
                 }
                 $exists = $db->prepare('SELECT 1 FROM siswa WHERE id = ?'); $exists->execute([$studentId]);
@@ -1420,18 +1437,45 @@ if ($uri === '/api/reflection') {
 // 11.a Kegiatan WLC & Public Certificate Endpoints
 if ($uri === '/api/kegiatan-wlc') {
     if ($method === 'GET') {
-        authenticateToken();
+        $user = authenticateToken();
         $siswaId = $queryParams['siswaId'] ?? null;
-        if ($siswaId) {
+        if ($user['role'] === 'siswa') {
+            $stmt = $db->prepare('SELECT id, siswaId, wlc_tipe, tanggal, org_name, kesiapan, fokus, respons, kemandirian, ketekunan, emosional, minat, timestamp FROM kegiatan_wlc WHERE siswaId = ? ORDER BY tanggal DESC, id DESC');
+            $stmt->execute([$user['reference_id']]);
+        } elseif ($user['role'] === 'asisten') {
+            $groupStmt = $db->prepare('SELECT siswaIds FROM grup WHERE asistenId = ?');
+            $groupStmt->execute([$user['username']]);
+            $assignedIds = [];
+            foreach ($groupStmt->fetchAll(PDO::FETCH_COLUMN) as $jsonIds) {
+                $ids = json_decode((string)$jsonIds, true);
+                if (is_array($ids)) $assignedIds = array_merge($assignedIds, array_map('intval', $ids));
+            }
+            $assignedIds = array_values(array_unique(array_filter($assignedIds, static fn($id) => $id > 0)));
+            if (!$assignedIds) { echo json_encode([]); exit; }
+            $marks = implode(',', array_fill(0, count($assignedIds), '?'));
+            if ($siswaId && !in_array((int)$siswaId, $assignedIds, true)) { http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit; }
+            if ($siswaId) {
+                $stmt = $db->prepare("SELECT * FROM kegiatan_wlc WHERE siswaId = ? AND siswaId IN ({$marks}) ORDER BY tanggal DESC, id DESC");
+                $stmt->execute(array_merge([(int)$siswaId], $assignedIds));
+            } else {
+                $stmt = $db->prepare("SELECT * FROM kegiatan_wlc WHERE siswaId IN ({$marks}) ORDER BY tanggal DESC, id DESC");
+                $stmt->execute($assignedIds);
+            }
+        } elseif (in_array($user['role'], ['owner', 'evaluator'], true) && $siswaId) {
             $stmt = $db->prepare('SELECT * FROM kegiatan_wlc WHERE siswaId = ? ORDER BY tanggal DESC, id DESC');
             $stmt->execute([$siswaId]);
-        } else {
+        } elseif (in_array($user['role'], ['owner', 'evaluator'], true)) {
             $stmt = $db->query('SELECT * FROM kegiatan_wlc ORDER BY tanggal DESC, id DESC');
+        } else {
+            http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
         }
         echo json_encode($stmt->fetchAll() ?: []);
         exit;
     } elseif ($method === 'POST') {
         $user = authenticateToken();
+        if (!in_array($user['role'] ?? '', ['owner', 'evaluator', 'asisten'], true)) {
+            http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
+        }
         
         // Identity Hardening: if role is 'siswa', force siswaId from JWT (authoritative source)
         if (isset($user['role']) && $user['role'] === 'siswa') {
@@ -1455,6 +1499,9 @@ if ($uri === '/api/kegiatan-wlc') {
             http_response_code(400);
             echo json_encode(['error' => 'SiswaId, WLC Tipe, dan Tanggal wajib diisi']);
             exit;
+        }
+        if (!observerCanAccessStudent($db, $user, (int)$siswaId)) {
+            http_response_code(403); echo json_encode(['error' => 'Siswa bukan tanggung jawab asisten']); exit;
         }
 
         $shareToken = bin2hex(random_bytes(32));
@@ -1537,7 +1584,7 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
         $cascadeRules = [
             'sekolah' => ['DELETE FROM kelas WHERE sekolahId = ?', 'DELETE FROM siswa WHERE sekolahId = ?'],
             'kelas' => ['DELETE FROM siswa WHERE kelasId = ?'],
-            'siswa' => ['DELETE FROM observasi WHERE siswaId = ?', 'DELETE FROM kegiatan_wlc WHERE siswaId = ?'],
+            'siswa' => ['DELETE FROM observasi WHERE siswaId = ?', 'DELETE FROM parent_reflections WHERE siswaId = ?', 'DELETE FROM kegiatan_wlc WHERE siswaId = ?'],
             'jadwal' => ['DELETE FROM grup WHERE jadwalId = ?'],
             'grup' => []
         ];
@@ -1612,6 +1659,9 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
         try {
             $stmt = $db->prepare("UPDATE {$table} SET {$setClause} WHERE id = ?");
             $stmt->execute($values);
+            if ($table === 'users' && isset($inputBody['password'])) {
+                $db->prepare('UPDATE users SET token_version = token_version + 1 WHERE id = ?')->execute([$id]);
+            }
             echo json_encode(['success' => true, 'changes' => $stmt->rowCount()]);
         } catch (Exception $e) {
             http_response_code(500);

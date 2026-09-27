@@ -1,5 +1,5 @@
 # Protect sensitive files from direct HTTP access on Apache/cPanel
-<FilesMatch "\.(db|json|bat|md|git|sh|log)$|^\.jwt_secret$">
+<FilesMatch "(^\.(jwt_secret|ftp_credentials)$|\.(db(-wal|-shm)?|json|bat|md|git|sh|log)$)">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -12,11 +12,13 @@
 Options -Indexes
 
 <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
+    Header always set Referrer-Policy "same-origin"
+    Header always set X-Content-Type-Options "nosniff"
 </IfModule>
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteRule (^|/)\.(git|svn|hg)(/|$) - [F,L]
     RewriteCond %{HTTP:Authorization} ^(.*)
     RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
     RewriteRule ^api(/.*)?$ api.php [L,QSA]

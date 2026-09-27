@@ -21,20 +21,27 @@ if (strpos($uri, '/api') === 0) {
     exit;
 }
 
+if (preg_match('#(^|/)\.(git|svn|hg)(/|$)#i', $uri)) {
+    http_response_code(403);
+    echo "Forbidden";
+    exit;
+}
+
 // Serve static files
 $realBase = realpath(__DIR__);
 $filePath = __DIR__ . $uri;
 
-// Safe path validation checking parent directory to support non-existent files (like favicon.ico)
-$dirPath = realpath(dirname($filePath));
-if ($dirPath === false || strpos($dirPath, $realBase) !== 0) {
+// Resolve the target itself and enforce a path-component boundary. A plain
+// string-prefix check would also accept sibling folders such as "project2".
+$resolvedFile = realpath($filePath);
+if ($resolvedFile !== false && strpos($resolvedFile, $realBase . DIRECTORY_SEPARATOR) !== 0) {
     http_response_code(403);
     echo "Forbidden";
     exit;
 }
 
 // Block sensitive files specifically, while allowing general files (like manifest.json)
-if (preg_match('/(wlc\.db|bank_soal.*\.json|\.(bat|md|git|sh))$/i', $uri)) {
+if (preg_match('/(^|\/)(wlc\.db(?:-wal|-shm)?|db_export\.json|bank_soal.*\.json|\.jwt_secret|\.ftp_credentials)$/i', $uri) || preg_match('/\.(bat|md|git|sh)$/i', $uri)) {
     http_response_code(403);
     echo "Forbidden";
     exit;
