@@ -991,13 +991,12 @@ const rubrikSkoring = {
             if (!sidebar) return;
             sidebar.classList.remove('open');
             if (overlay) overlay.classList.remove('open');
-            if (window.matchMedia('(min-width: 1025px)').matches) document.body.classList.add('sidebar-collapsed');
         };
         document.getElementById('ownerSidebar')?.addEventListener('click', event => {
             if (event.target.closest('.sidebar-nav a')) window.closeSidebarAfterNavigation();
         });
 
-                // Auto-hide sidebar on mobile when any link is clicked
+        // Auto-hide only the mobile drawer after a navigation choice.
         document.addEventListener('click', function(e) {
             const link = e.target.closest('#ownerSidebar .sidebar-nav a');
             if (link) {
