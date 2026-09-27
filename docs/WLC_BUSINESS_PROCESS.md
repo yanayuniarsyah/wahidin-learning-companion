@@ -8,6 +8,14 @@ Dokumen ini menjelaskan alur proses bisnis (Business Process) terintegrasi untuk
 
 ```mermaid
 graph TD
+    %% 0. Tahap Manajemen Instrumen Terpusat
+    subgraph Fase 0: Setup Instrumen & Konfigurasi (Admin)
+        I0[Admin WLC: Login & Akses Dashboard Instrumen] --> I1[Manajemen Konstruk & Komponen]
+        I1 --> I2[Input Butir Pertanyaan untuk WLC Kids & Teen]
+        I2 --> I3[Sistem: Simpan Bank Instrumen Terpusat]
+        I3 --> A
+    end
+
     %% 1. Tahap Penawaran & Kemitraan
     subgraph Fase 1: Kemitraan Sekolah & Setup Awal
         A[Kumon: Penawaran Program CSR WLC ke Sekolah] --> B{Sekolah Setuju?}
@@ -71,6 +79,12 @@ graph TD
 ---
 
 ## 📝 Penjelasan Detail Per Fase
+
+### Fase 0: Setup Instrumen & Konfigurasi (Admin)
+Sebelum program WLC dijalankan, instrumen penilaian harus disiapkan secara terpusat oleh Admin WLC.
+1. **Manajemen Konstruk & Komponen:** Admin mendefinisikan komponen observasi (untuk Kids) atau kuesioner (untuk Teen) seperti *Kesiapan*, *Regulasi Emosi*, dll.
+2. **Input Butir Instrumen:** Melalui Dashboard Instrumen, Admin memasukkan butir-butir pernyataan secara dinamis dan menugaskannya spesifik ke *Audience* (KIDS/TEEN) dan *Target Grade* (TK/SD/SMP).
+3. **Database Terpusat:** Seluruh data instrumen tersimpan dalam satu bank instrumen, sehingga Asisten maupun Siswa akan selalu mendapatkan pertanyaan terbaru dan paling relevan.
 
 ### Fase 1: Kemitraan Sekolah & Setup Awal
 1. **Penawaran:** Pihak Kumon (Cilacap) melakukan pendekatan ke sekolah-sekolah (TK/SD untuk Kids, SMP/SMA untuk Teen) menawarkan program CSR WLC secara gratis untuk melatih karakter dan kebiasaan belajar siswa.
