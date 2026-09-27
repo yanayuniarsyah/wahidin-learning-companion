@@ -863,6 +863,45 @@ if ($uri === '/api/siswa') {
     }
 }
 
+// 6.b Generate Student Token Link
+if ($uri === '/api/siswa/generate-link' && $method === 'POST') {
+    $user = authenticateToken();
+    if ($user['role'] !== 'owner' && $user['role'] !== 'evaluator') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+    
+    $siswaId = $inputBody['siswaId'] ?? null;
+    if (!$siswaId) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Siswa ID required']);
+        exit;
+    }
+    
+    $stmt = $db->prepare('SELECT * FROM siswa WHERE id = ?');
+    $stmt->execute([$siswaId]);
+    $siswa = $stmt->fetch();
+    
+    if (!$siswa) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Siswa tidak ditemukan']);
+        exit;
+    }
+    
+    $token = jwt_encode([
+        'reference_id' => $siswa['id'],
+        'username' => $siswa['nama'],
+        'role' => 'siswa'
+    ], JWT_SECRET, 168); // 7 days expiry
+
+    echo json_encode([
+        'success' => true,
+        'token' => $token
+    ]);
+    exit;
+}
+
 // 7. Sekolah & Kelas Endpoints
 if ($uri === '/api/sekolah') {
     if ($method === 'GET') {

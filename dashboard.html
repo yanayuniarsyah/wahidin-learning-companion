@@ -2021,7 +2021,7 @@ window.saveNewSoal = async function() {
             const tbody = document.getElementById('siswaTableBody');
             tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td>
                 <div class="action-group">
-                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>`n                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
                     <button class="btn-action btn-delete-alt" onclick="deleteData('siswa', ${s.id}, loadSiswaTable)"><i class="fas fa-trash"></i></button>
                 </div>
             </td></tr>`).join('');
@@ -2407,6 +2407,34 @@ window.saveNewSoal = async function() {
 
         window.closeEditModal = function() { document.getElementById('editModalOverlay').classList.remove('show'); };
         
+                window.generateStudentLink = async function(siswaId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/siswa/generate-link`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('wlc_token')}`
+                    },
+                    body: JSON.stringify({ siswaId: siswaId })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.token) {
+                        const link = `${window.location.origin}${API_BASE}/student.html?token=${data.token}`;
+                        navigator.clipboard.writeText(link);
+                        showToast('? Link akses siswa berhasil disalin ke clipboard!');
+                    } else {
+                        showToast('?? Gagal membuat link akses.');
+                    }
+                } else {
+                    showToast('?? Gagal memanggil API.');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('?? Terjadi kesalahan sistem saat membuat link.');
+            }
+        };
         window.openEditSiswa = async function(id) {
             const s = allSiswaData.find(x => x.id == id);
             if (!s) return;

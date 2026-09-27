@@ -93,6 +93,15 @@
     <div id="toast">Notifikasi</div>
 
     <script>
+                // Read token from URL query params
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        if (urlToken) {
+            localStorage.setItem('wlc_student_token', urlToken);
+            // Clear URL parameter so it looks clean
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         const API_BASE = '';
         let currentSessionId = null;
         let totalItems = 0;
