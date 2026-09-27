@@ -253,19 +253,20 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 
 <div id="soalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
-            <option value="Kesiapan">Kesiapan</option>
-            <option value="Fokus">Fokus</option>
-            <option value="Instruksi">Instruksi</option>
-            <option value="Kemandirian">Kemandirian</option>
-            <option value="Ketekunan">Ketekunan</option>
-            <option value="Emosi">Emosi</option>
-            <option value="Minat">Minat</option>
-        </select></div>
-        <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Item Instrumen</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div class="form-group">
+        <label class="form-label">Tujuan Penambahan (Audience / Grade)</label>
+        <select class="form-input" id="newSoalTarget">
+            <option value="KIDS|TK">WLC Kids - TK</option>
+            <option value="KIDS|SD 1-3">WLC Kids - SD 1-3</option>
+            <option value="KIDS|SD 4-6">WLC Kids - SD 4-6</option>
+            <option value="SMP/TEEN|">WLC Teen / SMP</option>
+        </select>
     </div>
+    <div class="form-group"><label class="form-label">Komponen / Konstruk (Misal: Transisi ke Belajar)</label><input type="text" class="form-input" id="newSoalKomponen" placeholder="Nama Komponen"></div>
+    <div class="form-group"><label class="form-label">Pertanyaan / Pernyataan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pernyataan lengkap..."></div>
+    <button class="btn btn-primary" onclick="saveNewWlcItem()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Item</button>
+</div>
     <div class="form-group"><label class="form-label">Pertanyaan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pertanyaan lengkap..."></div>
     <button class="btn btn-primary" onclick="saveNewSoal()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Soal</button>
 </div>
@@ -381,60 +382,21 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 
 <div id="wlcKidsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitWlcKids()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitWlcKids()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
 <div id="landingView" style="margin-top:1rem;">
 <div id="wlcKidsContent"><p style="color:var(--text-muted);">Memuat data siswa...</p></div>
 </div>
 </div>
 
 <div id="wlcTeenDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Teen - Laporan Evaluasi</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Teen - Laporan Evaluasi</h1><div style="width:100px;"></div></header>
 <div id="wlcTeenContent" style="margin-top:1rem;">
     <p style="color:var(--text-muted);">Memuat laporan WLC Teen...</p>
 </div>
 </div>
 
 <div id="manageSettingsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSettings()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Pengaturan Aplikasi</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSettings()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Pengaturan Aplikasi</h1><div style="width:100px;"></div></header>
 <div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
     <div class="form-group">
         <label class="form-label">Nama Aplikasi</label>
@@ -464,20 +426,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 </div>
 <div id="asistenDashboard" class="hidden">
-<header class="panel-header"><h1>Asisten Dashboard</h1><button class="btn btn-secondary" onclick="logout()">Logout</button><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><h1>Asisten Dashboard</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
 <div style="margin-bottom:2rem;"><h3 style="color:var(--text-main);margin-bottom:0.5rem;"><i class="fas fa-clipboard-list"></i> Jadwal Tugas Anda</h3><p style="color:var(--text-muted);font-size:0.9rem;">Daftar sekolah dan siswa yang harus Anda observasi hari ini.</p></div>
 <div id="asistenGroupList" class="menu-buttons" style="grid-template-columns:1fr;">
 <button class="menu-btn" onclick="startQuiz()" style="background:var(--primary-soft); border-color:var(--primary); color:var(--primary);">
@@ -492,20 +441,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Berikan skor 1 (Kurang) s/d 5 (Sangat Baik)</p>
 </div>
 <button class="btn btn-secondary" onclick="showMenu()"><i class="fas fa-home"></i> Kembali</button>
-<button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
 </header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
 <div class="soal-counter">Soal <span id="soalCounter" class="soal-number">1</span></div>
 <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%;"></div></div>
 <div id="progressText" style="text-align: center; margin-bottom: 1rem; font-weight:600;">0%</div>
@@ -520,20 +456,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 </div>
 <div id="evaluatorDashboard" class="hidden">
-<header class="panel-header"><h1>Evaluator Mode</h1><button class="btn btn-secondary" onclick="logout()">Logout</button><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><h1>Evaluator Mode</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
 <p style="color:var(--text-muted);margin-bottom:2rem;">Analisis & Laporan Hasil Observasi.</p>
 <div class="menu-buttons">
 <button class="menu-btn" onclick="viewReports()"><i class="fas fa-chart-bar"></i> Lihat Laporan</button>
@@ -546,20 +469,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 </div>
 <div id="ownerDashboard" class="hidden">
-<header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
 
 <!-- DATA SECTION -->
 <h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-database"></i> Data</h3>
@@ -597,20 +507,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         <button class="btn btn-secondary" onclick="exitGrowthCheck()"><i class="fas fa-arrow-left"></i> Kembali</button>
         <h1>Growth Check (Perbandingan Sesi)</h1>
         <div style="width:100px;"></div>
-    <button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+    </header>
     <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:2rem;">
         <div class="form-row">
             <div class="form-group" style="flex:1;">
@@ -662,20 +559,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         <button class="btn btn-secondary" onclick="exitParentReflections()"><i class="fas fa-arrow-left"></i> Kembali</button>
         <h1>Daftar Refleksi Orang Tua (WLC-2)</h1>
         <div style="width:100px;"></div>
-    <button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+    </header>
     <div style="overflow-x:auto;">
         <table class="data-table" id="reflectionsTable">
             <thead>
@@ -700,55 +584,16 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
     </div>
 </div>
 <div id="manageUsersDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageUsers()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Users & Asisten</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageUsers()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Users & Asisten</h1><div style="width:100px;"></div></header>
 <div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('usersFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Akun</button></div>
 <table class="data-table" id="usersTable"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('users', 'role')">Role Akses</th><th class="sort-header" onclick="sortAndRender('users', 'username')">Username Login</th><th>Aksi</th></tr></thead><tbody id="usersTableBody"><tr><td colspan="4" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
 </div>
 <div id="viewReportsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitViewReports()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Laporan Observasi</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitViewReports()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Laporan Observasi</h1><div style="width:100px;"></div></header>
 <table class="data-table" id="reportsTable" style="margin-top:0;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('reports', 'timestamp')">Waktu Input</th><th class="sort-header" onclick="sortAndRender('reports', 'asistenId')">Asisten</th><th class="sort-header" onclick="sortAndRender('reports', 'nama')">Data Siswa</th><th class="sort-header" onclick="sortAndRender('reports', 'skor')">Skor Observasi</th></tr></thead><tbody id="reportsTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
 </div>
 <div id="analyticsDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitAnalytics()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Analitik Performa Siswa</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitAnalytics()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Analitik Performa Siswa</h1></header>
 <div class="menu-buttons" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:2rem;">
 <div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Total Observasi</h4><p id="statTotalObs" style="font-size:2.5rem;font-weight:800;color:var(--primary);">0</p></div>
 <div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Rata-rata Skor</h4><p id="statAvgScore" style="font-size:2.5rem;font-weight:800;color:var(--success);">0.0</p></div>
@@ -756,20 +601,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <div style="background:white;padding:2rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:2rem;"><h3 style="margin-bottom:1.5rem;"><i class="fas fa-chart-line"></i> Grafik Progress Skor Murid</h3><canvas id="analyticsChart" height="150"></canvas></div>
 </div>
 <div id="manageSekolahDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSekolah()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Sekolah</h1><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary" onclick="document.getElementById('sekolahFormContainer').classList.toggle('hidden')"><i class="fas fa-school"></i> Sekolah</button><button class="btn btn-primary" onclick="populateSekolahDropdownKelas().then(() => document.getElementById('kelasFormContainer').classList.toggle('hidden'))"><i class="fas fa-door-open"></i> Kelas</button></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSekolah()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Sekolah</h1><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary" onclick="document.getElementById('sekolahFormContainer').classList.toggle('hidden')"><i class="fas fa-school"></i> Sekolah</button><button class="btn btn-primary" onclick="populateSekolahDropdownKelas().then(() => document.getElementById('kelasFormContainer').classList.toggle('hidden'))"><i class="fas fa-door-open"></i> Kelas</button></div></header>
 <h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Sekolah</h3>
 <table class="data-table" id="tableSekolah"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('sekolah', 'nama')">Nama Sekolah</th><th class="sort-header" onclick="sortAndRender('sekolah', 'kota')">Kota</th><th>Aksi</th></tr></thead><tbody></tbody></table>
 <h3 style="margin-top:3rem; margin-bottom:1rem;">Daftar Kelas</h3>
@@ -777,20 +609,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 
 <div id="manageSiswaDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Data Siswa</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Data Siswa</h1><div style="width:100px;"></div></header>
 
 <!-- Filter & Search -->
 <div style="background:var(--secondary-soft); padding:1.5rem; border-radius:var(--radius-md); margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
@@ -828,38 +647,12 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 
 <div id="manageJadwalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageJadwal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Jadwal WLC</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageJadwal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Jadwal WLC</h1><div style="width:100px;"></div></header>
 <div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('jadwalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Jadwal / Observasi</button></div>
 <table class="data-table" id="jadwalTable" style="margin-top:2rem;"><thead><tr><th>No</th><th class="sort-header" onclick="sortAndRender('jadwal', 'tanggal')">TANGGAL</th><th class="sort-header" onclick="sortAndRender('jadwal', 'namaSekolah')">NAMA SEKOLAH</th><th class="sort-header" onclick="sortAndRender('jadwal', 'status')">STATUS</th><th class="sort-header" onclick="sortAndRender('jadwal', 'catatan')">CATATAN</th><th>AKSI</th></tr></thead><tbody id="jadwalTableBody"><tr><td colspan="6" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
 </div>
 <div id="manageGrupDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageGrup()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Bagi Grup Observasi</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageGrup()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Bagi Grup Observasi</h1><div style="width:100px;"></div></header>
 <div style="display:flex;justify-content:flex-end;margin-bottom:2rem;"><button class="btn btn-primary" onclick="document.getElementById('grupFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Buat Grup Baru</button></div>
 <div id="grupFormContainer" class="hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -915,44 +708,19 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </table>
 </div>
 <div id="manageSoalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Instrumen WLC</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
+<header class="panel-header">
+    <button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button>
+    <h1>Manajemen Instrumen (WLC)</h1>
+    <button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.remove('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
 </header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
+<div class="tabs-container" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+    <button class="btn btn-primary" onclick="loadWLCInstruments('KIDS', 'TK')">WLC Kids - TK</button>
+    <button class="btn btn-primary" onclick="loadWLCInstruments('KIDS', 'SD 1-3')">WLC Kids - SD 1-3</button>
+    <button class="btn btn-primary" onclick="loadWLCInstruments('KIDS', 'SD 4-6')">WLC Kids - SD 4-6</button>
+    <button class="btn btn-secondary" onclick="loadWLCInstruments('SMP/TEEN', null)">WLC Teen (SMP)</button>
 </div>
-<p style="color:var(--text-muted);margin:0 0 1.25rem;">Kumpulan alat pengumpulan data untuk kegiatan WLC Kids dan WLC Teen.</p>
-<div class="card" style="padding:1.25rem;margin-bottom:1.5rem;">
-    <h3 style="color:var(--primary);margin:0 0 1rem;"><i class="fas fa-child"></i> WLC Kids — Observasi Terstruktur</h3>
-    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-        <button class="btn btn-secondary" data-instrument="KIDS|TK" onclick="loadWLCInstruments('KIDS','TK')">TK</button>
-        <button class="btn btn-secondary" data-instrument="KIDS|SD 1-3" onclick="loadWLCInstruments('KIDS','SD 1-3')">SD 1–3</button>
-        <button class="btn btn-secondary" data-instrument="KIDS|SD 4-6" onclick="loadWLCInstruments('KIDS','SD 4-6')">SD 4–6</button>
-    </div>
-    <p style="color:var(--text-muted);font-size:.85rem;margin:.75rem 0 0;">Diisi observer berdasarkan perilaku siswa yang terlihat selama kegiatan.</p>
-</div>
-<div class="card" style="padding:1.25rem;margin-bottom:1.5rem;">
-    <h3 style="color:var(--primary);margin:0 0 1rem;"><i class="fas fa-clipboard-list"></i> WLC Teen — Kuesioner Laporan Diri</h3>
-    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-        <button class="btn btn-secondary" data-instrument="TEEN|SMP" onclick="loadWLCInstruments('TEEN','SMP')">SMP 7–9</button>
-    </div>
-    <p style="color:var(--text-muted);font-size:.85rem;margin:.75rem 0 0;">Diisi siswa untuk melaporkan kebiasaan belajarnya sendiri.</p>
-</div>
-<div id="instrumentPanel" class="card" style="padding:1.25rem;">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
-        <div><h2 id="instrumentTitle" style="margin:0;color:var(--primary);">Pilih instrumen</h2><p id="instrumentMethodology" style="margin:.35rem 0 0;color:var(--text-muted);"></p></div>
-        <span id="instrumentItemCount" style="color:var(--text-muted);"></span>
-    </div>
-    <table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:55px;">No</th><th style="width:240px;">Variabel / Konstruk</th><th>Butir Instrumen</th><th style="width:130px;">Arah Butir</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">Pilih alat WLC di atas untuk melihat konstruk dan butirnya.</td></tr></tbody></table>
-</div>
+<h3 id="instrumentTitle" style="margin-bottom:15px; font-weight:600; font-size:1.2rem;">WLC Kids - TK</h3>
+<table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
 </div>
 <div id="manageCertDashboard" class="hidden">
 <div id="manageCertModal" style="display:contents;">
@@ -960,20 +728,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         <button class="btn btn-secondary" onclick="exitManageCert()"><i class="fas fa-arrow-left"></i> Kembali</button>
         <h1>Cetak Sertifikat WLC</h1>
         <div style="width:100px;"></div>
-    <button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+    </header>
     <!-- Filter Massal -->
     <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
         <h3 style="margin:0 0 1rem 0; color:var(--primary);"><i class="fas fa-filter"></i> Filter Cetak Massal</h3>
@@ -1076,20 +831,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 </div>
 <div id="printSiswaDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
-</header>
-
-<div id="soalFormContainer" class="form-container hidden">
-    <div class="form-group">
-        <label>Komponen / Konstruk (Misal: Transisi ke Belajar)</label>
-        <input type="text" id="newSoalKomponen" placeholder="Nama Komponen" class="w-full">
-    </div>
-    <div class="form-group">
-        <label>Pertanyaan / Pernyataan</label>
-        <input type="text" id="newSoalPertanyaan" placeholder="Pernyataan lengkap" class="w-full">
-    </div>
-    <button class="btn btn-primary" onclick="saveNewWlcItem()">Simpan Item</button>
-</div>
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div></header>
 <div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
     <div class="form-row">
         <div class="form-group">
@@ -2047,65 +1789,79 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            window.hideAllDashboards();
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
             document.getElementById('manageSoalDashboard').classList.remove('hidden');
             window.setActiveSidebar('manageSoalDashboard');
             await loadSoalTable();
         };
 
         window.exitManageSoal = function() {
-            window.showRoleDashboard(localStorage.getItem('wlc_role') || 'owner');
+            document.getElementById('manageSoalDashboard').classList.add('hidden');
+            document.getElementById('ownerDashboard').classList.remove('hidden');
         };
 
         async function loadSoalTable() {
-            await loadWLCInstruments('KIDS', 'TK');
-        }
+    await loadWLCInstruments('KIDS', 'TK');
+}
 
-        window.loadWLCInstruments = async function(audience, targetGrade) {
-            const title = document.getElementById('instrumentTitle');
-            const methodology = document.getElementById('instrumentMethodology');
-            const count = document.getElementById('instrumentItemCount');
-            const tbody = document.getElementById('soalTableBody');
-            document.querySelectorAll('[data-instrument]').forEach(button => {
-                const isActive = button.dataset.instrument === `${audience}|${targetGrade}`;
-                button.classList.toggle('btn-primary', isActive);
-                button.classList.toggle('btn-secondary', !isActive);
-            });
-            title.textContent = audience === 'KIDS' ? `WLC Kids — ${targetGrade}` : 'WLC Teen — SMP 7–9';
-            methodology.textContent = audience === 'KIDS'
-                ? 'Metode: Observasi Terstruktur · Responden: Observer · Subjek: Siswa'
-                : 'Metode: Kuesioner Laporan Diri · Responden: Siswa SMP';
-            count.textContent = 'Memuat butir…';
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Memuat instrumen…</td></tr>';
-            try {
-                let url = `${API_BASE}/api/wlc-instruments?audience=${encodeURIComponent(audience)}`;
-                if (targetGrade) url += `&target_grade=${encodeURIComponent(targetGrade)}`;
-                
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const payload = await res.json();
-                const data = Array.isArray(payload) ? payload : (payload.items || []);
-                if (!Array.isArray(data) || data.length === 0) {
-                    count.textContent = 'Instrumen belum tersedia';
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">Instrumen belum tersedia untuk jenjang ini.</td></tr>';
-                    return;
-                }
-                const instrumentInfo = payload.instrument || {};
-                const instrumentStatus = instrumentInfo.status ? ` · ${String(instrumentInfo.status).toUpperCase()}` : '';
-                const instrumentVersion = instrumentInfo.version ? ` · v${instrumentInfo.version}` : '';
-                count.textContent = `${data.length} butir${instrumentVersion}${instrumentStatus}`;
-                tbody.innerHTML = data.map((item, index) => `<tr>
-                    <td>${index + 1}</td>
-                    <td>${escapeHtml(item.construct_name || '—')}</td>
-                    <td>${escapeHtml(item.text || '')}</td>
-                    <td>${Number(item.is_reverse) === 1 ? 'Terbalik' : 'Langsung'}</td>
-                </tr>`).join('');
-            } catch (e) {
-                console.error('Gagal memuat instrumen WLC:', e);
-                count.textContent = 'Gagal dimuat';
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--danger);">Instrumen gagal dimuat. Periksa koneksi atau akses API, lalu coba pilih kembali.</td></tr>';
-            }
-        };
+window.loadWLCInstruments = async function(audience, targetGrade) {
+    try {
+        let url = `${API_BASE}/api/wlc-instruments?audience=${encodeURIComponent(audience)}`;
+        if (targetGrade) url += `&target_grade=${encodeURIComponent(targetGrade)}`;
+        
+        const res = await fetch(url); 
+        let data = await res.json();
+        
+        let title = audience === 'KIDS' ? `WLC Kids - ${targetGrade}` : 'WLC Teen (Kuesioner SMP)';
+        document.getElementById('instrumentTitle').textContent = title;
+        
+        const tbody = document.getElementById('soalTableBody');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada data.</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.map((s, i) => `<tr>
+            <td>${i+1}</td>
+            <td>${escapeHtml(s.construct_name)}</td>
+            <td>${escapeHtml(s.text)}</td>
+            <td>
+                <div class="action-group">
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="alert('Fitur edit segera hadir.')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+            </td>
+        </tr>`).join('');
+    } catch (e) { console.error(e); showToast('❌ Terjadi kesalahan sistem.'); }
+};
+
+window.saveNewWlcItem = async function() {
+    const targetVal = document.getElementById('newSoalTarget').value.split('|');
+    const audience = targetVal[0];
+    const target_grade = targetVal[1] || null;
+    const komponen = document.getElementById('newSoalKomponen').value;
+    const text = document.getElementById('newSoalPertanyaan').value;
+
+    if(!komponen || !text) return showToast('❌ Lengkapi form');
+    try {
+        const res = await fetch(`${API_BASE}/api/wlc-items`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({audience, target_grade, construct_name: komponen, text})
+        });
+        if(res.ok) {
+            showToast('✅ Item disimpan!');
+            document.getElementById('newSoalPertanyaan').value = '';
+            document.getElementById('soalFormContainer').classList.add('hidden');
+            await loadWLCInstruments(audience, target_grade);
+        } else {
+            const err = await res.json();
+            showToast('❌ Gagal: ' + (err.error || 'Unknown error'));
+        }
+    } catch (e) { console.error(e); showToast('❌ Terjadi kesalahan sistem.'); }
+};;
 
 window.saveNewSoal = async function() {
             const komponen = document.getElementById('newSoalKomponen').value;
