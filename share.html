@@ -774,12 +774,13 @@
 
         async function initViewer() {
             const certId = getQueryParam('id');
+            const certKey = getQueryParam('key');
             const mainContainer = document.getElementById('mainContent');
             const loadingText = mainContainer ? mainContainer.querySelector('p') : null;
             
             if (loadingText) loadingText.textContent = "Step 1: Inisiasi ID...";
 
-            if (!certId) {
+            if (!certId || !/^[a-f0-9]{64}$/.test(certKey || '')) {
                 mainContainer.innerHTML = `
                     <div style="text-align: center; padding: 3rem; color: #ef4444; background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-md); width: 100%;">
                         <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
@@ -796,7 +797,7 @@
                 const timeoutId = setTimeout(() => controller.abort(), 10000);
                 
                 if (loadingText) loadingText.textContent = `Step 3: Menghubungi API (${API_BASE}/api/public/cert)...`;
-                const res = await fetch(`${API_BASE}/api/public/cert?id=${certId}`, { signal: controller.signal });
+                const res = await fetch(`${API_BASE}/api/public/cert?id=${encodeURIComponent(certId)}&key=${encodeURIComponent(certKey)}`, { signal: controller.signal });
                 clearTimeout(timeoutId);
                 
                 if (loadingText) loadingText.textContent = "Step 4: Menganalisa respon server...";

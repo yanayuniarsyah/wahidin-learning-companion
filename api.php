@@ -4,11 +4,25 @@ if (php_sapi_name() === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['RE
     return false;
 }
 
-// CORS and response headers
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, x-user-role, x-wlc-token");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+// API is same-origin by default. Configure an explicit allowlist only if a
+// separate trusted frontend origin is required.
+if ($allowedOrigins = getenv('WLC_ALLOWED_ORIGINS')) {
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $allowed = array_map('trim', explode(',', $allowedOrigins));
+    if ($origin && in_array($origin, $allowed, true)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+        header('Vary: Origin');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, x-wlc-token');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    }
+}
 header("Content-Type: application/json; charset=UTF-8");
+
+session_set_cookie_params([
+    'lifetime' => 0, 'path' => '/', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'httponly' => true, 'samesite' => 'Strict'
+]);
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
@@ -33,7 +47,7 @@ try {
     $db = new PDO('sqlite:' . $dbPath);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    $db->exec('PRAGMA journal_mode = DELETE;');
+    $db->exec('PRAGMA journal_mode = WAL;');
     $db->exec('PRAGMA busy_timeout = 5000;');
     $db->exec('PRAGMA foreign_keys = ON;');
 } catch (PDOException $e) {
@@ -63,15 +77,18 @@ function jwt_decode($token, $secret) {
     
     list($header64, $payload64, $signature64) = $parts;
     
-    $signature = base64_decode(str_replace(['-', '_'], ['+', '/'], $signature64));
+    $header = json_decode(base64_decode(strtr($header64, '-_', '+/')), true);
+    if (!is_array($header) || ($header['alg'] ?? '') !== 'HS256' || ($header['typ'] ?? '') !== 'JWT') return null;
+    $signature = base64_decode(strtr($signature64, '-_', '+/'));
+    if ($signature === false) return null;
     $expected_signature = hash_hmac('sha256', $header64 . "." . $payload64, $secret, true);
     
     if (!hash_equals($signature, $expected_signature)) {
         return null;
     }
     
-    $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $payload64)), true);
-    if (isset($payload['exp']) && $payload['exp'] < time()) {
+    $payload = json_decode(base64_decode(strtr($payload64, '-_', '+/')), true);
+    if (!is_array($payload) || !isset($payload['exp']) || !is_numeric($payload['exp']) || (int)$payload['exp'] < time()) {
         return null;
     }
     
@@ -82,9 +99,6 @@ function getBearerToken() {
     $authHeader = null;
     
     // Check multiple potential locations for the Authorization header
-    if (isset($_GET['token'])) {
-        return trim($_GET['token']);
-    }
     if (isset($_SERVER['HTTP_X_WLC_TOKEN'])) {
         return trim($_SERVER['HTTP_X_WLC_TOKEN']);
     }
@@ -133,7 +147,51 @@ function authenticateToken() {
         echo json_encode(['error' => 'Invalid or expired token']);
         exit;
     }
+    global $db;
+    if (($decoded['role'] ?? '') === 'siswa') {
+        $studentId = (int)($decoded['reference_id'] ?? $decoded['id'] ?? 0);
+        $stmt = $db->prepare('SELECT id, nama FROM siswa WHERE id = ?');
+        $stmt->execute([$studentId]);
+        $account = $stmt->fetch();
+        if (!$account) { http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit; }
+        $decoded['reference_id'] = (int)$account['id'];
+    } else {
+        $stmt = $db->prepare('SELECT id, username, role FROM users WHERE id = ?');
+        $stmt->execute([(int)($decoded['id'] ?? 0)]);
+        $account = $stmt->fetch();
+        if (!$account || $account['role'] !== ($decoded['role'] ?? '') || $account['username'] !== ($decoded['username'] ?? '')) {
+            http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit;
+        }
+    }
     return $decoded;
+}
+
+function enforceRateLimit(PDO $db, string $scope, int $limit, int $windowSeconds): void {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $key = hash_hmac('sha256', $scope . '|' . $ip, JWT_SECRET);
+    $now = time();
+    $stmt = $db->prepare("INSERT INTO api_rate_limits (rate_key, window_start, request_count) VALUES (?, ?, 1)
+        ON CONFLICT(rate_key) DO UPDATE SET
+        request_count = CASE WHEN window_start < ? THEN 1 ELSE request_count + 1 END,
+        window_start = CASE WHEN window_start < ? THEN excluded.window_start ELSE window_start END");
+    $stmt->execute([$key, $now, $now - $windowSeconds, $now - $windowSeconds]);
+    $stmt = $db->prepare('SELECT request_count FROM api_rate_limits WHERE rate_key = ?');
+    $stmt->execute([$key]);
+    if ((int)$stmt->fetchColumn() > $limit) {
+        http_response_code(429); echo json_encode(['error' => 'Terlalu banyak permintaan. Coba lagi nanti.']); exit;
+    }
+}
+
+function observerCanAccessStudent(PDO $db, array $user, int $studentId): bool {
+    if (($user['role'] ?? '') === 'owner' || ($user['role'] ?? '') === 'evaluator') return true;
+    if (($user['role'] ?? '') !== 'asisten') return false;
+    $stmt = $db->prepare('SELECT siswaIds FROM grup WHERE asistenId = ? OR asistenId = ?');
+    $stmt->execute([(string)($user['username'] ?? ''), (string)($user['id'] ?? '')]);
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $ids) {
+        $assigned = json_decode((string)$ids, true);
+        if (is_array($assigned) && in_array($studentId, array_map('intval', $assigned), true)) return true;
+    }
+    return false;
 }
 
 // Seeding/Init helper functions
@@ -300,6 +358,13 @@ function initDatabase($db) {
         emosional TEXT,
         minat TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+    try { $db->exec('ALTER TABLE kegiatan_wlc ADD COLUMN share_token TEXT'); } catch (Exception $e) {}
+    // Backfill unguessable share keys for certificates that predate this migration.
+    $db->exec("UPDATE kegiatan_wlc SET share_token = lower(hex(randomblob(32))) WHERE share_token IS NULL OR share_token = ''");
+    $db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_kegiatan_share_token ON kegiatan_wlc(share_token)');
+    $db->exec("CREATE TABLE IF NOT EXISTS api_rate_limits (
+        rate_key TEXT PRIMARY KEY, window_start INTEGER NOT NULL, request_count INTEGER NOT NULL
     )");
 
     $db->exec("CREATE INDEX IF NOT EXISTS idx_siswa_sekolah ON siswa(sekolahId)");
@@ -721,12 +786,6 @@ if ($uri === '/api/login' && $method === 'POST') {
     $valid = false;
     if ($user['password'] && strpos($user['password'], '$2') === 0) {
         $valid = password_verify($password, $user['password']);
-    } elseif ($user['password'] === $password) {
-        $valid = true;
-        // Upgrade password to hash
-        $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
-        $stmtUpgrade = $db->prepare('UPDATE users SET password = ? WHERE id = ?');
-        $stmtUpgrade->execute([$hashed, $user['id']]);
     }
 
     if (!$valid) {
@@ -796,6 +855,7 @@ if ($uri === '/api/reset-password' && $method === 'POST') {
 
 // 5.6 Request OTP Endpoint
 if ($uri === '/api/request-otp' && $method === 'POST') {
+    enforceRateLimit($db, 'request-otp', 5, 900);
     $email = $inputBody['email'] ?? '';
     if (!$email) {
         http_response_code(400); echo json_encode(['error' => 'Email diperlukan']); exit;
@@ -888,6 +948,7 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
     if (strlen($new_password) < 8) {
         http_response_code(400); echo json_encode(['error' => 'Password baru minimal 8 karakter']); exit;
     }
+    enforceRateLimit($db, 'reset-otp:' . strtolower((string)$email), 8, 600);
 
     $sanitizedEmail = filter_var($email, FILTER_SANITIZE_EMAIL);
     $stmt = $db->prepare('SELECT id, otp_hash, otp_expires FROM users WHERE email = ?');
@@ -903,6 +964,13 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
         http_response_code(400); echo json_encode(['error' => 'OTP sudah kedaluwarsa']); exit;
     }
     if (!password_verify($otp, $user['otp_hash'])) {
+        // Invalidate after the per-IP limit is reached; this prevents repeated guessing.
+        $attempts = (int)($_SESSION['otp_failures'] ?? 0) + 1;
+        $_SESSION['otp_failures'] = $attempts;
+        if ($attempts >= 5) {
+            $db->prepare('UPDATE users SET otp_hash = NULL, otp_expires = NULL WHERE id = ?')->execute([$user['id']]);
+            unset($_SESSION['otp_failures']);
+        }
         http_response_code(400); echo json_encode(['error' => 'OTP salah']); exit;
     }
 
@@ -910,6 +978,7 @@ if ($uri === '/api/reset-with-otp' && $method === 'POST') {
     $hashed = password_hash($new_password, PASSWORD_BCRYPT, ['cost' => 10]);
     $db->prepare('UPDATE users SET password = ?, otp_hash = NULL, otp_expires = NULL, otp_attempts = 0 WHERE id = ?')
        ->execute([$hashed, $user['id']]);
+    unset($_SESSION['otp_failures']);
 
     echo json_encode(['success' => true]);
     exit;
@@ -1154,14 +1223,21 @@ if ($uri === '/api/siswa/bulk' && $method === 'POST') {
 // 10. Observasi Endpoints
 if ($uri === '/api/observasi') {
     if ($method === 'GET') {
-        authenticateToken();
-        $stmt = $db->query('SELECT o.*, s.nama, s.nisn, sk.nama as namaSekolah, k.nama as namaKelas, b.pertanyaan 
+        $user = authenticateToken();
+        if (!in_array($user['role'] ?? '', ['owner', 'evaluator', 'asisten'], true)) {
+            http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
+        }
+        $sql = 'SELECT o.*, s.nama, s.nisn, sk.nama as namaSekolah, k.nama as namaKelas, b.pertanyaan 
                             FROM observasi o 
                             JOIN siswa s ON o.siswaId = s.id 
                             LEFT JOIN sekolah sk ON s.sekolahId = sk.id
                             LEFT JOIN kelas k ON s.kelasId = k.id
                             JOIN bank_soal b ON o.soalId = b.id 
-                            ORDER BY o.timestamp DESC');
+                            ';
+        if ($user['role'] === 'asisten') $sql .= 'WHERE o.asistenId = ? ';
+        $sql .= 'ORDER BY o.timestamp DESC';
+        $stmt = $db->prepare($sql);
+        $stmt->execute($user['role'] === 'asisten' ? [$user['username']] : []);
         echo json_encode($stmt->fetchAll() ?: []);
         exit;
     } elseif ($method === 'POST') {
@@ -1171,7 +1247,10 @@ if ($uri === '/api/observasi') {
         if (isset($user['role']) && $user['role'] === 'siswa') {
             $siswaId = $user['reference_id'] ?? $user['id'];
         } else {
-            $siswaId = $inputBody['siswaId'] ?? null;
+        if (!in_array($user['role'] ?? '', ['owner', 'evaluator', 'asisten'], true)) {
+            http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
+        }
+        $siswaId = (int)($inputBody['siswaId'] ?? 0);
         }
         
         $soalId = $inputBody['soalId'] ?? null;
@@ -1179,6 +1258,13 @@ if ($uri === '/api/observasi') {
         // Verify asistenId matches logged in username (or default to it) to prevent spoofing
         $asistenId = $user['username'];
 
+        $soalId = (int)$soalId;
+        if ($siswaId < 1 || $soalId < 1 || !is_numeric($skor) || (int)$skor < 1 || (int)$skor > 4 || !observerCanAccessStudent($db, $user, $siswaId)) {
+            http_response_code(400); echo json_encode(['error' => 'Data observasi tidak valid atau siswa bukan tanggung jawab asisten']); exit;
+        }
+        $check = $db->prepare('SELECT 1 FROM siswa WHERE id = ?'); $check->execute([$siswaId]);
+        $checkSoal = $db->prepare('SELECT 1 FROM bank_soal WHERE id = ?'); $checkSoal->execute([$soalId]);
+        if (!$check->fetchColumn() || !$checkSoal->fetchColumn()) { http_response_code(400); echo json_encode(['error' => 'Siswa atau soal tidak ditemukan']); exit; }
         $stmt = $db->prepare('INSERT INTO observasi (siswaId, soalId, skor, asistenId) VALUES (?, ?, ?, ?)');
         $stmt->execute([$siswaId, $soalId, $skor, $asistenId]);
         echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
@@ -1188,6 +1274,7 @@ if ($uri === '/api/observasi') {
 
 if ($uri === '/api/observasi/bulk' && $method === 'POST') {
     $user = authenticateToken();
+    if (!in_array($user['role'] ?? '', ['owner', 'evaluator', 'asisten'], true)) { http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit; }
     $scores = $inputBody['scores'] ?? null;
     $asistenId = $user['username']; // enforce token identity
 
@@ -1203,7 +1290,14 @@ if ($uri === '/api/observasi/bulk' && $method === 'POST') {
         foreach ($scores as $soalIndex => $muridScores) {
             $soalId = (int)$soalIndex + 1;
             foreach ($muridScores as $muridId => $skor) {
-                $stmt->execute([$muridId, $soalId, $skor, $asistenId]);
+                $studentId = (int)$muridId;
+                if ($studentId < 1 || !is_numeric($skor) || (int)$skor < 1 || (int)$skor > 4 || !observerCanAccessStudent($db, $user, $studentId)) {
+                    throw new RuntimeException('Invalid observation assignment or score');
+                }
+                $exists = $db->prepare('SELECT 1 FROM siswa WHERE id = ?'); $exists->execute([$studentId]);
+                $questionExists = $db->prepare('SELECT 1 FROM bank_soal WHERE id = ?'); $questionExists->execute([$soalId]);
+                if (!$exists->fetchColumn() || !$questionExists->fetchColumn()) throw new RuntimeException('Unknown student or question');
+                $stmt->execute([$studentId, $soalId, (int)$skor, $asistenId]);
             }
         }
         $db->commit();
@@ -1218,6 +1312,7 @@ if ($uri === '/api/observasi/bulk' && $method === 'POST') {
 
 // 10.b Verify Student for Parent Reflection (Public Endpoint)
 if ($uri === '/api/reflection/verify-student' && $method === 'POST') {
+    enforceRateLimit($db, 'reflection-verify', 8, 900);
     $nama = trim($inputBody['nama'] ?? '');
     $nisn = trim($inputBody['nisn'] ?? '');
 
@@ -1236,6 +1331,9 @@ if ($uri === '/api/reflection/verify-student' && $method === 'POST') {
     $student = $stmt->fetch();
 
     if ($student) {
+        session_regenerate_id(true);
+        $_SESSION['verified_reflection_student'] = (int)$student['id'];
+        $_SESSION['verified_reflection_expires'] = time() + 1800;
         echo json_encode(['success' => true, 'student' => $student]);
     } else {
         http_response_code(404);
@@ -1285,9 +1383,12 @@ if ($uri === '/api/reflection') {
         echo json_encode($formatted);
         exit;
     } elseif ($method === 'POST') {
-        // Kept open without authenticateToken() so parent users can insert observations,
-        // but sanitizing and restricting to insert only.
-        $siswaId = $inputBody['siswaId'] ?? null;
+        enforceRateLimit($db, 'reflection-submit', 3, 3600);
+        $siswaId = (int)($_SESSION['verified_reflection_student'] ?? 0);
+        $verifiedUntil = (int)($_SESSION['verified_reflection_expires'] ?? 0);
+        if (!$siswaId || $verifiedUntil < time() || $siswaId !== (int)($inputBody['siswaId'] ?? 0)) {
+            http_response_code(403); echo json_encode(['error' => 'Verifikasi siswa diperlukan atau sudah kedaluwarsa']); exit;
+        }
         $parentName = $inputBody['parent_name'] ?? null;
         $kesiapan = $inputBody['kesiapan'] ?? null;
         $fokus = $inputBody['fokus'] ?? null;
@@ -1297,14 +1398,20 @@ if ($uri === '/api/reflection') {
         $minat = $inputBody['minat'] ?? null;
         $catatan = $inputBody['catatan'] ?? '';
 
-        if (!$siswaId || !$parentName) {
+        if (!$parentName || strlen($parentName) > 480 || strlen((string)$catatan) > 8000) {
             http_response_code(400);
-            echo json_encode(['error' => 'Siswa dan Nama Orang Tua wajib diisi']);
+            echo json_encode(['error' => 'Nama orang tua atau catatan tidak valid']);
             exit;
+        }
+        foreach ([$kesiapan, $fokus, $kemandirian, $ketekunan, $emosional, $minat] as $rating) {
+            if (!is_numeric($rating) || (int)$rating < 1 || (int)$rating > 4) {
+                http_response_code(400); echo json_encode(['error' => 'Nilai refleksi harus 1 sampai 4']); exit;
+            }
         }
         $stmt = $db->prepare('INSERT INTO parent_reflections (siswaId, parentName, kesiapan, fokus, kemandirian, ketekunan, emosional, minat, catatan) 
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([$siswaId, $parentName, $kesiapan, $fokus, $kemandirian, $ketekunan, $emosional, $minat, $catatan]);
+        unset($_SESSION['verified_reflection_student'], $_SESSION['verified_reflection_expires']);
         echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
         exit;
     }
@@ -1350,29 +1457,33 @@ if ($uri === '/api/kegiatan-wlc') {
             exit;
         }
 
-        $stmt = $db->prepare('INSERT INTO kegiatan_wlc (siswaId, wlc_tipe, tanggal, org_name, kesiapan, fokus, respons, kemandirian, ketekunan, emosional, minat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$siswaId, $wlc_tipe, $tanggal, $org_name, $kesiapan, $fokus, $respons, $kemandirian, $ketekunan, $emosional, $minat]);
-        echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
+        $shareToken = bin2hex(random_bytes(32));
+        $stmt = $db->prepare('INSERT INTO kegiatan_wlc (siswaId, wlc_tipe, tanggal, org_name, kesiapan, fokus, respons, kemandirian, ketekunan, emosional, minat, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$siswaId, $wlc_tipe, $tanggal, $org_name, $kesiapan, $fokus, $respons, $kemandirian, $ketekunan, $emosional, $minat, $shareToken]);
+        echo json_encode(['success' => true, 'id' => $db->lastInsertId(), 'share_token' => $shareToken]);
         exit;
     }
 }
 
 if ($uri === '/api/public/cert' && $method === 'GET') {
     $id = $queryParams['id'] ?? null;
-    if (!$id) {
-        http_response_code(400);
-        echo json_encode(['error' => 'ID sertifikat wajib diberikan']);
+    $shareToken = $queryParams['key'] ?? '';
+    if (!$id || !preg_match('/^[a-f0-9]{64}$/', (string)$shareToken)) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Sertifikat tidak ditemukan']);
         exit;
     }
     $stmt = $db->prepare('
-        SELECT k.*, s.nama as namaSiswa, s.nisn, sk.nama as namaSekolah, kl.nama as namaKelas
+        SELECT k.wlc_tipe, k.tanggal, k.org_name, k.kesiapan, k.fokus, k.respons,
+               k.kemandirian, k.ketekunan, k.emosional, k.minat,
+               s.nama as namaSiswa, sk.nama as namaSekolah, kl.nama as namaKelas
         FROM kegiatan_wlc k
         JOIN siswa s ON k.siswaId = s.id
         LEFT JOIN sekolah sk ON s.sekolahId = sk.id
         LEFT JOIN kelas kl ON s.kelasId = kl.id
-        WHERE k.id = ?
+        WHERE k.id = ? AND k.share_token = ?
     ');
-    $stmt->execute([$id]);
+    $stmt->execute([$id, $shareToken]);
     $cert = $stmt->fetch();
     if (!$cert) {
         http_response_code(404);

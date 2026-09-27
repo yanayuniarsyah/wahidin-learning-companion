@@ -58,6 +58,9 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 @media(min-width:1025px){
   body.has-sidebar .sidebar { left: 0; width: 260px; }
   body.has-sidebar .container { margin-left: 260px; max-width: calc(100% - 260px); transition: margin-left 0.3s, max-width 0.3s; }
+  body.has-sidebar.sidebar-collapsed .sidebar { left: -260px; }
+  body.has-sidebar.sidebar-collapsed .container { margin-left: 0; max-width: 100%; }
+  body.has-sidebar .sidebar-toggle { display: flex; }
   .sidebar-overlay { display: none!important; }
 }
 /* Scrollbar Styling */
@@ -971,10 +974,41 @@ const rubrikSkoring = {
             const sidebar = document.getElementById('ownerSidebar');
             const overlay = document.getElementById('sidebarOverlay');
             if (sidebar && overlay) {
+                const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+                if (isDesktop) {
+                    document.body.classList.toggle('sidebar-collapsed');
+                    sidebar.classList.toggle('open', !document.body.classList.contains('sidebar-collapsed'));
+                    return;
+                }
                 const isOpen = sidebar.classList.toggle('open');
                 overlay.classList.toggle('open', isOpen);
             }
         };
+
+        window.closeSidebarAfterNavigation = function() {
+            const sidebar = document.getElementById('ownerSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar) return;
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('open');
+            if (window.matchMedia('(min-width: 1025px)').matches) document.body.classList.add('sidebar-collapsed');
+        };
+        document.getElementById('ownerSidebar')?.addEventListener('click', event => {
+            if (event.target.closest('.sidebar-nav a')) window.closeSidebarAfterNavigation();
+        });
+
+                // Auto-hide sidebar on mobile when any link is clicked
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('#ownerSidebar .sidebar-nav a');
+            if (link) {
+                const sidebar = document.getElementById('ownerSidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (sidebar && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    if (overlay) overlay.classList.remove('open');
+                }
+            }
+        });
 
         window.setActiveSidebar = function(navId) {
             sessionStorage.setItem('wlc_active_nav', navId);
@@ -987,13 +1021,7 @@ const rubrikSkoring = {
                 }
             });
             
-            // Close sidebar on mobile
-            const sidebar = document.getElementById('ownerSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar && sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('open');
-            }
+            window.closeSidebarAfterNavigation();
         };
 
         window.navigateOwner = function(targetDashboardId) {
@@ -1709,6 +1737,7 @@ if (typeof endpoint === 'string') {
             
             // Hide and clean up sidebar
             document.body.classList.remove('has-sidebar');
+            document.body.classList.remove('sidebar-collapsed');
             const sidebar = document.getElementById('ownerSidebar');
             if (sidebar) {
                 sidebar.classList.add('hidden');
@@ -1730,6 +1759,7 @@ if (typeof endpoint === 'string') {
             
             // SIDEBAR SELALU ADA SETELAH LOGIN (TETAP ADA DI KONDISI APAPUN)
             document.body.classList.add('has-sidebar');
+            document.body.classList.remove('sidebar-collapsed');
             const sidebar = document.getElementById('ownerSidebar');
             if (sidebar) sidebar.classList.remove('hidden');
             const toggleBtn = document.getElementById('sidebarToggle');
@@ -1740,6 +1770,13 @@ if (typeof endpoint === 'string') {
                 history.replaceState({ wlcDashboard: homeId }, '', `#${homeId}`);
             }
 
+            if (role !== 'owner') {
+                const toRemove = ['ownerDashboard', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageCertDashboard', 'manageSettingsDashboard'];
+                toRemove.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.remove();
+                });
+            }
             if (role === 'owner') {
                 document.getElementById('ownerDashboard').classList.remove('hidden');
                 window.setActiveSidebar('ownerDashboard');
@@ -3822,8 +3859,8 @@ window.executePrintSiswa = function() {
                                     <td>${escapeHtml(c.kemandirian || '-')}</td>
                                     <td>
                                         <div style="display:flex; gap:0.5rem; justify-content:center;">
-                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--primary); color: white;" onclick="viewSavedCert(${c.id})"><i class="fas fa-eye"></i> Lihat</button>
-                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--accent); color: white;" onclick="shareSavedCert(${c.id})"><i class="fas fa-share-alt"></i> Share</button>
+                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--primary); color: white;" onclick="viewSavedCert(${c.id}, '${c.share_token || ''}')"><i class="fas fa-eye"></i> Lihat</button>
+                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--accent); color: white;" onclick="shareSavedCert(${c.id}, '${c.share_token || ''}')"><i class="fas fa-share-alt"></i> Share</button>
                                             <button class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background:#ef4444;" onclick="deleteSavedCert(${c.id})"><i class="fas fa-trash-alt"></i></button>
                                         </div>
                                     </td>
@@ -3838,12 +3875,14 @@ window.executePrintSiswa = function() {
             }
         };
 
-        window.viewSavedCert = function(id) {
-            window.open(`${API_BASE}/share.html?id=${id}&v=${Date.now()}`, '_blank');
+        window.viewSavedCert = function(id, key) {
+            if (!/^[a-f0-9]{64}$/.test(key || '')) { showToast('⚠️ Kunci sertifikat tidak valid. Muat ulang riwayat.'); return; }
+            window.open(`${API_BASE}/share.html?id=${id}&key=${encodeURIComponent(key)}&v=${Date.now()}`, '_blank');
         };
 
-        window.shareSavedCert = function(id) {
-            const link = `${API_BASE}/share.html?id=${id}`;
+        window.shareSavedCert = function(id, key) {
+            if (!/^[a-f0-9]{64}$/.test(key || '')) { showToast('⚠️ Kunci sertifikat tidak valid. Muat ulang riwayat.'); return; }
+            const link = `${API_BASE}/share.html?id=${id}&key=${encodeURIComponent(key)}`;
             document.getElementById('qrShareImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
             window.currentShareLink = link;
             document.getElementById('qrShareModal').classList.remove('hidden');
@@ -3918,7 +3957,7 @@ window.executePrintSiswa = function() {
                     const result = await res.json();
                     showToast('✅ Kegiatan WLC disimpan!');
                     await loadCertHistory(siswaId);
-                    window.open(`${API_BASE}/share.html?id=${result.id}&v=${Date.now()}`, '_blank');
+                    window.open(`${API_BASE}/share.html?id=${result.id}&key=${encodeURIComponent(result.share_token)}&v=${Date.now()}`, '_blank');
                 } else {
                     showToast('⚠️ Gagal menyimpan kegiatan.');
                 }
