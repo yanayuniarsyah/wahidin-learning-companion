@@ -1792,19 +1792,38 @@ const rubrikSkoring = {
         };
 
         async function loadSoalTable() {
-            try {
-                const res = await fetch(`${API_BASE}/api/bank-soal?wlc=1`); 
-                let data = await res.json();
-                data = getSortedData(data);
-const tbody = document.getElementById('soalTableBody');
-                tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.komponen)}</td><td>${escapeHtml(s.indikator || '-')}</td><td>${escapeHtml(s.pertanyaan)}</td><td>
-                    <div class="action-group">
-                        <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSoal(${s.id})"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn-action btn-delete-alt" onclick="deleteData('bank_soal', ${s.id}, loadSoalTable)"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td></tr>`).join('');
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+            await loadWLCInstruments('KIDS', 'TK');
         }
+
+        window.loadWLCInstruments = async function(audience, targetGrade) {
+            try {
+                let url = `${API_BASE}/api/wlc-instruments?audience=${encodeURIComponent(audience)}`;
+                if (targetGrade) url += `&target_grade=${encodeURIComponent(targetGrade)}`;
+                
+                const res = await fetch(url); 
+                let data = await res.json();
+                
+                let title = audience === 'KIDS' ? `WLC Kids - ${targetGrade}` : 'WLC Teen (Kuesioner SMP)';
+                document.getElementById('instrumentTitle').textContent = title;
+                
+                const tbody = document.getElementById('soalTableBody');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada data.</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map((s, i) => `<tr>
+                    <td>${i+1}</td>
+                    <td>${escapeHtml(s.construct_name)}</td>
+                    <td>${escapeHtml(s.text)}</td>
+                    <td>
+                        <div class="action-group">
+                            <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="alert('Fitur edit segera hadir.')"><i class="fas fa-edit"></i> Edit</button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+            } catch (e) { console.error(e); showToast('❌ Terjadi kesalahan sistem.'); }
+        };
 
 window.saveNewSoal = async function() {
             const komponen = document.getElementById('newSoalKomponen').value;

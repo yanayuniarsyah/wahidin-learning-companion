@@ -488,6 +488,52 @@ if ($uri === '/api/restore' && $method === 'POST') {
     exit;
 }
 
+    
+if ($uri === '/api/wlc-instruments' && $method === 'GET') {
+    authenticateToken();
+    $audience = $_GET['audience'] ?? 'KIDS'; // 'KIDS' or 'SMP Self-Report'
+    $targetGrade = $_GET['target_grade'] ?? 'TK';
+    
+    // Find the instrument ID
+    if ($audience === 'KIDS') {
+        $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE audience = ? AND target_grade = ?");
+        $stmt->execute([$audience, $targetGrade]);
+    } else {
+        $stmt = $db->prepare("SELECT id FROM wlc_instruments WHERE audience = ?");
+        $stmt->execute([$audience]);
+    }
+    
+    $inst = $stmt->fetch();
+    if (!$inst) {
+        echo json_encode([]);
+        exit;
+    }
+    
+    $instId = $inst['id'];
+    
+    // Fetch constructs and items
+    $stmt = $db->prepare("
+        SELECT i.id, c.name as construct_name, i.text, i.is_reverse 
+        FROM wlc_items i 
+        JOIN wlc_constructs c ON i.construct_id = c.id 
+        WHERE c.instrument_id = ?
+        ORDER BY c.id, i.id
+    ");
+    $stmt->execute([$instId]);
+    echo json_encode($stmt->fetchAll());
+    exit;
+}
+
+if ($uri === '/api/wlc-items' && $method === 'POST') {
+    $user = authenticateToken();
+    if ($user['role'] !== 'owner') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+    // Note: Creating items requires selecting construct. For simplicity, we just update for now.
+}
+
 // 2. Bank Soal Endpoints
 if ($uri === '/api/bank-soal') {
     if ($method === 'GET') {
