@@ -159,7 +159,7 @@ function authenticateToken() {
         if (!$account) { http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit; }
         $decoded['reference_id'] = (int)$account['id'];
     } else {
-        $stmt = $db->prepare('SELECT id, username, role, token_version FROM users WHERE id = ?');
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
         $stmt->execute([(int)($decoded['id'] ?? 0)]);
         $account = $stmt->fetch();
         if (!$account || $account['role'] !== ($decoded['role'] ?? '') || $account['username'] !== ($decoded['username'] ?? '') ||
@@ -1680,4 +1680,5 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
 // 404 Route Fallback
 http_response_code(404);
 echo json_encode(['error' => 'Endpoint not found']);
+
 
