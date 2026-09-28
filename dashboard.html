@@ -254,6 +254,15 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
         <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newSiswaSekolah" onchange="updateKelasDropdownSiswa()"></select></div>
         <div class="form-group"><label class="form-label">Kelas</label><select class="form-input" id="newSiswaKelas"></select></div>
     </div>
+    <div class="form-row">
+        <div class="form-group"><label class="form-label">Status Leads</label><select class="form-input" id="newSiswaStatus">
+            <option value="Belum Dihubungi">Belum Dihubungi</option>
+            <option value="Coba Gratis">Coba Gratis</option>
+            <option value="Daftar">Daftar</option>
+            <option value="Menolak">Menolak</option>
+        </select></div>
+        <div class="form-group"><label class="form-label">Catatan Marketing</label><input type="text" class="form-input" id="newSiswaCatatan" placeholder="Catatan hasil telepon..."></div>
+    </div>
     <button class="btn btn-primary" onclick="saveNewSiswa()" style="width:100%;margin-top:1.5rem;height:50px;font-weight:700;"><i class="fas fa-save"></i> Simpan Siswa</button>
 </div>
 
@@ -670,6 +679,8 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
             <th class="sort-header" onclick="sortAndRender('siswa', 'nisn')">NISN</th>
             <th class="sort-header" onclick="sortAndRender('siswa', 'namaSekolah')">Sekolah</th>
             <th class="sort-header" onclick="sortAndRender('siswa', 'namaKelas')">Kelas</th>
+            <th class="sort-header" onclick="sortAndRender('siswa', 'status_kumon')">Status Leads</th>
+            <th>Catatan</th>
             <th>Aksi</th>
         </tr>
     </thead>
@@ -2083,10 +2094,18 @@ window.saveNewSoal = async function() {
             }
         }
 
+        function getSiswaBadgeColor(status) {
+            if (!status || status === 'Belum Dihubungi') return 'secondary';
+            if (status === 'Coba Gratis') return 'warning';
+            if (status === 'Daftar') return 'success';
+            if (status === 'Menolak') return 'danger';
+            return 'primary';
+        }
+
         function renderSiswaTable(filteredData) {
             const data = filteredData || allSiswaData;
             const tbody = document.getElementById('siswaTableBody');
-            tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td>
+            tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td><span class="badge badge-${getSiswaBadgeColor(s.status_kumon)}">${escapeHtml(s.status_kumon || 'Belum Dihubungi')}</span></td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(s.catatan_marketing || '')}">${escapeHtml(s.catatan_marketing || '-')}</td><td>
                 <div class="action-group">
                     <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
                     <button class="btn-action btn-delete-alt" onclick="deleteData('siswa', ${s.id}, loadSiswaTable)"><i class="fas fa-trash"></i></button>
@@ -2530,6 +2549,23 @@ window.saveNewSoal = async function() {
                     val:s.kelasId, 
                     type:'select', 
                     options: classes.filter(k => k.sekolahId == s.sekolahId).map(k => ({label: k.nama, value: k.id}))
+                },
+                {
+                    key:'status_kumon', 
+                    label:'Status Leads', 
+                    val:s.status_kumon || 'Belum Dihubungi', 
+                    type:'select', 
+                    options:[
+                        {label:'Belum Dihubungi',value:'Belum Dihubungi'},
+                        {label:'Coba Gratis',value:'Coba Gratis'},
+                        {label:'Daftar',value:'Daftar'},
+                        {label:'Menolak',value:'Menolak'}
+                    ]
+                },
+                {
+                    key:'catatan_marketing', 
+                    label:'Catatan Marketing', 
+                    val:s.catatan_marketing || ''
                 }
             ], loadSiswaTable);
         };
@@ -4447,6 +4483,12 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 

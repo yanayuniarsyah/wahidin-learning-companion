@@ -272,6 +272,9 @@ function initDatabase($db) {
         kelasId INTEGER
     )");
     
+    try { $db->exec("ALTER TABLE siswa ADD COLUMN status_kumon TEXT DEFAULT 'Belum Dihubungi'"); } catch(Exception $e) {}
+    try { $db->exec("ALTER TABLE siswa ADD COLUMN catatan_marketing TEXT"); } catch(Exception $e) {}
+
     $db->exec("CREATE TABLE IF NOT EXISTS bank_soal (
         id INTEGER PRIMARY KEY,
         wlc INTEGER,
@@ -1178,7 +1181,8 @@ if ($uri === '/api/kelas') {
 if ($uri === '/api/grup') {
     if ($method === 'GET') {
         authenticateToken();
-        $stmt = $db->query('SELECT g.*, j.sekolahId, j.tanggal, s.nama as namaSekolah 
+        $stmt = $db->query('SELECT g.id, g.nama, g.jadwalId, g.asistenId, g.created, j.sekolahId, j.tanggal, s.nama as namaSekolah, 
+                            (SELECT json_group_array(siswaId) FROM grup_siswa WHERE grupId = g.id) as siswaIds
                             FROM grup g 
                             LEFT JOIN jadwal j ON g.jadwalId = j.id 
                             LEFT JOIN sekolah s ON j.sekolahId = s.id 
@@ -1202,9 +1206,24 @@ if ($uri === '/api/grup') {
             echo json_encode(['error' => 'All fields required']);
             exit;
         }
-        $stmt = $db->prepare('INSERT INTO grup (nama, jadwalId, asistenId, siswaIds) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$nama, $jadwalId, $asistenId, $siswaIds]);
-        echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
+        $db->beginTransaction();
+        try {
+            $stmt = $db->prepare('INSERT INTO grup (nama, jadwalId, asistenId, siswaIds) VALUES (?, ?, ?, ?)');
+            $stmt->execute([$nama, $jadwalId, $asistenId, $siswaIds]);
+            $grupId = $db->lastInsertId();
+            
+            $insertStmt = $db->prepare('INSERT INTO grup_siswa (grupId, siswaId) VALUES (?, ?)');
+            $ids = json_decode($siswaIds, true);
+            if(is_array($ids)) {
+                foreach($ids as $sId) $insertStmt->execute([$grupId, (int)$sId]);
+            }
+            $db->commit();
+            echo json_encode(['success' => true, 'id' => $grupId]);
+        } catch (Exception $e) {
+            $db->rollBack();
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
         exit;
     }
 }
@@ -1629,7 +1648,7 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
             'users' => ['username', 'password', 'role'],
             'sekolah' => ['nama', 'alamat', 'kota', 'status'],
             'kelas' => ['nama', 'tingkat', 'sekolahId'],
-            'siswa' => ['nama', 'nisn', 'sekolahId', 'kelasId'],
+            'siswa' => ['nama', 'nisn', 'sekolahId', 'kelasId', 'status_kumon', 'catatan_marketing'],
             'jadwal' => ['sekolahId', 'tanggal', 'status', 'catatan'],
             'grup' => ['nama', 'jadwalId', 'asistenId', 'siswaIds'],
             'bank_soal' => ['wlc', 'type', 'komponen', 'indikator', 'pertanyaan', 'contoh'],
@@ -1668,6 +1687,14 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
             if ($table === 'users' && isset($inputBody['password'])) {
                 $db->prepare('UPDATE users SET token_version = token_version + 1 WHERE id = ?')->execute([$id]);
             }
+            if ($table === 'grup' && in_array('siswaIds', $keys)) {
+                $db->prepare('DELETE FROM grup_siswa WHERE grupId = ?')->execute([$id]);
+                $insertStmt = $db->prepare('INSERT INTO grup_siswa (grupId, siswaId) VALUES (?, ?)');
+                $ids = json_decode($inputBody['siswaIds'], true);
+                if(is_array($ids)) {
+                    foreach($ids as $sId) $insertStmt->execute([$id, (int)$sId]);
+                }
+            }
             echo json_encode(['success' => true, 'changes' => $stmt->rowCount()]);
         } catch (Exception $e) {
             http_response_code(500);
@@ -1680,5 +1707,8 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
 // 404 Route Fallback
 http_response_code(404);
 echo json_encode(['error' => 'Endpoint not found']);
+
+
+
 
 

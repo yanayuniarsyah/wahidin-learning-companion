@@ -54,9 +54,21 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .sidebar-nav{list-style:none;padding:0;margin:0;flex:1;overflow-y:auto;}
 .sidebar-nav a{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;font-size:0.9rem;transition:all 0.2s ease;border-left:3px solid transparent;}
 .sidebar-nav a:hover,.sidebar-nav a.active{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);}
-.sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
+.sidebar-toggle{position:fixed;top:1rem;left:1rem;right:auto;bottom:auto;width:52px;height:52px;border-radius:12px;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:1002;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
 @media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
-@media(min-width:1025px){body.has-sidebar .sidebar{left:0;}body.has-sidebar .container{margin-left:260px;max-width:calc(100% - 260px);}.sidebar-overlay{display:none!important;}}
+@media(min-width:1025px){
+  body.has-sidebar .sidebar { left: 0; width: 260px; }
+  body.has-sidebar .container { margin-left: 260px; max-width: calc(100% - 260px); transition: margin-left 0.3s, max-width 0.3s; }
+  body.has-sidebar.sidebar-collapsed .sidebar { left: -260px; }
+  body.has-sidebar.sidebar-collapsed .container { margin-left: 0; max-width: 100%; }
+  body.has-sidebar .sidebar-toggle { display: flex; }
+  .sidebar-overlay { display: none!important; }
+}
+/* Scrollbar Styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { filter: brightness(1.1); }
 .notification{position:fixed;bottom:2rem;right:2rem;background:#27272a;color:white;padding:1rem 1.5rem;border-radius:8px;font-weight:500;box-shadow:var(--shadow-lg);z-index:2000;}
 .soal-counter{text-align:center;margin-bottom:2rem;}
 .soal-number{font-size:3rem;color:var(--primary);font-weight:800;line-height:1;}
@@ -75,6 +87,7 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .menu-btn:hover i { transform: scale(1.15); }
 .sidebar-nav a i { font-size: 1.25rem; width: 28px; text-align: center; transition: transform 0.2s ease; }
 .sidebar-nav a:hover i { transform: scale(1.1); }
+.sidebar-group-label { display: block; padding: 0.6rem 1.5rem 0.3rem; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(209,176,115,0.45); margin-top: 0.5rem; }
 .edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:3000;opacity:0;visibility:hidden;transition:all 0.3s;}
 .edit-modal-overlay.show{opacity:1;visibility:visible;}
 .edit-modal-card{background:white;padding:2rem;border-radius:var(--radius-lg);width:90%;max-width:500px;box-shadow:var(--shadow-lg);transform:translateY(20px);transition:all 0.3s;max-height:90vh;overflow-y:auto;}
@@ -206,7 +219,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
     <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
     <div class="form-group"><label class="form-label">Email (Untuk Lupa Password)</label><input type="email" class="form-input" id="newUserEmail" placeholder="email@contoh.com"></div>
-    <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******"></div>
+    <div class="form-group" style="position:relative;"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******" style="padding-right:3rem;"><i class="fas fa-eye" style="position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('newUserPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i></div>
     <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
     <button class="btn btn-primary" onclick="saveNewUser()" style="width:100%;margin-top:1rem;"><i class="fas fa-save"></i> Simpan User</button>
 </div>
@@ -241,26 +254,60 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
         <div class="form-group"><label class="form-label">Sekolah</label><select class="form-input" id="newSiswaSekolah" onchange="updateKelasDropdownSiswa()"></select></div>
         <div class="form-group"><label class="form-label">Kelas</label><select class="form-input" id="newSiswaKelas"></select></div>
     </div>
+    <div class="form-row">
+        <div class="form-group"><label class="form-label">Status Leads</label><select class="form-input" id="newSiswaStatus">
+            <option value="Belum Dihubungi">Belum Dihubungi</option>
+            <option value="Coba Gratis">Coba Gratis</option>
+            <option value="Daftar">Daftar</option>
+            <option value="Menolak">Menolak</option>
+        </select></div>
+        <div class="form-group"><label class="form-label">Catatan Marketing</label><input type="text" class="form-input" id="newSiswaCatatan" placeholder="Catatan hasil telepon..."></div>
+    </div>
     <button class="btn btn-primary" onclick="saveNewSiswa()" style="width:100%;margin-top:1.5rem;height:50px;font-weight:700;"><i class="fas fa-save"></i> Simpan Siswa</button>
 </div>
 
 <div id="soalFormContainer" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Soal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-row">
-        <div class="form-group"><label class="form-label">Komponen</label><select class="form-input" id="newSoalKomponen">
-            <option value="Kesiapan">Transisi ke Belajar</option>
-            <option value="Fokus">Keterlibatan Tugas</option>
-            <option value="Instruksi">Penerapan Instruksi</option>
-            <option value="Kemandirian">Inisiatif Penyelesaian</option>
-            <option value="Ketekunan">Respons terhadap Kendala</option>
-            <option value="Emosi">Ekspresi Perilaku</option>
-            <option value="Minat">Partisipasi Aktif</option>
-        </select></div>
-        <div class="form-group"><label class="form-label">Indikator</label><input type="text" class="form-input" id="newSoalIndikator" placeholder="Contoh: Siswa fokus mengerjakan..."></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Tambah Item Instrumen</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('soalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
+    <div class="form-group">
+        <label class="form-label">Tujuan Penambahan (Audience / Grade)</label>
+        <select class="form-input" id="newSoalTarget" onchange="updateKomponenOptions(this.value)">
+            <option value="KIDS|TK">WLC Kids - TK</option>
+            <option value="KIDS|SD 1-3">WLC Kids - SD 1-3</option>
+            <option value="KIDS|SD 4-6">WLC Kids - SD 4-6</option>
+            <option value="TEEN|SMP">WLC Teen / SMP</option>
+        </select>
     </div>
-    <div class="form-group"><label class="form-label">Pertanyaan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pertanyaan lengkap..."></div>
-    <button class="btn btn-primary" onclick="saveNewSoal()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Soal</button>
+    <div class="form-group">
+        <label class="form-label">Komponen / Konstruk</label>
+        <select class="form-input" id="newSoalKomponen">
+            <!-- Populated by JS -->
+        </select>
+    </div>
+    <script>
+        const KIDS_KOMPONEN = ['Kesiapan','Fokus','Instruksi','Kemandirian','Ketekunan','Emosi','Minat'];
+        const TEEN_KOMPONEN = ['Regulasi Emosi','Motivasi Belajar','Kemandirian Belajar','Manajemen Waktu','Resiliensi'];
+        function updateKomponenOptions(targetVal) {
+            const select = document.getElementById('newSoalKomponen');
+            if(!select) return;
+            select.innerHTML = '';
+            const opts = targetVal.startsWith('KIDS') ? KIDS_KOMPONEN : TEEN_KOMPONEN;
+            opts.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt;
+                el.textContent = opt;
+                select.appendChild(el);
+            });
+        }
+        // Initialize once
+        setTimeout(() => {
+            const tgt = document.getElementById('newSoalTarget');
+            if(tgt) updateKomponenOptions(tgt.value);
+        }, 500);
+    </script>
+    <div class="form-group"><label class="form-label">Pertanyaan / Pernyataan</label><input type="text" class="form-input" id="newSoalPertanyaan" placeholder="Pernyataan lengkap..."></div>
+    <button class="btn btn-primary" onclick="saveNewWlcItem()" style="width:100%;margin-top:0.5rem;"><i class="fas fa-save"></i> Simpan Item</button>
 </div>
+
 
 <div id="jadwalFormContainer" class="hidden">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;"><i class="fas fa-calendar-plus"></i> Tambah Jadwal Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('jadwalFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
@@ -313,27 +360,38 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 </div>
 <ul class="sidebar-nav">
-<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> Beranda</a></li>
-<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> Users</a></li>
-<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> Sekolah & Kelas</a></li>
-<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> Jadwal</a></li>
-<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
-<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Bagi Grup</a></li>
-<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Komponen Observasi</a></li>
-<li id="navWlcKids"><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> Observasi WLC Kids</a></li>
-<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat WLC</a></li>
-<li><a href="#" onclick="openContohSertifikat();return false;"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</a></li>
-<li><a href="#" onclick="openPrintSiswa();return false;" data-nav="printSiswaDashboard"><i class="fas fa-print"></i> Cetak Siswa</a></li>
-<li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> Growth Check</a></li>
-<li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> Refleksi Ortu</a></li>
-<li><a href="#" onclick="openManageSettings();return false;" data-nav="manageSettingsDashboard"><i class="fas fa-cog"></i> Pengaturan</a></li>
+<li><a href="#" class="active" onclick="navigateOwner('ownerDashboard');return false;" data-nav="ownerDashboard"><i class="fas fa-home"></i> <span class="nav-text">Beranda</span></a></li>
+
+<li><span class="sidebar-group-label">Data</span></li>
+<li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> <span class="nav-text">Siswa</span></a></li>
+<li><a href="#" onclick="manageSekolah();return false;" data-nav="manageSekolahDashboard"><i class="fas fa-school"></i> <span class="nav-text">Sekolah & Kelas</span></a></li>
+<li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> <span class="nav-text">Group</span></a></li>
+<li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> <span class="nav-text">Instrumen</span></a></li>
+
+<li><span class="sidebar-group-label">Laporan & Analitik</span></li>
+<li><a href="#" onclick="viewReports();return false;" data-nav="viewReportsDashboard"><i class="fas fa-chart-bar"></i> <span class="nav-text">Laporan Observasi</span></a></li>
+<li><a href="#" onclick="analyticsOverview();return false;" data-nav="analyticsDashboard"><i class="fas fa-chart-pie"></i> <span class="nav-text">Analitik Siswa</span></a></li>
+<li><span class="sidebar-group-label">WLC</span></li>
+<li id="navWlcKids"><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> <span class="nav-text">WLC Kids</span></a></li>
+<li id="navWlcTeen"><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> <span class="nav-text">WLC Teen (Reports)</span></a></li>
+<li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> <span class="nav-text">Growth Check</span></a></li>
+<li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> <span class="nav-text">Refleksi Ortu</span></a></li>
+<li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> <span class="nav-text">Jadwal</span></a></li>
+<li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> <span class="nav-text">Sertifikat</span></a></li>
+
+<li><span class="sidebar-group-label">Pengaturan</span></li>
+<li><a href="#" onclick="manageUsers();return false;" data-nav="manageUsersDashboard"><i class="fas fa-users-cog"></i> <span class="nav-text">User</span></a></li>
+<li><a href="#" onclick="window.location.href='export.php'" data-nav="backupDashboard"><i class="fas fa-database"></i> <span class="nav-text">Backup Database</span></a></li>
+<li><a href="#" onclick="document.getElementById('restoreUploadInput').click();return false;" data-nav="restoreDashboard"><i class="fas fa-upload"></i> <span class="nav-text">Restore Database</span></a></li>
+<li><a href="#" onclick="openManageSettings();return false;" data-nav="settingsDashboard"><i class="fas fa-cog"></i> <span class="nav-text">Pengaturan Web</span></a></li>
 </ul>
+<input type="file" id="restoreUploadInput" class="hidden" accept=".db,.sqlite,.sqlite3" onchange="uploadRestoreDatabase(this)">
 <div class="sidebar-footer" style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:center;">
 <button class="btn" onclick="logout()" style="width:auto;min-width:120px;border-radius:8px;height:34px;padding:0 1rem;font-size:0.8rem;background:linear-gradient(135deg, #d4af37, #aa7c11);color:#0a0a0a;font-weight:700;border:none;box-shadow:0 3px 8px rgba(212, 175, 55, 0.2);letter-spacing:0.5px;transition:all 0.2s ease;"><i class="fas fa-sign-out-alt"></i> Logout</button>
 </div>
 </nav>
 <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-<button id="sidebarToggle" class="sidebar-toggle hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<button id="sidebarToggle" class="sidebar-toggle hidden" type="button" aria-controls="ownerSidebar" aria-expanded="false" aria-label="Buka menu navigasi" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 <div id="loginScreen" class="login-screen">
 <div class="login-card">
 <div style="background:transparent;width:105px;height:105px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;cursor:pointer;" onclick="window.location.href='index.html#hero';">
@@ -345,11 +403,14 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginUsername">Username</label>
 <input type="text" id="loginUsername" class="form-input" placeholder="Masukkan username" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
 </div>
-<div style="text-align:left;margin-bottom:2.5rem;">
+<div style="text-align:left;margin-bottom:2.5rem;position:relative;">
 <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--primary);" for="loginPassword">Password</label>
-<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
-<span class="toggle-pass" onclick="togglePassword('loginPassword')" style="margin-left:0.5rem;cursor:pointer;color:var(--text-muted);"><i class="fas fa-eye"></i></span>
-<p style="margin-top:0.5rem;text-align:right;"><a href="forgot_password.html" style="color:var(--primary);font-size:0.9rem;">Lupa Password?</a></p>
+<input type="password" id="loginPassword" class="form-input" placeholder="••••••••" onkeyup="if(event.key==='Enter') doLogin()" style="width:100%;height:55px;padding:0 3rem 0 1rem;border:2px solid var(--border);border-radius:0.75rem;font-size:1rem;background:#1e1e1e;color:#f5f5f5;">
+<i class="fas fa-eye" id="toggleLoginPassword" style="position:absolute;right:1rem;top:2.7rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('loginPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i>
+<div style="text-align:right; margin-top:0.5rem;">
+<a href="forgot_password.html" style="color:var(--primary); font-size:0.9rem; text-decoration:none;">Lupa Password?</a>
+</div>
+</div>
 <button class="btn btn-primary" onclick="doLogin()" style="width:100%;height:50px;font-weight:700;font-size:0.95rem;border-radius:0.75rem;background:var(--primary);color:#0a0a0a;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 8px 12px -3px rgba(212, 175, 55, 0.3);letter-spacing:1px;">
 SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </button>
@@ -359,6 +420,20 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <div id="userInfo" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; background: var(--surface); padding: 1rem 2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
 <div style="font-weight: bold; color: var(--text-main);">Role Anda: <span id="loggedRole" style="color: var(--primary); text-transform: uppercase;"></span></div>
 <div id="quizUserInfo" style="font-weight: 600; color: var(--secondary);"></div>
+</div>
+
+<div id="wlcKidsDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="exitWlcKids()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Kids — Observasi</h1><div style="width:100px;"></div></header>
+<div id="landingView" style="margin-top:1rem;">
+<div id="wlcKidsContent"><p style="color:var(--text-muted);">Memuat data siswa...</p></div>
+</div>
+</div>
+
+<div id="wlcTeenDashboard" class="hidden">
+<header class="panel-header"><button class="btn btn-secondary" onclick="hideAllPanels&&hideAllPanels();document.getElementById('ownerDashboard').classList.remove('hidden');"><i class="fas fa-arrow-left"></i> Kembali</button><h1>WLC Teen - Laporan Evaluasi</h1><div style="width:100px;"></div></header>
+<div id="wlcTeenContent" style="margin-top:1rem;">
+    <p style="color:var(--text-muted);">Memuat laporan WLC Teen...</p>
+</div>
 </div>
 
 <div id="manageSettingsDashboard" class="hidden">
@@ -434,21 +509,37 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 <div id="ownerDashboard" class="hidden">
 <header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
-<div class="menu-buttons">
-<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> Users</button>
-<button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah</button>
-<button class="menu-btn" onclick="manageJadwal()"><i class="fas fa-calendar-alt"></i> Jadwal</button>
+
+<!-- DATA SECTION -->
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-database"></i> Data & Laporan</h3>
+<div class="menu-buttons" style="margin-top: 1rem;">
+<button class="menu-btn" onclick="viewReports()"><i class="fas fa-chart-bar"></i> Lihat Laporan Observasi</button>
+<button class="menu-btn" onclick="analyticsOverview()"><i class="fas fa-chart-pie"></i> Analitik Siswa</button>
+<button class="menu-btn" onclick="exportAllReports()"><i class="fas fa-download"></i> Export Data CSV</button>
 <button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
-<button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Bagi Grup</button>
-<button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Komponen Observasi</button>
-<button class="menu-btn" onclick="openWlcKids()"><i class="fas fa-child"></i> Observasi WLC Kids</button>
-<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat WLC</button>
-<button class="menu-btn" onclick="openContohSertifikat()"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</button>
-<button class="menu-btn" onclick="openPrintSiswa()"><i class="fas fa-print"></i> Cetak Siswa</button>
-<button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
-<button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu (WLC-2)</button>
-<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
+<button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah & Kelas</button>
+<button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Group</button>
+<button class="menu-btn" onclick="manageSoal()"><i class="fas fa-book"></i> Instrumen</button>
 </div>
+
+<!-- WLC SECTION -->
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> WLC</h3>
+<div class="menu-buttons" style="margin-top: 1rem;">
+<button class="menu-btn" onclick="openGrowthCheck()"><i class="fas fa-chart-line"></i> Growth Check</button>
+<button class="menu-btn" onclick="openParentReflections()"><i class="fas fa-hands-helping"></i> Refleksi Ortu</button>
+<button class="menu-btn" onclick="manageJadwal()"><i class="fas fa-calendar-alt"></i> Jadwal</button>
+<button class="menu-btn" onclick="openManageCert()"><i class="fas fa-certificate"></i> Sertifikat</button>
+</div>
+
+<!-- PENGATURAN SECTION -->
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-cogs"></i> Pengaturan</h3>
+<div class="menu-buttons" style="margin-top: 1rem;">
+<button class="menu-btn" onclick="manageUsers()"><i class="fas fa-users-cog"></i> User</button>
+<button class="menu-btn" onclick="window.location.href='export.php'"><i class="fas fa-download"></i> Backup Database</button>
+<button class="menu-btn" onclick="document.getElementById('restoreUploadInput').click()"><i class="fas fa-upload"></i> Restore Database</button>
+<button class="menu-btn" onclick="openManageSettings()"><i class="fas fa-cog"></i> Pengaturan Web</button>
+</div>
+
 </div>
 
 <div id="growthCheckDashboard" class="hidden">
@@ -517,12 +608,12 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
                     <th>Waktu</th>
                     <th>Siswa</th>
                     <th>Orang Tua</th>
-                    <th>Transisi ke Belajar</th>
-                    <th>Keterlibatan Tugas</th>
-                    <th>Inisiatif Penyelesaian</th>
-                    <th>Respons terhadap Kendala</th>
-                    <th>Ekspresi Perilaku</th>
-                    <th>Partisipasi Aktif</th>
+                    <th>Kesiapan</th>
+                    <th>Fokus</th>
+                    <th>Kemandirian</th>
+                    <th>Ketekunan</th>
+                    <th>Emosi</th>
+                    <th>Minat</th>
                     <th>Catatan</th>
                 </tr>
             </thead>
@@ -568,7 +659,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
     </div>
     <div class="form-group" style="margin:0; flex:1; min-width:150px;">
         <label class="form-label" style="font-size:0.8rem;">Sekolah</label>
-        <select id="siswaFilterSekolah" class="form-input" onchange="filterSiswaTable()"></select>
+        <select id="siswaFilterSekolah" class="form-input" onchange="updateSiswaClassFilter()"></select>
     </div>
     <div class="form-group" style="margin:0; flex:1; min-width:150px;">
         <label class="form-label" style="font-size:0.8rem;">Kelas</label>
@@ -588,6 +679,8 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
             <th class="sort-header" onclick="sortAndRender('siswa', 'nisn')">NISN</th>
             <th class="sort-header" onclick="sortAndRender('siswa', 'namaSekolah')">Sekolah</th>
             <th class="sort-header" onclick="sortAndRender('siswa', 'namaKelas')">Kelas</th>
+            <th class="sort-header" onclick="sortAndRender('siswa', 'status_kumon')">Status Leads</th>
+            <th>Catatan</th>
             <th>Aksi</th>
         </tr>
     </thead>
@@ -656,13 +749,52 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
     <tbody id="grupTableBody"><tr><td colspan="6" style="text-align:center;">Memuat data grup...</td></tr></tbody>
 </table>
 </div>
-<div id="wlcKidsDashboard" class="hidden"><header class="panel-header"><h1>Observasi WLC Kids</h1></header><div id="wlcKidsContent" class="mt-4"></div></div>
-<div id="wlcKidsDashboard" class="hidden"><header class="panel-header"><h1>Observasi WLC Kids</h1></header><div id="wlcKidsContent" class="mt-4"></div></div>
 <div id="manageSoalDashboard" class="hidden">
-<header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Komponen Observasi</h1><button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button></header>
-<table class="data-table" id="soalTable" style="margin-top:1rem;"><thead><tr><th style="width:50px;">No</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'komponen')">Komponen</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'indikator')">Indikator</th><th class="sort-header" onclick="sortAndRender('bank_soal', 'pertanyaan')">Pertanyaan</th><th style="text-align:center;width:150px;">Aksi</th></tr></thead><tbody id="soalTableBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading data...</td></tr></tbody></table>
+<header class="panel-header">
+    <button class="btn btn-secondary" onclick="exitManageSoal()"><i class="fas fa-arrow-left"></i> Kembali</button>
+    <h1><i class="fas fa-book"></i> Instrumen WLC</h1>
+    <div style="width:100px;"></div>
+</header>
+
+<p style="color:var(--text-muted);margin:0 0 1.25rem;">Kumpulan alat pengumpulan data untuk kegiatan WLC Kids dan WLC Teen.</p>
+
+<div style="background:var(--secondary-soft); padding:1.5rem; border-radius:var(--radius-md); margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
+    <div class="form-group" style="margin:0; flex:1; min-width:200px;">
+        <label class="form-label" style="font-size:0.8rem;">Cari Konstruk / Pertanyaan</label>
+        <input type="text" id="instrumentSearchInput" class="form-input" placeholder="Ketik kata kunci..." onkeyup="filterInstrumentTable()">
+    </div>
+    <div class="form-group" style="margin:0; flex:1; min-width:150px;">
+        <label class="form-label" style="font-size:0.8rem;">Kategori Instrumen</label>
+        <select class="form-input" id="instrumentFilterSelect" onchange="const val = this.value.split('|'); loadWLCInstruments(val[0], val[1] || null);">
+            <option value="KIDS|TK">WLC Kids - TK (Observasi)</option>
+            <option value="KIDS|SD 1-3">WLC Kids - SD 1-3 (Observasi)</option>
+            <option value="KIDS|SD 4-6">WLC Kids - SD 4-6 (Observasi)</option>
+            <option value="TEEN|SMP">WLC Teen / SMP (Kuesioner)</option>
+        </select>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+        <button class="btn btn-primary" onclick="document.getElementById('soalFormContainer').classList.remove('hidden')"><i class="fas fa-plus"></i> Tambah Item</button>
+    </div>
+</div>
+
+<h3 id="instrumentTitle" style="margin-bottom:15px; font-weight:600; font-size:1.2rem; color:var(--primary);"><i class="fas fa-list-ul"></i> WLC Kids - TK</h3>
+
+<table class="data-table" id="soalTable">
+    <thead>
+        <tr>
+            <th style="width:50px;">No</th>
+            <th style="width:25%">Konstruk / Komponen</th>
+            <th>Pernyataan Observasi / Kuesioner</th>
+            <th style="text-align:center;width:150px;">Aksi</th>
+        </tr>
+    </thead>
+    <tbody id="soalTableBody">
+        <tr><td colspan="4" style="text-align:center;padding:2rem;">Memuat data...</td></tr>
+    </tbody>
+</table>
 </div>
 <div id="manageCertDashboard" class="hidden">
+<div id="manageCertModal" style="display:contents;">
     <header class="panel-header">
         <button class="btn btn-secondary" onclick="exitManageCert()"><i class="fas fa-arrow-left"></i> Kembali</button>
         <h1>Cetak Sertifikat WLC</h1>
@@ -768,6 +900,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         </div>
     </div>
 </div>
+</div>
 <div id="printSiswaDashboard" class="hidden">
 <header class="panel-header"><button class="btn btn-secondary" onclick="exitPrintSiswa()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Cetak Data Siswa</h1><div style="width:100px;"></div></header>
 <div style="background:var(--surface); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:2rem;">
@@ -804,6 +937,8 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 </div>
 </div>
 </div> <!-- Akhir dari container utama -->
+<script src="wlc_kids.js"></script>
+<script src="wlc_teen_reports.js"></script>
 <script>
 const rubrikSkoring = {
     'Kesiapan': {
@@ -854,12 +989,39 @@ const rubrikSkoring = {
             const sidebar = document.getElementById('ownerSidebar');
             const overlay = document.getElementById('sidebarOverlay');
             if (sidebar && overlay) {
-                sidebar.classList.toggle('open');
-                overlay.classList.toggle('open');
+                const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+                if (isDesktop) {
+                    document.body.classList.toggle('sidebar-collapsed');
+                    const isOpen = !document.body.classList.contains('sidebar-collapsed');
+                    sidebar.classList.toggle('open', isOpen);
+                    const toggle = document.getElementById('sidebarToggle');
+                    toggle?.setAttribute('aria-expanded', String(isOpen));
+                    toggle?.setAttribute('aria-label', isOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi');
+                    return;
+                }
+                const isOpen = sidebar.classList.toggle('open');
+                overlay.classList.toggle('open', isOpen);
+                const toggle = document.getElementById('sidebarToggle');
+                toggle?.setAttribute('aria-expanded', String(isOpen));
+                toggle?.setAttribute('aria-label', isOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi');
             }
         };
 
-                // Auto-hide sidebar on mobile when any link is clicked
+        window.closeSidebarAfterNavigation = function() {
+            const sidebar = document.getElementById('ownerSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar) return;
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('open');
+            const toggle = document.getElementById('sidebarToggle');
+            toggle?.setAttribute('aria-expanded', 'false');
+            toggle?.setAttribute('aria-label', 'Buka menu navigasi');
+        };
+        document.getElementById('ownerSidebar')?.addEventListener('click', event => {
+            if (event.target.closest('.sidebar-nav a')) window.closeSidebarAfterNavigation();
+        });
+
+        // Auto-hide only the mobile drawer after a navigation choice.
         document.addEventListener('click', function(e) {
             const link = e.target.closest('#ownerSidebar .sidebar-nav a');
             if (link) {
@@ -883,13 +1045,7 @@ const rubrikSkoring = {
                 }
             });
             
-            // Close sidebar on mobile
-            const sidebar = document.getElementById('ownerSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar && sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('open');
-            }
+            window.closeSidebarAfterNavigation();
         };
 
         window.navigateOwner = function(targetDashboardId) {
@@ -900,6 +1056,26 @@ const rubrikSkoring = {
             }
             window.setActiveSidebar(targetDashboardId);
         };
+
+        // Clear every section before the selected navigation handler opens its
+        // destination. Several legacy handlers only hide a partial list.
+        document.getElementById('ownerSidebar')?.addEventListener('click', function(event) {
+            const link = event.target.closest('a[data-nav]');
+            if (!link) return;
+            window.hideAllDashboards();
+            const targetId = link.getAttribute('data-nav');
+            if (targetId && document.getElementById(targetId)) {
+                history.pushState({ wlcDashboard: targetId }, '', `#${targetId}`);
+            }
+        }, true);
+
+        window.addEventListener('popstate', function(event) {
+            const targetId = event.state?.wlcDashboard;
+            if (!targetId || !document.getElementById(targetId) || !localStorage.getItem('wlc_token')) return;
+            window.hideAllDashboards();
+            document.getElementById(targetId).classList.remove('hidden');
+            window.setActiveSidebar(targetId);
+        });
 
         // === CONFIG TERPUSAT — ganti URL ini saat deploy ===
         const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -926,14 +1102,23 @@ const rubrikSkoring = {
             
             let finalUrl;
             try {
-                let urlStr = endpoint.url || endpoint;
-                if (typeof urlStr === 'string' && !urlStr.startsWith('http')) {
-                    if (API_BASE && urlStr.startsWith(API_BASE)) {
-                        // Already has API_BASE
-                    } else {
-                        urlStr = urlStr.startsWith('/') ? `${API_BASE}${urlStr}` : (urlStr.startsWith('./') ? `${API_BASE}${urlStr.substring(1)}` : `${API_BASE}/${urlStr}`);
-                    }
-                }
+                // Determine absolute URL safely. Handle both absolute URLs and paths.
+                let urlStr;
+if (typeof endpoint === 'string') {
+    if (endpoint.startsWith('http')) {
+        urlStr = endpoint;
+    } else if (API_BASE !== '' && endpoint.startsWith(API_BASE)) {
+        urlStr = endpoint; // Already prepended
+    } else if (endpoint.startsWith('/')) {
+        urlStr = `${API_BASE}${endpoint}`;
+    } else if (endpoint.startsWith('./')) {
+        urlStr = `${API_BASE}${endpoint.substring(1)}`;
+    } else {
+        urlStr = `${API_BASE}/${endpoint}`;
+    }
+} else {
+    urlStr = endpoint.url;
+}
                 finalUrl = new URL(urlStr, window.location.origin);
             } catch (err) {
                 // Fallback to original fetch if URL parsing fails
@@ -949,7 +1134,7 @@ const rubrikSkoring = {
                     localStorage.removeItem('wlc_role');
                     localStorage.removeItem('wlc_user');
                     document.getElementById('loginScreen').classList.remove('hidden');
-                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+                    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
@@ -1307,16 +1492,6 @@ const rubrikSkoring = {
         window.showPanduan = function() {
             showToast('📖 Panduan: Klik dot 1-5 untuk skor murid. ←→ navigasi soal.');
         }
-        // Show/hide password toggle
-        window.togglePassword = function(id) {
-            const input = document.getElementById(id);
-            if (!input) return;
-            if (input.type === 'password') {
-                input.type = 'text';
-            } else {
-                input.type = 'password';
-            }
-        };
 
         window.resetAllData = function() {
             if (confirm('Reset semua data local?')) {
@@ -1578,7 +1753,7 @@ const rubrikSkoring = {
             localStorage.removeItem('wlc_user');
             localStorage.removeItem('wlc_token');
             document.getElementById('loginScreen').classList.remove('hidden');
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1586,6 +1761,14 @@ const rubrikSkoring = {
             
             // Hide and clean up sidebar
             document.body.classList.remove('has-sidebar');
+            document.body.classList.remove('sidebar-collapsed');
+            if (role === 'owner') {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
+            } else {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'block';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'block';
+            }
             const sidebar = document.getElementById('ownerSidebar');
             if (sidebar) {
                 sidebar.classList.add('hidden');
@@ -1600,11 +1783,31 @@ const rubrikSkoring = {
         };
 
         window.showRoleDashboard = function(role) {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard', 'wlcKidsDashboard', 'wlcTeenDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
             
+            // SIDEBAR SELALU ADA SETELAH LOGIN (TETAP ADA DI KONDISI APAPUN)
+            document.body.classList.add('has-sidebar');
+            document.body.classList.remove('sidebar-collapsed');
+            if (role === 'owner') {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
+            } else {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'block';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'block';
+            }
+            const sidebar = document.getElementById('ownerSidebar');
+            if (sidebar) sidebar.classList.remove('hidden');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            if (toggleBtn) toggleBtn.classList.remove('hidden');
+
+            if (!history.state?.wlcDashboard) {
+                const homeId = role === 'asisten' ? 'asistenDashboard' : role === 'evaluator' ? 'evaluatorDashboard' : 'ownerDashboard';
+                history.replaceState({ wlcDashboard: homeId }, '', `#${homeId}`);
+            }
+
             if (role !== 'owner') {
                 const toRemove = ['ownerDashboard', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageCertDashboard', 'manageSettingsDashboard'];
                 toRemove.forEach(id => {
@@ -1613,27 +1816,12 @@ const rubrikSkoring = {
                 });
             }
             if (role === 'owner') {
-                document.body.classList.add('has-sidebar');
-                const sidebar = document.getElementById('ownerSidebar');
-                if (sidebar) sidebar.classList.remove('hidden');
-                const toggleBtn = document.getElementById('sidebarToggle');
-                if (toggleBtn) toggleBtn.classList.remove('hidden');
                 document.getElementById('ownerDashboard').classList.remove('hidden');
                 window.setActiveSidebar('ownerDashboard');
-            } else {
-                document.body.classList.remove('has-sidebar');
-                const sidebar = document.getElementById('ownerSidebar');
-                if (sidebar) {
-                    sidebar.classList.add('hidden');
-                    sidebar.classList.remove('open');
-                }
-                const toggleBtn = document.getElementById('sidebarToggle');
-                if (toggleBtn) toggleBtn.classList.add('hidden');
-                const overlay = document.getElementById('sidebarOverlay');
-                if (overlay) overlay.classList.remove('open');
-                
-                if (role === 'asisten') document.getElementById('asistenDashboard').classList.remove('hidden');
-                else if (role === 'evaluator') document.getElementById('evaluatorDashboard').classList.remove('hidden');
+            } else if (role === 'asisten') {
+                document.getElementById('asistenDashboard').classList.remove('hidden');
+            } else if (role === 'evaluator') {
+                document.getElementById('evaluatorDashboard').classList.remove('hidden');
             }
         };
 
@@ -1667,7 +1855,7 @@ const rubrikSkoring = {
         }
 
         window.manageUsers = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'manageCertDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageSettingsDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1722,7 +1910,7 @@ const rubrikSkoring = {
         }
 
         window.manageSiswa = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1733,7 +1921,7 @@ const rubrikSkoring = {
         };
 
         window.manageSekolah = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1745,7 +1933,7 @@ const rubrikSkoring = {
         };
 
         window.manageSoal = async function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1760,19 +1948,83 @@ const rubrikSkoring = {
         };
 
         async function loadSoalTable() {
-            try {
-                const res = await fetch(`${API_BASE}/api/bank-soal?wlc=1`); 
-                let data = await res.json();
-                data = getSortedData(data);
-const tbody = document.getElementById('soalTableBody');
-                tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.komponen)}</td><td>${escapeHtml(s.indikator || '-')}</td><td>${escapeHtml(s.pertanyaan)}</td><td>
-                    <div class="action-group">
-                        <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSoal(${s.id})"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn-action btn-delete-alt" onclick="deleteData('bank_soal', ${s.id}, loadSoalTable)"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td></tr>`).join('');
-            } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
+    await loadWLCInstruments('KIDS', 'TK');
+}
+
+window.loadWLCInstruments = async function(audience, targetGrade) {
+    const tbody = document.getElementById('soalTableBody');
+    try {
+        let url = `${API_BASE}/api/wlc-instruments?audience=${encodeURIComponent(audience)}`;
+        if (targetGrade) url += `&target_grade=${encodeURIComponent(targetGrade)}`;
+        
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Memuat instrumen...</td></tr>';
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+        const data = Array.isArray(payload) ? payload : (Array.isArray(payload?.items) ? payload.items : []);
+        
+        let title = audience === 'KIDS' ? `<i class="fas fa-child"></i> Instrumen Observasi: WLC Kids - ${targetGrade}` : `<i class="fas fa-user-graduate"></i> Instrumen Kuesioner: WLC Teen (SMP)`;
+        const selectEl = document.getElementById('instrumentFilterSelect');
+        if (selectEl) selectEl.value = audience + '|' + (targetGrade || '');
+        const searchEl = document.getElementById('instrumentSearchInput');
+        if (searchEl) searchEl.value = '';
+    
+        document.getElementById('instrumentTitle').innerHTML = title;
+        
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada butir instrumen untuk kategori ini.</td></tr>';
+            return;
         }
+        
+        tbody.innerHTML = data.map((s, i) => `<tr>
+            <td>${i+1}</td>
+            <td>${escapeHtml(s.construct_name)}</td>
+            <td>${escapeHtml(s.text)}</td>
+            <td>
+                <div class="action-group">
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="showToast('Fitur edit segera hadir.')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+            </td>
+        </tr>`).join('');
+    } catch (e) {
+        console.error('Gagal memuat instrumen:', e);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--danger);">Gagal memuat instrumen. Silakan coba lagi.</td></tr>';
+        showToast('❌ Gagal memuat instrumen.');
+    }
+};
+
+window.filterInstrumentTable = function() {
+    const keyword = (document.getElementById('instrumentSearchInput')?.value || '').toLowerCase().trim();
+    document.querySelectorAll('#soalTableBody tr').forEach(row => {
+        row.style.display = !keyword || row.textContent.toLowerCase().includes(keyword) ? '' : 'none';
+    });
+};
+
+window.saveNewWlcItem = async function() {
+    const targetVal = document.getElementById('newSoalTarget').value.split('|');
+    const audience = targetVal[0];
+    const target_grade = targetVal[1] || null;
+    const komponen = document.getElementById('newSoalKomponen').value;
+    const text = document.getElementById('newSoalPertanyaan').value;
+
+    if(!komponen || !text) return showToast('❌ Lengkapi form');
+    try {
+        const res = await fetch(`${API_BASE}/api/wlc-items`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({audience, target_grade, construct_name: komponen, text})
+        });
+        if(res.ok) {
+            showToast('✅ Item disimpan!');
+            document.getElementById('newSoalPertanyaan').value = '';
+            document.getElementById('soalFormContainer').classList.add('hidden');
+            await loadWLCInstruments(audience, target_grade);
+        } else {
+            const err = await res.json();
+            showToast('❌ Gagal: ' + (err.error || 'Unknown error'));
+        }
+    } catch (e) { console.error(e); showToast('❌ Terjadi kesalahan sistem.'); }
+};;
 
 window.saveNewSoal = async function() {
             const komponen = document.getElementById('newSoalKomponen').value;
@@ -1825,8 +2077,7 @@ window.saveNewSoal = async function() {
         };
 
         window.exitManageSiswa = function() {
-            document.getElementById('manageSiswaDashboard').classList.add('hidden');
-            document.getElementById('ownerDashboard').classList.remove('hidden');
+            window.showRoleDashboard(localStorage.getItem('wlc_role') || 'owner');
         };
 
         async function loadSiswaTable() {
@@ -1836,33 +2087,65 @@ window.saveNewSoal = async function() {
                     const result = await res.json();
                     allSiswaData = result.data || [];
                     renderSiswaTable();
-                    populateSiswaFilters();
+                    await populateSiswaFilters();
                 }
             } catch (e) {
                 console.error('Error loading siswa table:', e);
             }
         }
 
+        function getSiswaBadgeColor(status) {
+            if (!status || status === 'Belum Dihubungi') return 'secondary';
+            if (status === 'Coba Gratis') return 'warning';
+            if (status === 'Daftar') return 'success';
+            if (status === 'Menolak') return 'danger';
+            return 'primary';
+        }
+
         function renderSiswaTable(filteredData) {
             const data = filteredData || allSiswaData;
             const tbody = document.getElementById('siswaTableBody');
-            tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td>
+            tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td><span class="badge badge-${getSiswaBadgeColor(s.status_kumon)}">${escapeHtml(s.status_kumon || 'Belum Dihubungi')}</span></td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(s.catatan_marketing || '')}">${escapeHtml(s.catatan_marketing || '-')}</td><td>
                 <div class="action-group">
-                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
                     <button class="btn-action btn-delete-alt" onclick="deleteData('siswa', ${s.id}, loadSiswaTable)"><i class="fas fa-trash"></i></button>
                 </div>
             </td></tr>`).join('');
         }
 
-        function populateSiswaFilters() {
-            const schools = [...new Set(allSiswaData.map(s => s.namaSekolah))].sort();
-            const classes = [...new Set(allSiswaData.map(s => s.namaKelas))].sort();
-            
+        async function populateSiswaFilters() {
             const selSekolah = document.getElementById('siswaFilterSekolah');
+            if (selSekolah) {
+                const selectedSchool = selSekolah.value;
+                const schools = [...new Map(allSiswaData.filter(s => s.sekolahId && s.namaSekolah)
+                    .map(s => [String(s.sekolahId), s.namaSekolah])).entries()]
+                    .sort((a, b) => a[1].localeCompare(b[1]));
+                selSekolah.innerHTML = '<option value="">Semua Sekolah</option>' +
+                    schools.map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`).join('');
+                if (schools.some(([id]) => id === selectedSchool)) selSekolah.value = selectedSchool;
+            }
+            await updateSiswaClassFilter();
+        }
+
+        window.updateSiswaClassFilter = async function() {
+            const schoolId = document.getElementById('siswaFilterSekolah')?.value || '';
             const selKelas = document.getElementById('siswaFilterKelas');
-            
-            if(selSekolah) selSekolah.innerHTML = '<option value="">Semua Sekolah</option>' + schools.filter(n=>n).map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-            if(selKelas) selKelas.innerHTML = '<option value="">Semua Kelas</option>' + classes.filter(n=>n).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            if (!selKelas) return;
+            const previouslySelected = selKelas.value;
+            let classes = allKelasData;
+            if (!classes.length) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/kelas`);
+                    if (response.ok) allKelasData = await response.json();
+                    classes = allKelasData;
+                } catch (e) { console.error('Gagal memuat kelas:', e); }
+            }
+            classes = classes.filter(k => !schoolId || String(k.sekolahId) === schoolId)
+                .sort((a, b) => a.nama.localeCompare(b.nama));
+            selKelas.innerHTML = '<option value="">Semua Kelas</option>' +
+                classes.map(k => `<option value="${escapeHtml(k.id)}">${escapeHtml(k.nama)}</option>`).join('');
+            if (classes.some(k => String(k.id) === previouslySelected)) selKelas.value = previouslySelected;
+            filterSiswaTable();
         }
 
         function filterSiswaTable() {
@@ -1872,8 +2155,8 @@ window.saveNewSoal = async function() {
             
             const filtered = allSiswaData.filter(s => {
                 const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
-                const matchesSchool = !school || s.namaSekolah === school;
-                const matchesKelas = !kelas || s.namaKelas === kelas;
+                const matchesSchool = !school || String(s.sekolahId) === school;
+                const matchesKelas = !kelas || String(s.kelasId) === kelas;
                 return matchesSearch && matchesSchool && matchesKelas;
             });
             renderSiswaTable(filtered);
@@ -1886,12 +2169,14 @@ window.saveNewSoal = async function() {
             
             const filtered = allSiswaData.filter(s => {
                 const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
-                const matchesSchool = !school || s.namaSekolah === school;
-                const matchesKelas = !kelas || s.namaKelas === kelas;
+                const matchesSchool = !school || String(s.sekolahId) === school;
+                const matchesKelas = !kelas || String(s.kelasId) === kelas;
                 return matchesSearch && matchesSchool && matchesKelas;
             });
 
-            const filterText = escapeHtml((school || "Semua Sekolah") + " / " + (kelas || "Semua Kelas"));
+            const schoolName = document.getElementById('siswaFilterSekolah').selectedOptions[0]?.textContent || 'Semua Sekolah';
+            const className = document.getElementById('siswaFilterKelas').selectedOptions[0]?.textContent || 'Semua Kelas';
+            const filterText = escapeHtml(schoolName + " / " + className);
             const tableHtml = `
                 <table border="1" style="width:100%; border-collapse:collapse;">
                     <thead>
@@ -2071,7 +2356,7 @@ window.saveNewSoal = async function() {
         }
 
         window.manageJadwal = async function() { 
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -2165,9 +2450,22 @@ window.saveNewSoal = async function() {
                     input.className = 'form-input';
                     input.type = f.type || 'text';
                     input.value = f.val || '';
+                    if (f.type === 'password') {
+                        group.style.position = 'relative';
+                        input.style.paddingRight = '3rem';
+                    }
                 }
                 input.id = `edit_${escapeHtml(f.key)}`;
                 group.appendChild(input);
+                if (f.type === 'password') {
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-eye';
+                    icon.style.cssText = 'position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);';
+                    icon.onclick = function() {
+                        if(input.type==='password'){input.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{input.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}
+                    };
+                    group.appendChild(icon);
+                }
                 fieldsContainer.appendChild(group);
             });
             overlay.classList.add('show');
@@ -2195,6 +2493,34 @@ window.saveNewSoal = async function() {
 
         window.closeEditModal = function() { document.getElementById('editModalOverlay').classList.remove('show'); };
         
+                window.generateStudentLink = async function(siswaId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/siswa/generate-link`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('wlc_token')}`
+                    },
+                    body: JSON.stringify({ siswaId: siswaId })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.token) {
+                        const link = `${window.location.origin}${API_BASE}/student.html?token=${data.token}`;
+                        navigator.clipboard.writeText(link);
+                        showToast('? Link akses siswa berhasil disalin ke clipboard!');
+                    } else {
+                        showToast('?? Gagal membuat link akses.');
+                    }
+                } else {
+                    showToast('?? Gagal memanggil API.');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('?? Terjadi kesalahan sistem saat membuat link.');
+            }
+        };
         window.openEditSiswa = async function(id) {
             const s = allSiswaData.find(x => x.id == id);
             if (!s) return;
@@ -2223,6 +2549,23 @@ window.saveNewSoal = async function() {
                     val:s.kelasId, 
                     type:'select', 
                     options: classes.filter(k => k.sekolahId == s.sekolahId).map(k => ({label: k.nama, value: k.id}))
+                },
+                {
+                    key:'status_kumon', 
+                    label:'Status Leads', 
+                    val:s.status_kumon || 'Belum Dihubungi', 
+                    type:'select', 
+                    options:[
+                        {label:'Belum Dihubungi',value:'Belum Dihubungi'},
+                        {label:'Coba Gratis',value:'Coba Gratis'},
+                        {label:'Daftar',value:'Daftar'},
+                        {label:'Menolak',value:'Menolak'}
+                    ]
+                },
+                {
+                    key:'catatan_marketing', 
+                    label:'Catatan Marketing', 
+                    val:s.catatan_marketing || ''
                 }
             ], loadSiswaTable);
         };
@@ -2289,6 +2632,18 @@ window.saveNewSoal = async function() {
                 document.getElementById('loggedRole').textContent = escapeHtml(role);
                 document.getElementById('userInfo').classList.remove('hidden');
                 document.getElementById('loginScreen').classList.add('hidden');
+
+                // Restoring a saved section bypasses showRoleDashboard(), so
+                // restore the sidebar state here as well as the content panel.
+                if (['owner', 'evaluator', 'asisten'].includes(role)) {
+                    document.body.classList.add('has-sidebar');
+                    document.getElementById('ownerSidebar')?.classList.remove('hidden');
+                    document.getElementById('sidebarToggle')?.classList.remove('hidden');
+                if (role === 'owner') {
+                    if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
+                    if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
+                }
+                }
                 
                 const activeNav = sessionStorage.getItem('wlc_active_nav');
                 const navMap = {
@@ -2304,7 +2659,8 @@ window.saveNewSoal = async function() {
                     'growthCheckDashboard': window.openGrowthCheck,
                     'parentReflectionsDashboard': window.openParentReflections,
                     'manageSettingsDashboard': window.openManageSettings,
-                    'analyticsDashboard': window.analyticsOverview
+                    'analyticsDashboard': window.analyticsOverview,
+                    'wlcKidsDashboard': window.openWlcKids
                 };
                 
                 if (activeNav && navMap[activeNav]) {
@@ -2322,7 +2678,7 @@ let allJadwalData = [];
 let allKelasData = [];
 
 window.openManageGrup = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2357,10 +2713,7 @@ async function loadAsistenDropdown() {
 
 async function fetchAllSiswaAndKelas() {
     const resS = await fetch(`${API_BASE}/api/siswa`);
-    if(resS.ok) {
-        let json = await resS.json();
-        allSiswaData = json.data || [];
-    }
+    if(resS.ok) allSiswaData = await resS.json();
     const resK = await fetch(`${API_BASE}/api/kelas`);
     if(resK.ok) allKelasData = await resK.json();
 }
@@ -2418,7 +2771,7 @@ async function loadGrupTable() {
 
 // === LOGIKA PRINT SISWA ===
 window.openPrintSiswa = async function() {
-    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'manageGrupDashboard'].forEach(id => {
+    ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'manageGrupDashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -2494,8 +2847,7 @@ window.previewPrintSiswa = async function() {
     
     try {
         const res = await fetch(`${API_BASE}/api/siswa`);
-        let r = await res.json();
-        let students = r.data || [];
+        let students = await res.json();
         
         if (type === 'sekolah') {
             if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -3010,8 +3362,7 @@ window.executePrintSiswa = function() {
             
             try {
                 const res = await fetch(`${API_BASE}/api/siswa`);
-                let r = await res.json();
-                let students = r.data || [];
+                let students = await res.json();
                 
                 if (printType === 'sekolah' || printType === 'kelas') {
                     if (!sId) return showToast('⚠️ Pilih sekolah dulu');
@@ -3578,8 +3929,8 @@ window.executePrintSiswa = function() {
                                     <td>${escapeHtml(c.kemandirian || '-')}</td>
                                     <td>
                                         <div style="display:flex; gap:0.5rem; justify-content:center;">
-                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--primary); color: white;" onclick="viewSavedCert(${c.id})"><i class="fas fa-eye"></i> Lihat</button>
-                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--accent); color: white;" onclick="shareSavedCert(${c.id})"><i class="fas fa-share-alt"></i> Share</button>
+                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--primary); color: white;" onclick="viewSavedCert(${c.id}, '${c.share_token || ''}')"><i class="fas fa-eye"></i> Lihat</button>
+                                            <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: var(--accent); color: white;" onclick="shareSavedCert(${c.id}, '${c.share_token || ''}')"><i class="fas fa-share-alt"></i> Share</button>
                                             <button class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background:#ef4444;" onclick="deleteSavedCert(${c.id})"><i class="fas fa-trash-alt"></i></button>
                                         </div>
                                     </td>
@@ -3594,12 +3945,14 @@ window.executePrintSiswa = function() {
             }
         };
 
-        window.viewSavedCert = function(id) {
-            window.open(`${API_BASE}/share.html?id=${id}&v=${Date.now()}`, '_blank');
+        window.viewSavedCert = function(id, key) {
+            if (!/^[a-f0-9]{64}$/.test(key || '')) { showToast('⚠️ Kunci sertifikat tidak valid. Muat ulang riwayat.'); return; }
+            window.open(`${API_BASE}/share.html?id=${id}&key=${encodeURIComponent(key)}&v=${Date.now()}`, '_blank');
         };
 
-        window.shareSavedCert = function(id) {
-            const link = `${API_BASE}/share.html?id=${id}`;
+        window.shareSavedCert = function(id, key) {
+            if (!/^[a-f0-9]{64}$/.test(key || '')) { showToast('⚠️ Kunci sertifikat tidak valid. Muat ulang riwayat.'); return; }
+            const link = `${API_BASE}/share.html?id=${id}&key=${encodeURIComponent(key)}`;
             document.getElementById('qrShareImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
             window.currentShareLink = link;
             document.getElementById('qrShareModal').classList.remove('hidden');
@@ -3674,7 +4027,7 @@ window.executePrintSiswa = function() {
                     const result = await res.json();
                     showToast('✅ Kegiatan WLC disimpan!');
                     await loadCertHistory(siswaId);
-                    window.open(`${API_BASE}/share.html?id=${result.id}&v=${Date.now()}`, '_blank');
+                    window.open(`${API_BASE}/share.html?id=${result.id}&key=${encodeURIComponent(result.share_token)}&v=${Date.now()}`, '_blank');
                 } else {
                     showToast('⚠️ Gagal menyimpan kegiatan.');
                 }
@@ -3911,7 +4264,7 @@ window.executePrintSiswa = function() {
             const scores2 = calculateScores(obs2);
             
             const compKeys = ['kesiapan', 'fokus', 'respons', 'kemandirian', 'ketekunan', 'emosional', 'minat'];
-            const compLabels = ['Transisi ke Belajar', 'Keterlibatan Tugas', 'Penerapan Instruksi', 'Inisiatif Penyelesaian', 'Respons terhadap Kendala', 'Ekspresi Perilaku', 'Partisipasi Aktif'];
+            const compLabels = ['Kesiapan', 'Fokus', 'Instruksi/Respons', 'Kemandirian', 'Ketekunan', 'Emosional', 'Minat'];
             
             const data1 = compKeys.map(k => scores1[k]);
             const data2 = compKeys.map(k => scores2[k]);
@@ -4031,7 +4384,7 @@ window.executePrintSiswa = function() {
         };
 
         window.hideAllDashboards = function() {
-            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'wlcKidsDashboard', 'wlcKidsDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard'].forEach(id => {
+            ['asistenDashboard', 'evaluatorDashboard', 'ownerDashboard', 'quizApp', 'manageUsersDashboard', 'manageSiswaDashboard', 'manageJadwalDashboard', 'manageGrupDashboard', 'manageSekolahDashboard', 'manageSoalDashboard', 'printSiswaDashboard', 'viewReportsDashboard', 'analyticsDashboard', 'manageCertDashboard', 'manageSettingsDashboard', 'growthCheckDashboard', 'parentReflectionsDashboard', 'wlcKidsDashboard', 'wlcTeenDashboard'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4092,10 +4445,51 @@ window.executePrintSiswa = function() {
             } catch (e) { showToast('❌ Gagal menyimpan'); }
         };
 
+        window.uploadRestoreDatabase = async function(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            if (!confirm(`Anda yakin ingin melakukan restore database menggunakan file ${file.name}? Seluruh data saat ini akan ditimpa!`)) {
+                input.value = '';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('backup_file', file);
+            
+            try {
+                showToast('⏳ Sedang melakukan restore...', 'info');
+                const res = await fetch('/api/restore', {
+                    method: 'POST',
+                    headers: {
+                        'x-user-role': localStorage.getItem('wlc_role'),
+                        'Authorization': `Bearer ${localStorage.getItem('wlc_token')}`
+                    },
+                    body: formData
+                });
+                
+                if (res.ok) {
+                    showToast('✅ Restore database berhasil! Halaman akan direfresh...', 'success');
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    const data = await res.json();
+                    showToast('❌ Gagal restore: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (e) {
+                showToast('❌ Terjadi kesalahan jaringan.', 'error');
+            }
+            input.value = '';
+        };
+
 </script>
-<script src="wlc_kids.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
