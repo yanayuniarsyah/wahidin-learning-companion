@@ -1648,7 +1648,9 @@ const rubrikSkoring = {
 
         window.exitViewReports = function() {
             document.getElementById('viewReportsDashboard').classList.add('hidden');
-            document.getElementById('evaluatorDashboard').classList.remove('hidden');
+            const role = localStorage.getItem('wlc_role');
+            if (role === 'owner') document.getElementById('ownerDashboard').classList.remove('hidden');
+            else if (role === 'evaluator') document.getElementById('evaluatorDashboard').classList.remove('hidden');
         };
 
         async function loadReportsTable() {
@@ -4094,6 +4096,7 @@ window.executePrintSiswa = function() {
 <script src="wlc_kids.js"></script>
 </body>
 </html>
+
 
 
 
