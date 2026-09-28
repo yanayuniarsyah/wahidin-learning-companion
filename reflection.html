@@ -326,18 +326,7 @@
                     </div>
 
                     <div class="form-label" style="margin-bottom: 0.75rem;">Penilaian Kebiasaan Belajar di Rumah:</div>
-                    <div class="rating-container">
-                        <!-- Kesiapan -->
-                        <div class="rating-row">
-                            <span class="rating-label">1. Transisi ke Belajar (posisi duduk & persiapan alat)</span>
-                            <div class="stars" id="star-kesiapan">
-                                <input type="radio" id="kesiapan-5" name="kesiapan" value="5" required><label for="kesiapan-5">★</label>
-                                <input type="radio" id="kesiapan-4" name="kesiapan" value="4"><label for="kesiapan-4">★</label>
-                                <input type="radio" id="kesiapan-3" name="kesiapan" value="3"><label for="kesiapan-3">★</label>
-                                <input type="radio" id="kesiapan-2" name="kesiapan" value="2"><label for="kesiapan-2">★</label>
-                                <input type="radio" id="kesiapan-1" name="kesiapan" value="1"><label for="kesiapan-1">★</label>
-                            </div>
-                        </div>
+                    <div class="rating-container" id="reflectionComponents">
                         <!-- Fokus -->
                         <div class="rating-row">
                             <span class="rating-label">2. Keterlibatan Tugas (daya tahan mengerjakan tanpa teralih)</span>
@@ -431,6 +420,28 @@
             }, 3000);
         }
 
+        let reflectionRubric = [];
+        async function loadReflectionComponents() {
+            const response = await fetch('api/reflection/components?type=parent');
+            if (!response.ok) throw new Error('Rubrik refleksi gagal dimuat');
+            reflectionRubric = await response.json();
+            const container = document.getElementById('reflectionComponents');
+            container.replaceChildren();
+            reflectionRubric.forEach((component, index) => {
+                const row = document.createElement('div'); row.className = 'rating-row';
+                const label = document.createElement('span'); label.className = 'rating-label'; label.textContent = `${index + 1}. ${component.name}`;
+                const stars = document.createElement('div'); stars.className = 'stars'; stars.id = `star-${component.key}`;
+                let options = component.options; if (typeof options === 'string') { try { options = JSON.parse(options); } catch { options = []; } }
+                Object.entries(options || {}).reverse().forEach(([value]) => {
+                    const input = document.createElement('input'); input.type = 'radio'; input.name = component.key; input.value = value; input.required = true; input.id = `${component.key}-${value}`;
+                    const star = document.createElement('label'); star.htmlFor = input.id; star.textContent = '★';
+                    stars.append(input, star);
+                });
+                row.append(label, stars); container.append(row);
+            });
+        }
+        loadReflectionComponents().catch(error => { console.error(error); showToast(error.message); });
+
         async function verifyStudent() {
             const nama = document.getElementById('searchNama').value.trim();
             const nisn = document.getElementById('searchNisn').value.trim();
@@ -480,20 +491,17 @@
             const parent_name = document.getElementById('parentName').value;
             const catatan = document.getElementById('catatan').value;
             
-            const getSelectedRating = (name) => {
-                const checked = document.querySelector(`input[name="${name}"]:checked`);
-                return checked ? parseInt(checked.value) : 3;
-            };
+            const scores = {};
+            for (const component of reflectionRubric) {
+                const checked = document.querySelector(`input[name="${CSS.escape(component.key)}"]:checked`);
+                if (!checked) return showToast(`⚠️ Nilai ${component.name} wajib dipilih`);
+                scores[component.key] = checked.value;
+            }
 
             const payload = {
                 siswaId: parseInt(siswaId),
                 parent_name,
-                kesiapan: getSelectedRating('kesiapan'),
-                fokus: getSelectedRating('fokus'),
-                kemandirian: getSelectedRating('kemandirian'),
-                ketekunan: getSelectedRating('ketekunan'),
-                emosional: getSelectedRating('emosional'),
-                minat: getSelectedRating('minat'),
+                scores,
                 catatan
             };
 

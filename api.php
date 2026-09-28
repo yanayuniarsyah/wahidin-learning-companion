@@ -151,12 +151,18 @@ function authenticateToken() {
         exit;
     }
     global $db;
-    if (($decoded['role'] ?? '') === 'siswa') {
+    if (($decoded['role'] ?? '') === 'guru_tamu') {
+        $schoolId = (int)($decoded['reference_id'] ?? 0);
+        $stmt = $db->prepare('SELECT id FROM sekolah WHERE id = ? AND token_version = ?');
+        $stmt->execute([$schoolId, (int)($decoded['token_version'] ?? -1)]);
+        if (!$stmt->fetchColumn()) { http_response_code(401); echo json_encode(['error' => 'Akses tamu sudah tidak aktif']); exit; }
+        $decoded['reference_id'] = $schoolId;
+    } elseif (($decoded['role'] ?? '') === 'siswa') {
         $studentId = (int)($decoded['reference_id'] ?? $decoded['id'] ?? 0);
-        $stmt = $db->prepare('SELECT id, nama FROM siswa WHERE id = ?');
+        $stmt = $db->prepare('SELECT id, nama, token_version FROM siswa WHERE id = ?');
         $stmt->execute([$studentId]);
         $account = $stmt->fetch();
-        if (!$account) { http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit; }
+        if (!$account || (int)($account['token_version'] ?? 0) !== (int)($decoded['token_version'] ?? 0)) { http_response_code(401); echo json_encode(['error' => 'Account is no longer active']); exit; }
         $decoded['reference_id'] = (int)$account['id'];
     } else {
         $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
@@ -190,13 +196,9 @@ function enforceRateLimit(PDO $db, string $scope, int $limit, int $windowSeconds
 function observerCanAccessStudent(PDO $db, array $user, int $studentId): bool {
     if (($user['role'] ?? '') === 'owner' || ($user['role'] ?? '') === 'evaluator') return true;
     if (($user['role'] ?? '') !== 'asisten') return false;
-    $stmt = $db->prepare('SELECT siswaIds FROM grup WHERE asistenId = ? OR asistenId = ?');
-    $stmt->execute([(string)($user['username'] ?? ''), (string)($user['id'] ?? '')]);
-    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $ids) {
-        $assigned = json_decode((string)$ids, true);
-        if (is_array($assigned) && in_array($studentId, array_map('intval', $assigned), true)) return true;
-    }
-    return false;
+    $stmt = $db->prepare('SELECT 1 FROM grup_siswa gs JOIN grup g ON g.id = gs.grupId WHERE gs.siswaId = ? AND (g.asistenId = ? OR g.asistenId = ?) LIMIT 1');
+    $stmt->execute([$studentId, (string)($user['username'] ?? ''), (string)($user['id'] ?? '')]);
+    return (bool)$stmt->fetchColumn();
 }
 
 // Seeding/Init helper functions
@@ -274,6 +276,55 @@ function initDatabase($db) {
     
     try { $db->exec("ALTER TABLE siswa ADD COLUMN status_kumon TEXT DEFAULT 'Belum Dihubungi'"); } catch(Exception $e) {}
     try { $db->exec("ALTER TABLE siswa ADD COLUMN catatan_marketing TEXT"); } catch(Exception $e) {}
+    try { $db->exec("ALTER TABLE siswa ADD COLUMN token_akses_hash TEXT"); } catch(Exception $e) {}
+    try { $db->exec("ALTER TABLE siswa ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0"); } catch(Exception $e) {}
+    try { $db->exec("ALTER TABLE sekolah ADD COLUMN token_akses_hash TEXT"); } catch(Exception $e) {}
+    try { $db->exec("ALTER TABLE sekolah ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0"); } catch(Exception $e) {}
+
+    $db->exec("CREATE TABLE IF NOT EXISTS grup_siswa (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        grupId INTEGER NOT NULL REFERENCES grup(id) ON DELETE CASCADE,
+        siswaId INTEGER NOT NULL REFERENCES siswa(id) ON DELETE CASCADE,
+        UNIQUE(grupId, siswaId)
+    )");
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_grup_siswa_siswa ON grup_siswa(siswaId)');
+    // One-time-compatible backfill: keep legacy JSON for older deployed clients, but relational membership is authoritative.
+    $legacyGroups = $db->query("SELECT id, siswaIds FROM grup WHERE siswaIds IS NOT NULL AND siswaIds <> ''")->fetchAll();
+    $backfill = $db->prepare('INSERT OR IGNORE INTO grup_siswa (grupId, siswaId) SELECT ?, id FROM siswa WHERE id = ?');
+    foreach ($legacyGroups as $legacyGroup) {
+        $legacyIds = json_decode((string)$legacyGroup['siswaIds'], true);
+        if (!is_array($legacyIds)) continue;
+        foreach (array_unique(array_map('intval', $legacyIds)) as $legacyId) if ($legacyId > 0) $backfill->execute([(int)$legacyGroup['id'], $legacyId]);
+    }
+
+    $db->exec("CREATE TABLE IF NOT EXISTS master_komponen (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, wlc_tipe TEXT NOT NULL, komponen_key TEXT NOT NULL,
+        nama_komponen TEXT NOT NULL, opsi_json TEXT NOT NULL DEFAULT '[]', sort_order INTEGER NOT NULL DEFAULT 0,
+        aktif INTEGER NOT NULL DEFAULT 1, UNIQUE(wlc_tipe, komponen_key)
+    )");
+    $db->exec("CREATE TABLE IF NOT EXISTS skor_refleksi (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, reference_id INTEGER NOT NULL, tipe_refleksi TEXT NOT NULL,
+        komponen_id INTEGER NOT NULL REFERENCES master_komponen(id), nilai TEXT NOT NULL,
+        UNIQUE(reference_id, tipe_refleksi, komponen_id)
+    )");
+    $db->exec("CREATE TABLE IF NOT EXISTS guest_reflections (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, sekolahId INTEGER NOT NULL REFERENCES sekolah(id), siswaId INTEGER NOT NULL REFERENCES siswa(id),
+        teacher_name TEXT NOT NULL, catatan TEXT DEFAULT '', timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+    $rubrics = [
+        ['parent','kesiapan','Kesiapan Belajar',array_combine(range(1,5),range(1,5))], ['parent','fokus','Fokus',array_combine(range(1,5),range(1,5))],
+        ['parent','kemandirian','Inisiatif Penyelesaian',array_combine(range(1,5),range(1,5))], ['parent','ketekunan','Respons terhadap Kendala',array_combine(range(1,5),range(1,5))],
+        ['parent','emosional','Ekspresi Perilaku',array_combine(range(1,5),range(1,5))], ['parent','minat','Partisipasi Aktif',array_combine(range(1,5),range(1,5))],
+        ['kegiatan_wlc','kesiapan','Kesiapan Belajar',['langsung'=>'Kesiapan Langsung','diingatkan'=>'Perlu Diingatkan','menolak'=>'Menolak/Enggan']],
+        ['kegiatan_wlc','fokus','Fokus',['stabil'=>'Stabil','naikturun'=>'Naik Turun','distraksi'=>'Terdistraksi']],
+        ['kegiatan_wlc','respons','Respons Instruksi',['paham'=>'Memahami','ulang'=>'Perlu Diulang','bingung'=>'Bingung']],
+        ['kegiatan_wlc','kemandirian','Kemandirian',['mandiri'=>'Mandiri','terbatas'=>'Terbatas','bergantung'=>'Bergantung']],
+        ['kegiatan_wlc','ketekunan','Ketekunan',['ulang'=>'Mencoba Kembali','berhenti'=>'Berhenti','menolak'=>'Menolak']],
+        ['kegiatan_wlc','emosional','Emosi',['stabil'=>'Stabil','dorongan'=>'Perlu Dorongan','frustrasi'=>'Frustrasi']],
+        ['kegiatan_wlc','minat','Minat',['antusias'=>'Antusias','netral'=>'Netral','kurang'=>'Kurang']]
+    ];
+    $rubricInsert = $db->prepare('INSERT OR IGNORE INTO master_komponen (wlc_tipe, komponen_key, nama_komponen, opsi_json, sort_order) VALUES (?, ?, ?, ?, ?)');
+    foreach ($rubrics as $i => $rubric) $rubricInsert->execute([$rubric[0], $rubric[1], $rubric[2], json_encode((object)$rubric[3]), $i + 1]);
 
     $db->exec("CREATE TABLE IF NOT EXISTS bank_soal (
         id INTEGER PRIMARY KEY,
@@ -367,6 +418,15 @@ function initDatabase($db) {
         minat TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    // Mirror legacy rubric values into the normalized table. The old columns remain
+    // during this compatibility release so deployed clients keep working.
+    $legacyScoreFields = ['parent'=>['kesiapan','fokus','kemandirian','ketekunan','emosional','minat'], 'kegiatan_wlc'=>['kesiapan','fokus','respons','kemandirian','ketekunan','emosional','minat']];
+    foreach ($legacyScoreFields as $scoreType => $fields) {
+        $table = $scoreType === 'parent' ? 'parent_reflections' : 'kegiatan_wlc';
+        $legacyRows = $db->query("SELECT * FROM {$table}")->fetchAll();
+        $scoreInsert = $db->prepare('INSERT OR IGNORE INTO skor_refleksi (reference_id, tipe_refleksi, komponen_id, nilai) SELECT ?, ?, id, ? FROM master_komponen WHERE wlc_tipe = ? AND komponen_key = ?');
+        foreach ($legacyRows as $legacyRow) foreach ($fields as $field) if (isset($legacyRow[$field]) && $legacyRow[$field] !== '') $scoreInsert->execute([(int)$legacyRow['id'], $scoreType, (string)$legacyRow[$field], $scoreType, $field]);
+    }
     try { $db->exec('ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0'); } catch (Exception $e) {}
     try { $db->exec('ALTER TABLE users ADD COLUMN email TEXT UNIQUE'); } catch (Exception $e) {}
     try { $db->exec('ALTER TABLE users ADD COLUMN otp_hash TEXT'); } catch (Exception $e) {}
@@ -431,6 +491,15 @@ function initDatabase($db) {
             $insert->execute([$s['nama'], $s['nisn'], $s['sekolahId'], $s['kelasId']]);
         }
     }
+    // Repeat the membership backfill after the demo/legacy seed blocks, since those
+    // blocks can create groups and students during the same first initialization.
+    $legacyGroups = $db->query("SELECT id, siswaIds FROM grup WHERE siswaIds IS NOT NULL AND siswaIds <> ''")->fetchAll();
+    $backfill = $db->prepare('INSERT OR IGNORE INTO grup_siswa (grupId, siswaId) SELECT ?, id FROM siswa WHERE id = ?');
+    foreach ($legacyGroups as $legacyGroup) {
+        $legacyIds = json_decode((string)$legacyGroup['siswaIds'], true);
+        if (!is_array($legacyIds)) continue;
+        foreach (array_unique(array_map('intval', $legacyIds)) as $legacyId) if ($legacyId > 0) $backfill->execute([(int)$legacyGroup['id'], $legacyId]);
+    }
 }
 
 // Run DB Auto-init
@@ -487,6 +556,90 @@ $inputBody = json_decode(file_get_contents('php://input'), true) ?? [];
 sanitizeObject($inputBody);
 
 // ROUTING
+
+if ($uri === '/api/reflection/components' && $method === 'GET') {
+    $type = (string)($queryParams['type'] ?? 'parent');
+    if (!in_array($type, ['parent', 'kegiatan_wlc', 'guru_tamu'], true)) { http_response_code(400); echo json_encode(['error'=>'Jenis rubrik tidak valid']); exit; }
+    $stmt = $db->prepare('SELECT komponen_key AS key, nama_komponen AS name, opsi_json AS options, sort_order FROM master_komponen WHERE wlc_tipe = ? AND aktif = 1 ORDER BY sort_order, id');
+    $stmt->execute([$type === 'guru_tamu' ? 'kegiatan_wlc' : $type]);
+    echo json_encode($stmt->fetchAll() ?: []); exit;
+}
+
+function isListArrayCompat(array $value): bool {
+    return $value === [] || array_keys($value) === range(0, count($value) - 1);
+}
+
+if (preg_match('#^/api/siswa/([0-9]+)/status$#', $uri, $leadMatch) && $method === 'PUT') {
+    $user = authenticateToken();
+    if (($user['role'] ?? '') !== 'owner') { http_response_code(403); echo json_encode(['error'=>'Hanya owner yang dapat mengubah status leads']); exit; }
+    $status = trim((string)($inputBody['status_kumon'] ?? ''));
+    $note = trim((string)($inputBody['catatan_marketing'] ?? ''));
+    $statuses = ['Belum Dihubungi','Potensial','Coba Gratis','Daftar','Menolak'];
+    if (!in_array($status, $statuses, true) || strlen($note) > 4000) { http_response_code(400); echo json_encode(['error'=>'Status atau catatan leads tidak valid']); exit; }
+    $stmt = $db->prepare('UPDATE siswa SET status_kumon = ?, catatan_marketing = ? WHERE id = ?');
+    $stmt->execute([$status, $note, (int)$leadMatch[1]]);
+    if (!$stmt->rowCount()) { $check=$db->prepare('SELECT 1 FROM siswa WHERE id=?'); $check->execute([(int)$leadMatch[1]]); if (!$check->fetchColumn()) { http_response_code(404); echo json_encode(['error'=>'Siswa tidak ditemukan']); exit; } }
+    echo json_encode(['success'=>true]); exit;
+}
+
+if ($uri === '/api/access-code' && $method === 'POST') {
+    $user = authenticateToken();
+    if (($user['role'] ?? '') !== 'owner') { http_response_code(403); echo json_encode(['error'=>'Unauthorized']); exit; }
+    $kind = $inputBody['kind'] ?? ''; $id = (int)($inputBody['id'] ?? 0);
+    if (!in_array($kind, ['siswa','sekolah'], true) || $id < 1) { http_response_code(400); echo json_encode(['error'=>'Target kode akses tidak valid']); exit; }
+    $table = $kind === 'siswa' ? 'siswa' : 'sekolah';
+    $code = strtoupper(bin2hex(random_bytes(5)));
+    $stmt = $db->prepare("UPDATE {$table} SET token_akses_hash = ?, token_version = token_version + 1 WHERE id = ?");
+    $stmt->execute([hash('sha256', $code), $id]);
+    if (!$stmt->rowCount()) { http_response_code(404); echo json_encode(['error'=>'Target tidak ditemukan']); exit; }
+    echo json_encode(['success'=>true, 'code'=>$code]); exit;
+}
+
+if ($uri === '/api/auth-token' && $method === 'POST') {
+    enforceRateLimit($db, 'guest-access-code', 10, 900);
+    $code = strtoupper(trim((string)($inputBody['code'] ?? '')));
+    if (!preg_match('/^[A-F0-9]{10}$/', $code)) { http_response_code(401); echo json_encode(['error'=>'Kode akses tidak valid']); exit; }
+    $hash = hash('sha256', $code);
+    $stmt = $db->prepare('SELECT id, nama, token_version FROM siswa WHERE token_akses_hash = ?'); $stmt->execute([$hash]); $student = $stmt->fetch();
+    if ($student) {
+        $token = jwt_encode(['role'=>'siswa','id'=>(int)$student['id'],'reference_id'=>(int)$student['id'],'token_version'=>(int)$student['token_version']], JWT_SECRET, 12);
+        echo json_encode(['success'=>true,'role'=>'siswa','token'=>$token,'student'=>['id'=>(int)$student['id'],'nama'=>$student['nama']]]); exit;
+    }
+    $stmt = $db->prepare('SELECT id, nama, token_version FROM sekolah WHERE token_akses_hash = ?'); $stmt->execute([$hash]); $school = $stmt->fetch();
+    if ($school) {
+        $token = jwt_encode(['role'=>'guru_tamu','id'=>(int)$school['id'],'reference_id'=>(int)$school['id'],'token_version'=>(int)$school['token_version']], JWT_SECRET, 12);
+        echo json_encode(['success'=>true,'role'=>'guru_tamu','token'=>$token,'school'=>['id'=>(int)$school['id'],'nama'=>$school['nama']]]); exit;
+    }
+    http_response_code(401); echo json_encode(['error'=>'Kode akses tidak valid']); exit;
+}
+
+if ($uri === '/api/guest/students' && $method === 'GET') {
+    $guest = authenticateToken(); if (($guest['role'] ?? '') !== 'guru_tamu') { http_response_code(403); echo json_encode(['error'=>'Akses khusus guru tamu']); exit; }
+    $stmt=$db->prepare('SELECT id,nama,kelasId FROM siswa WHERE sekolahId=? ORDER BY nama'); $stmt->execute([(int)$guest['reference_id']]); echo json_encode($stmt->fetchAll() ?: []); exit;
+}
+
+if ($uri === '/api/guest/reflection' && $method === 'POST') {
+    enforceRateLimit($db, 'guest-reflection-submit', 20, 3600);
+    $guest=authenticateToken(); if (($guest['role'] ?? '') !== 'guru_tamu') { http_response_code(403); echo json_encode(['error'=>'Akses khusus guru tamu']); exit; }
+    $studentId=(int)($inputBody['siswaId'] ?? 0); $teacher=trim((string)($inputBody['teacher_name'] ?? '')); $note=trim((string)($inputBody['catatan'] ?? '')); $scores=$inputBody['scores'] ?? [];
+    $check=$db->prepare('SELECT 1 FROM siswa WHERE id=? AND sekolahId=?'); $check->execute([$studentId,(int)$guest['reference_id']]);
+    if (!$check->fetchColumn() || $teacher === '' || strlen($teacher)>160 || strlen($note)>4000 || !is_array($scores)) { http_response_code(400); echo json_encode(['error'=>'Data refleksi tidak valid atau siswa di luar sekolah']); exit; }
+    $components=$db->prepare('SELECT id,komponen_key,opsi_json FROM master_komponen WHERE wlc_tipe="kegiatan_wlc" AND aktif=1'); $components->execute(); $allowed=[];
+    foreach($components->fetchAll() as $c) { $optionMap=json_decode($c['opsi_json'],true) ?: []; $allowed[$c['komponen_key']]=['id'=>(int)$c['id'],'options'=>isListArrayCompat($optionMap) ? array_map('strval',$optionMap) : array_map('strval',array_keys($optionMap))]; }
+    if (!$allowed || array_diff(array_keys($scores),array_keys($allowed))) { http_response_code(400); echo json_encode(['error'=>'Komponen rubrik tidak valid']); exit; }
+    foreach($allowed as $key=>$component) if (!array_key_exists($key,$scores) || !in_array((string)$scores[$key],$component['options'],true)) { http_response_code(400); echo json_encode(['error'=>'Semua skor rubrik wajib diisi']); exit; }
+    $db->beginTransaction();
+    try { $stmt=$db->prepare('INSERT INTO guest_reflections(sekolahId,siswaId,teacher_name,catatan) VALUES(?,?,?,?)'); $stmt->execute([(int)$guest['reference_id'],$studentId,$teacher,$note]); $ref=(int)$db->lastInsertId(); $ins=$db->prepare('INSERT INTO skor_refleksi(reference_id,tipe_refleksi,komponen_id,nilai) VALUES(?,"guru_tamu",?,?)'); foreach($allowed as $key=>$component) $ins->execute([$ref,$component['id'],(string)$scores[$key]]); $db->commit(); echo json_encode(['success'=>true,'id'=>$ref]); }
+    catch(Throwable $e) { $db->rollBack(); http_response_code(500); echo json_encode(['error'=>'Gagal menyimpan refleksi']); } exit;
+}
+
+if ($uri === '/api/guest/reflections' && $method === 'GET') {
+    $user=authenticateToken(); if (!in_array($user['role'] ?? '', ['owner','evaluator'], true)) { http_response_code(403); echo json_encode(['error'=>'Unauthorized']); exit; }
+    $rows=$db->query('SELECT gr.*,s.nama AS siswaNama,sk.nama AS namaSekolah FROM guest_reflections gr JOIN siswa s ON s.id=gr.siswaId JOIN sekolah sk ON sk.id=gr.sekolahId ORDER BY gr.timestamp DESC')->fetchAll() ?: [];
+    $scores=$db->prepare('SELECT mc.komponen_key,sr.nilai FROM skor_refleksi sr JOIN master_komponen mc ON mc.id=sr.komponen_id WHERE sr.reference_id=? AND sr.tipe_refleksi="guru_tamu"');
+    foreach($rows as &$row) { $scores->execute([(int)$row['id']]); $row['scores']=[]; foreach($scores->fetchAll() as $score) $row['scores'][$score['komponen_key']]=$score['nilai']; }
+    unset($row); echo json_encode($rows); exit;
+}
 
 if (strpos($uri, '/api/v2/student') === 0) {
     require_once 'api_v2_student.php';
@@ -1030,13 +1183,9 @@ if ($uri === '/api/siswa') {
         if ($user['role'] === 'siswa') {
             $conditions[] = 's.id = ?'; $params[] = (int)$user['reference_id'];
         } elseif ($user['role'] === 'asisten') {
-            $groupStmt = $db->prepare('SELECT siswaIds FROM grup WHERE asistenId = ?');
+            $groupStmt = $db->prepare('SELECT DISTINCT gs.siswaId FROM grup_siswa gs JOIN grup g ON g.id=gs.grupId WHERE g.asistenId = ?');
             $groupStmt->execute([$user['username']]);
-            $assignedIds = [];
-            foreach ($groupStmt->fetchAll(PDO::FETCH_COLUMN) as $jsonIds) {
-                $ids = json_decode((string)$jsonIds, true);
-                if (is_array($ids)) $assignedIds = array_merge($assignedIds, array_map('intval', $ids));
-            }
+            $assignedIds = array_map('intval', $groupStmt->fetchAll(PDO::FETCH_COLUMN));
             $assignedIds = array_values(array_unique(array_filter($assignedIds, static fn($id) => $id > 0)));
             if (!$assignedIds) {
                 echo json_encode(['data' => [], 'pagination' => ['page' => $page, 'limit' => $limit, 'total' => 0, 'totalPages' => 0]]); exit;
@@ -1047,7 +1196,7 @@ if ($uri === '/api/siswa') {
         $sekolahId = $queryParams['sekolahId'] ?? null;
         if ($sekolahId) { $conditions[] = 's.sekolahId = ?'; $params[] = $sekolahId; }
         $whereSql = $conditions ? ' WHERE ' . implode(' AND ', $conditions) : '';
-        $sql = "SELECT s.*, sk.nama as namaSekolah, k.nama as namaKelas FROM siswa s
+        $sql = "SELECT s.id, s.nama, s.nisn, s.sekolahId, s.kelasId, s.status_kumon, s.catatan_marketing, sk.nama as namaSekolah, k.nama as namaKelas FROM siswa s
                 LEFT JOIN sekolah sk ON s.sekolahId = sk.id LEFT JOIN kelas k ON s.kelasId = k.id
                 {$whereSql} ORDER BY s.nama LIMIT ? OFFSET ?";
         $sqlCount = 'SELECT COUNT(*) as total FROM siswa s' . $whereSql;
@@ -1084,8 +1233,11 @@ if ($uri === '/api/siswa') {
         $sekolahId = $inputBody['sekolahId'] ?? 1;
         $kelasId = $inputBody['kelasId'] ?? 1;
 
-        $stmt = $db->prepare('INSERT INTO siswa (nama, nisn, sekolahId, kelasId) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$nama, $nisn, $sekolahId, $kelasId]);
+        $status = $inputBody['status_kumon'] ?? 'Belum Dihubungi';
+        $note = trim((string)($inputBody['catatan_marketing'] ?? ''));
+        if (!in_array($status, ['Belum Dihubungi','Potensial','Coba Gratis','Daftar','Menolak'], true) || strlen($note) > 4000) { http_response_code(400); echo json_encode(['error'=>'Status atau catatan marketing tidak valid']); exit; }
+        $stmt = $db->prepare('INSERT INTO siswa (nama, nisn, sekolahId, kelasId, status_kumon, catatan_marketing) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$nama, $nisn, $sekolahId, $kelasId, $status, $note]);
         echo json_encode(['id' => $db->lastInsertId()]);
         exit;
     }
@@ -1120,7 +1272,8 @@ if ($uri === '/api/siswa/generate-link' && $method === 'POST') {
     $token = jwt_encode([
         'reference_id' => $siswa['id'],
         'username' => $siswa['nama'],
-        'role' => 'siswa'
+        'role' => 'siswa',
+        'token_version' => (int)($siswa['token_version'] ?? 0)
     ], JWT_SECRET, 168); // 7 days expiry
 
     echo json_encode([
@@ -1134,7 +1287,7 @@ if ($uri === '/api/siswa/generate-link' && $method === 'POST') {
 if ($uri === '/api/sekolah') {
     if ($method === 'GET') {
         authenticateToken();
-        $stmt = $db->query('SELECT * FROM sekolah');
+        $stmt = $db->query('SELECT id, nama, alamat, kota, status FROM sekolah');
         echo json_encode($stmt->fetchAll() ?: []);
         exit;
     } elseif ($method === 'POST') {
@@ -1200,23 +1353,21 @@ if ($uri === '/api/grup') {
         $jadwalId = $inputBody['jadwalId'] ?? null;
         $asistenId = $inputBody['asistenId'] ?? null;
         $siswaIds = $inputBody['siswaIds'] ?? null;
+        if (is_string($siswaIds)) $siswaIds = json_decode($siswaIds, true);
 
-        if (!$jadwalId || !$asistenId || !$siswaIds) {
+        if (!$jadwalId || !$asistenId || !is_array($siswaIds) || !$siswaIds) {
             http_response_code(400);
             echo json_encode(['error' => 'All fields required']);
             exit;
         }
         $db->beginTransaction();
         try {
-            $stmt = $db->prepare('INSERT INTO grup (nama, jadwalId, asistenId, siswaIds) VALUES (?, ?, ?, ?)');
-            $stmt->execute([$nama, $jadwalId, $asistenId, $siswaIds]);
+            $stmt = $db->prepare('INSERT INTO grup (nama, jadwalId, asistenId) VALUES (?, ?, ?)');
+            $stmt->execute([$nama, $jadwalId, $asistenId]);
             $grupId = $db->lastInsertId();
             
             $insertStmt = $db->prepare('INSERT INTO grup_siswa (grupId, siswaId) VALUES (?, ?)');
-            $ids = json_decode($siswaIds, true);
-            if(is_array($ids)) {
-                foreach($ids as $sId) $insertStmt->execute([$grupId, (int)$sId]);
-            }
+            foreach (array_unique(array_map('intval', $siswaIds)) as $sId) if ($sId > 0) $insertStmt->execute([$grupId, $sId]);
             $db->commit();
             echo json_encode(['success' => true, 'id' => $grupId]);
         } catch (Exception $e) {
@@ -1418,9 +1569,13 @@ if ($uri === '/api/reflection') {
                 'ketekunan' => $r['ketekunan'],
                 'emosional' => $r['emosional'],
                 'minat' => $r['minat'],
+                'scores' => [],
                 'catatan' => $r['catatan'],
                 'created_at' => $r['timestamp']
             ];
+            $scoreStmt=$db->prepare('SELECT mc.komponen_key,sr.nilai FROM skor_refleksi sr JOIN master_komponen mc ON mc.id=sr.komponen_id WHERE sr.reference_id=? AND sr.tipe_refleksi="parent"');
+            $scoreStmt->execute([(int)$r['id']]);
+            foreach($scoreStmt->fetchAll() as $score) $formatted[count($formatted)-1]['scores'][$score['komponen_key']]=$score['nilai'];
         }
         echo json_encode($formatted);
         exit;
@@ -1432,12 +1587,14 @@ if ($uri === '/api/reflection') {
             http_response_code(403); echo json_encode(['error' => 'Verifikasi siswa diperlukan atau sudah kedaluwarsa']); exit;
         }
         $parentName = $inputBody['parent_name'] ?? null;
-        $kesiapan = $inputBody['kesiapan'] ?? null;
-        $fokus = $inputBody['fokus'] ?? null;
-        $kemandirian = $inputBody['kemandirian'] ?? null;
-        $ketekunan = $inputBody['ketekunan'] ?? null;
-        $emosional = $inputBody['emosional'] ?? null;
-        $minat = $inputBody['minat'] ?? null;
+        $scoreFields = ['kesiapan','fokus','kemandirian','ketekunan','emosional','minat'];
+        $scores = is_array($inputBody['scores'] ?? null) ? $inputBody['scores'] : array_intersect_key($inputBody, array_flip($scoreFields));
+        $kesiapan = $scores['kesiapan'] ?? null;
+        $fokus = $scores['fokus'] ?? null;
+        $kemandirian = $scores['kemandirian'] ?? null;
+        $ketekunan = $scores['ketekunan'] ?? null;
+        $emosional = $scores['emosional'] ?? null;
+        $minat = $scores['minat'] ?? null;
         $catatan = $inputBody['catatan'] ?? '';
 
         if (!$parentName || strlen($parentName) > 480 || strlen((string)$catatan) > 8000) {
@@ -1446,15 +1603,31 @@ if ($uri === '/api/reflection') {
             exit;
         }
         foreach ([$kesiapan, $fokus, $kemandirian, $ketekunan, $emosional, $minat] as $rating) {
-            if (!is_numeric($rating) || (int)$rating < 1 || (int)$rating > 4) {
-                http_response_code(400); echo json_encode(['error' => 'Nilai refleksi harus 1 sampai 4']); exit;
+            if (!is_numeric($rating) || (int)$rating < 1 || (int)$rating > 5) {
+                http_response_code(400); echo json_encode(['error' => 'Nilai refleksi harus 1 sampai 5']); exit;
             }
         }
+        $componentStmt = $db->prepare('SELECT id,komponen_key,opsi_json FROM master_komponen WHERE wlc_tipe = "parent" AND aktif=1');
+        $componentStmt->execute(); $components = $componentStmt->fetchAll();
+        foreach ($components as $component) {
+            $value = $scores[$component['komponen_key']] ?? null;
+            $optionMap = json_decode($component['opsi_json'], true) ?: [];
+            $allowed = isListArrayCompat($optionMap) ? array_map('strval', $optionMap) : array_map('strval', array_keys($optionMap));
+            if ($value === null || !in_array((string)$value, $allowed, true)) { http_response_code(400); echo json_encode(['error'=>'Nilai komponen refleksi tidak valid']); exit; }
+        }
+        if (count($components) !== count($scores)) { http_response_code(400); echo json_encode(['error'=>'Komponen refleksi tidak valid']); exit; }
+        $db->beginTransaction();
+        try {
         $stmt = $db->prepare('INSERT INTO parent_reflections (siswaId, parentName, kesiapan, fokus, kemandirian, ketekunan, emosional, minat, catatan) 
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([$siswaId, $parentName, $kesiapan, $fokus, $kemandirian, $ketekunan, $emosional, $minat, $catatan]);
+        $reflectionId = (int)$db->lastInsertId();
+        $scoreInsert = $db->prepare('INSERT INTO skor_refleksi(reference_id,tipe_refleksi,komponen_id,nilai) VALUES (?,"parent",?,?)');
+        foreach ($components as $component) $scoreInsert->execute([$reflectionId,(int)$component['id'],(string)$scores[$component['komponen_key']]]);
+        $db->commit();
         unset($_SESSION['verified_reflection_student'], $_SESSION['verified_reflection_expires']);
-        echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
+        echo json_encode(['success' => true, 'id' => $reflectionId]);
+        } catch (Throwable $e) { $db->rollBack(); http_response_code(500); echo json_encode(['error'=>'Gagal menyimpan refleksi']); }
         exit;
     }
 }
@@ -1468,13 +1641,9 @@ if ($uri === '/api/kegiatan-wlc') {
             $stmt = $db->prepare('SELECT id, siswaId, wlc_tipe, tanggal, org_name, kesiapan, fokus, respons, kemandirian, ketekunan, emosional, minat, timestamp FROM kegiatan_wlc WHERE siswaId = ? ORDER BY tanggal DESC, id DESC');
             $stmt->execute([$user['reference_id']]);
         } elseif ($user['role'] === 'asisten') {
-            $groupStmt = $db->prepare('SELECT siswaIds FROM grup WHERE asistenId = ?');
+            $groupStmt = $db->prepare('SELECT DISTINCT gs.siswaId FROM grup_siswa gs JOIN grup g ON g.id=gs.grupId WHERE g.asistenId = ?');
             $groupStmt->execute([$user['username']]);
-            $assignedIds = [];
-            foreach ($groupStmt->fetchAll(PDO::FETCH_COLUMN) as $jsonIds) {
-                $ids = json_decode((string)$jsonIds, true);
-                if (is_array($ids)) $assignedIds = array_merge($assignedIds, array_map('intval', $ids));
-            }
+            $assignedIds = array_map('intval', $groupStmt->fetchAll(PDO::FETCH_COLUMN));
             $assignedIds = array_values(array_unique(array_filter($assignedIds, static fn($id) => $id > 0)));
             if (!$assignedIds) { echo json_encode([]); exit; }
             $marks = implode(',', array_fill(0, count($assignedIds), '?'));
@@ -1494,7 +1663,13 @@ if ($uri === '/api/kegiatan-wlc') {
         } else {
             http_response_code(403); echo json_encode(['error' => 'Unauthorized']); exit;
         }
-        echo json_encode($stmt->fetchAll() ?: []);
+        $activities=$stmt->fetchAll() ?: [];
+        foreach($activities as &$activity) {
+            $scoreStmt=$db->prepare('SELECT mc.komponen_key,sr.nilai FROM skor_refleksi sr JOIN master_komponen mc ON mc.id=sr.komponen_id WHERE sr.reference_id=? AND sr.tipe_refleksi="kegiatan_wlc"');
+            $scoreStmt->execute([(int)$activity['id']]); $activity['scores']=[];
+            foreach($scoreStmt->fetchAll() as $score) $activity['scores'][$score['komponen_key']]=$score['nilai'];
+        }
+        unset($activity); echo json_encode($activities);
         exit;
     } elseif ($method === 'POST') {
         $user = authenticateToken();
@@ -1529,10 +1704,21 @@ if ($uri === '/api/kegiatan-wlc') {
             http_response_code(403); echo json_encode(['error' => 'Siswa bukan tanggung jawab asisten']); exit;
         }
 
+        $activityScores = is_array($inputBody['scores'] ?? null) ? $inputBody['scores'] : ['kesiapan'=>$kesiapan,'fokus'=>$fokus,'respons'=>$respons,'kemandirian'=>$kemandirian,'ketekunan'=>$ketekunan,'emosional'=>$emosional,'minat'=>$minat];
+        $componentsStmt=$db->prepare('SELECT id,komponen_key,opsi_json FROM master_komponen WHERE wlc_tipe="kegiatan_wlc" AND aktif=1'); $componentsStmt->execute(); $activityComponents=$componentsStmt->fetchAll();
+        foreach($activityComponents as $component) if(isset($activityScores[$component['komponen_key']]) && $activityScores[$component['komponen_key']] !== '') {
+            $optionMap=json_decode($component['opsi_json'],true) ?: []; $allowed=isListArrayCompat($optionMap) ? array_map('strval',$optionMap) : array_map('strval',array_keys($optionMap));
+            if(!in_array((string)$activityScores[$component['komponen_key']],$allowed,true)) { http_response_code(400); echo json_encode(['error'=>'Nilai rubrik WLC tidak valid']); exit; }
+        }
         $shareToken = bin2hex(random_bytes(32));
         $stmt = $db->prepare('INSERT INTO kegiatan_wlc (siswaId, wlc_tipe, tanggal, org_name, kesiapan, fokus, respons, kemandirian, ketekunan, emosional, minat, share_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([$siswaId, $wlc_tipe, $tanggal, $org_name, $kesiapan, $fokus, $respons, $kemandirian, $ketekunan, $emosional, $minat, $shareToken]);
-        echo json_encode(['success' => true, 'id' => $db->lastInsertId(), 'share_token' => $shareToken]);
+        $activityId = (int)$db->lastInsertId();
+        $normalizedInsert=$db->prepare('INSERT OR REPLACE INTO skor_refleksi(reference_id,tipe_refleksi,komponen_id,nilai) VALUES (?,"kegiatan_wlc",?,?)');
+        foreach($activityComponents as $component) if(isset($activityScores[$component['komponen_key']]) && $activityScores[$component['komponen_key']] !== '') {
+            $normalizedInsert->execute([$activityId,(int)$component['id'],(string)$activityScores[$component['komponen_key']]]);
+        }
+        echo json_encode(['success' => true, 'id' => $activityId, 'share_token' => $shareToken]);
         exit;
     }
 }
@@ -1662,6 +1848,7 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
         }
 
         $keys = array_intersect(array_keys($inputBody), $tableWhitelists[$table]);
+        if ($table === 'grup') $keys = array_values(array_diff($keys, ['siswaIds']));
         if (empty($keys)) {
             http_response_code(400);
             echo json_encode(['error' => 'No valid data']);
@@ -1686,14 +1873,6 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
             $stmt->execute($values);
             if ($table === 'users' && isset($inputBody['password'])) {
                 $db->prepare('UPDATE users SET token_version = token_version + 1 WHERE id = ?')->execute([$id]);
-            }
-            if ($table === 'grup' && in_array('siswaIds', $keys)) {
-                $db->prepare('DELETE FROM grup_siswa WHERE grupId = ?')->execute([$id]);
-                $insertStmt = $db->prepare('INSERT INTO grup_siswa (grupId, siswaId) VALUES (?, ?)');
-                $ids = json_decode($inputBody['siswaIds'], true);
-                if(is_array($ids)) {
-                    foreach($ids as $sId) $insertStmt->execute([$id, (int)$sId]);
-                }
             }
             echo json_encode(['success' => true, 'changes' => $stmt->rowCount()]);
         } catch (Exception $e) {

@@ -256,7 +256,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
     </div>
     <div class="form-row">
         <div class="form-group"><label class="form-label">Status Leads</label><select class="form-input" id="newSiswaStatus">
-            <option value="Belum Dihubungi">Belum Dihubungi</option>
+            <option value="Belum Dihubungi">Belum Dihubungi</option><option value="Potensial">Potensial</option>
             <option value="Coba Gratis">Coba Gratis</option>
             <option value="Daftar">Daftar</option>
             <option value="Menolak">Menolak</option>
@@ -665,6 +665,10 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         <label class="form-label" style="font-size:0.8rem;">Kelas</label>
         <select id="siswaFilterKelas" class="form-input" onchange="filterSiswaTable()"></select>
     </div>
+    <div class="form-group" style="margin:0; flex:1; min-width:170px;">
+        <label class="form-label" style="font-size:0.8rem;">Status Leads</label>
+        <select id="siswaFilterStatus" class="form-input" onchange="filterSiswaTable()"><option value="">Semua Status</option><option>Belum Dihubungi</option><option>Potensial</option><option>Coba Gratis</option><option>Daftar</option><option>Menolak</option></select>
+    </div>
     <div style="display:flex; gap:0.5rem;">
         <button class="btn btn-primary" onclick="document.getElementById('siswaFormContainer').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah</button>
         <button class="btn btn-secondary" onclick="printFilteredSiswa()"><i class="fas fa-print"></i> Cetak</button>
@@ -866,17 +870,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
         </div>
         <hr style="margin:2rem 0; border:0; border-top:1px solid var(--border);">
         <h3 style="margin-bottom:1.5rem; color:var(--primary);"><i class="fas fa-tasks"></i> Input Skor Analisa Observasi</h3>
-        <div class="form-row">
-            <div class="form-group"><label class="form-label">Kesiapan Belajar</label><select id="certKesiapan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="langsung">Kesiapan Langsung</option><option value="diingatkan">Perlu Diingatkan</option><option value="menolak">Menolak/Enggan</option></select></div>
-            <div class="form-group"><label class="form-label">Keterlibatan & Fokus</label><select id="certFokus" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Fokus Stabil</option><option value="naikturun">Naik Turun</option><option value="distraksi">Mudah Distraksi</option></select></div>
-            <div class="form-group"><label class="form-label">Respons terhadap Instruksi</label><select id="certRespons" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="paham">Paham Langsung</option><option value="ulang">Perlu Pengulangan</option><option value="bingung">Tampak Bingung</option></select></div>
-        </div>
-        <div class="form-row" style="margin-top:1rem;">
-            <div class="form-group"><label class="form-label">Kemandirian Belajar</label><select id="certKemandirian" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="mandiri">Sangat Mandiri</option><option value="terbatas">Bantuan Terbatas</option><option value="bergantung">Sangat Bergantung</option></select></div>
-            <div class="form-group"><label class="form-label">Ketekunan Tantangan</label><select id="certKetekunan" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="ulang">Mau Mencoba Ulang</option><option value="berhenti">Cepat Berhenti</option><option value="menolak">Menolak Mencoba</option></select></div>
-            <div class="form-group"><label class="form-label">Respons Kesulitan</label><select id="certEmosional" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="stabil">Emosi Stabil</option><option value="dorongan">Butuh Dorongan</option><option value="frustrasi">Mudah Frustrasi</option></select></div>
-            <div class="form-group"><label class="form-label">Engagement Belajar</label><select id="certMinat" class="form-input"><option value="">-- Belum Diobservasi --</option><option value="antusias">Sangat Antusias</option><option value="netral">Biasa Saja/Netral</option><option value="kurang">Kurang Berminat</option></select></div>
-        </div>
+        <div id="certDynamicComponents" class="form-row"></div>
         <button class="btn btn-primary" onclick="previewCertificate()" style="width:100%; margin-top:2rem; height:55px; font-size:1.1rem;"><i class="fas fa-save"></i> Simpan & Generate Sertifikat</button>
         
         <!-- Riwayat Kegiatan WLC & Sertifikat -->
@@ -2107,11 +2101,34 @@ window.saveNewSoal = async function() {
             const tbody = document.getElementById('siswaTableBody');
             tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.nisn)}</td><td>${escapeHtml(s.namaSekolah || '-')}</td><td>${escapeHtml(s.namaKelas || '-')}</td><td><span class="badge badge-${getSiswaBadgeColor(s.status_kumon)}">${escapeHtml(s.status_kumon || 'Belum Dihubungi')}</span></td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(s.catatan_marketing || '')}">${escapeHtml(s.catatan_marketing || '-')}</td><td>
                 <div class="action-group">
-                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-edit-alt" style="width:auto;padding:0 .8rem" onclick="generateAccessCode('siswa',${s.id})"><i class="fas fa-key"></i> Kode</button><button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="generateStudentLink(${s.id})"><i class="fas fa-link"></i> Link</button>                      <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSiswa(${s.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openLeadStatus(${s.id})"><i class="fas fa-phone"></i> Leads</button>
                     <button class="btn-action btn-delete-alt" onclick="deleteData('siswa', ${s.id}, loadSiswaTable)"><i class="fas fa-trash"></i></button>
                 </div>
             </td></tr>`).join('');
         }
+
+        window.openLeadStatus = function(siswaId) {
+            const student = allSiswaData.find(s => Number(s.id) === Number(siswaId));
+            if (!student) return showToast('Siswa tidak ditemukan');
+            document.getElementById('leadStatusDialog')?.remove();
+            const overlay = document.createElement('div'); overlay.id = 'leadStatusDialog';
+            overlay.style.cssText = 'position:fixed;inset:0;background:#0008;z-index:10000;display:grid;place-items:center;padding:1rem;';
+            overlay.innerHTML = `<div role="dialog" aria-modal="true" style="background:white;border-radius:16px;padding:1.5rem;width:min(460px,100%);box-shadow:0 20px 50px #0004"><h3 style="margin:0 0 1rem">Update Leads: ${escapeHtml(student.nama)}</h3><label class="form-label">Status</label><select id="leadDialogStatus" class="form-input"><option>Belum Dihubungi</option><option>Potensial</option><option>Coba Gratis</option><option>Daftar</option><option>Menolak</option></select><label class="form-label" style="display:block;margin-top:1rem">Catatan marketing</label><textarea id="leadDialogNote" class="form-input" rows="4" maxlength="4000" style="resize:vertical">${escapeHtml(student.catatan_marketing || '')}</textarea><div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem"><button id="leadDialogCancel" class="btn btn-secondary">Batal</button><button id="leadDialogSave" class="btn btn-primary">Simpan</button></div></div>`;
+            document.body.appendChild(overlay);
+            overlay.querySelector('#leadDialogStatus').value = student.status_kumon || 'Belum Dihubungi';
+            overlay.querySelector('#leadDialogCancel').onclick = () => overlay.remove();
+            overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+            overlay.querySelector('#leadDialogSave').onclick = async () => {
+                const button = overlay.querySelector('#leadDialogSave'); button.disabled = true;
+                try {
+                    const response = await fetch(`${API_BASE}/api/siswa/${siswaId}/status`, { method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('wlc_token')}, body:JSON.stringify({status_kumon:overlay.querySelector('#leadDialogStatus').value,catatan_marketing:overlay.querySelector('#leadDialogNote').value}) });
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok) throw new Error(result.error || 'Gagal menyimpan status');
+                    overlay.remove(); showToast('Status leads diperbarui'); await loadSiswaTable();
+                } catch (error) { showToast(error.message || 'Gagal menyimpan status'); button.disabled = false; }
+            };
+        };
 
         async function populateSiswaFilters() {
             const selSekolah = document.getElementById('siswaFilterSekolah');
@@ -2152,12 +2169,14 @@ window.saveNewSoal = async function() {
             const search = document.getElementById('siswaSearchInput').value.toLowerCase();
             const school = document.getElementById('siswaFilterSekolah').value;
             const kelas = document.getElementById('siswaFilterKelas').value;
+            const status = document.getElementById('siswaFilterStatus')?.value || '';
             
             const filtered = allSiswaData.filter(s => {
                 const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
                 const matchesSchool = !school || String(s.sekolahId) === school;
                 const matchesKelas = !kelas || String(s.kelasId) === kelas;
-                return matchesSearch && matchesSchool && matchesKelas;
+                const matchesStatus = !status || (s.status_kumon || 'Belum Dihubungi') === status;
+                return matchesSearch && matchesSchool && matchesKelas && matchesStatus;
             });
             renderSiswaTable(filtered);
         }
@@ -2166,12 +2185,14 @@ window.saveNewSoal = async function() {
             const search = document.getElementById('siswaSearchInput').value.toLowerCase();
             const school = document.getElementById('siswaFilterSekolah').value;
             const kelas = document.getElementById('siswaFilterKelas').value;
+            const status = document.getElementById('siswaFilterStatus')?.value || '';
             
             const filtered = allSiswaData.filter(s => {
                 const matchesSearch = s.nama.toLowerCase().includes(search) || s.nisn.toLowerCase().includes(search);
                 const matchesSchool = !school || String(s.sekolahId) === school;
                 const matchesKelas = !kelas || String(s.kelasId) === kelas;
-                return matchesSearch && matchesSchool && matchesKelas;
+                const matchesStatus = !status || (s.status_kumon || 'Belum Dihubungi') === status;
+                return matchesSearch && matchesSchool && matchesKelas && matchesStatus;
             });
 
             const schoolName = document.getElementById('siswaFilterSekolah').selectedOptions[0]?.textContent || 'Semua Sekolah';
@@ -2237,7 +2258,7 @@ window.saveNewSoal = async function() {
                         'Content-Type': 'application/json',
                         'x-user-role': localStorage.getItem('wlc_role')
                     },
-                    body: JSON.stringify({ nama, nisn, sekolahId: parseInt(sekolahId), kelasId: parseInt(kelasId) })
+                    body: JSON.stringify({ nama, nisn, sekolahId: parseInt(sekolahId), kelasId: parseInt(kelasId), status_kumon: document.getElementById('newSiswaStatus').value, catatan_marketing: document.getElementById('newSiswaCatatan').value })
                 });
                 if (res.ok) {
                     showToast('✅ Siswa ditambah!');
@@ -2331,6 +2352,7 @@ window.saveNewSoal = async function() {
             const tbody = document.querySelector('#tableSekolah tbody');
             tbody.innerHTML = data.map((s, i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kota)}</td><td>
                 <div class="action-group">
+                    <button class="btn-action btn-edit-alt" style="width:auto;padding:0 .8rem" onclick="generateAccessCode('sekolah',${s.id})"><i class="fas fa-key"></i> Kode Guru</button>
                     <button class="btn-action btn-edit-alt" style="width:auto; padding:0 0.8rem;" onclick="openEditSekolah(${s.id})"><i class="fas fa-edit"></i> Edit</button>
                     <button class="btn-action btn-delete-alt" onclick="deleteData('sekolah', ${s.id}, loadSekolah)"><i class="fas fa-trash"></i></button>
                 </div>
@@ -2493,6 +2515,14 @@ window.saveNewSoal = async function() {
 
         window.closeEditModal = function() { document.getElementById('editModalOverlay').classList.remove('show'); };
         
+                window.generateAccessCode = async function(kind, id) {
+                    if (!confirm('Kode akses yang lama akan dicabut. Buat kode baru?')) return;
+                    try {
+                        const response = await fetch(`${API_BASE}/api/access-code`, {method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('wlc_token')},body:JSON.stringify({kind,id})});
+                        const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Gagal membuat kode');
+                        window.prompt('Simpan kode ini sekarang. Kode hanya ditampilkan sekali:', result.code);
+                    } catch (error) { showToast(error.message || 'Gagal membuat kode akses'); }
+                };
                 window.generateStudentLink = async function(siswaId) {
             try {
                 const res = await fetch(`${API_BASE}/api/siswa/generate-link`, {
@@ -2740,6 +2770,8 @@ function filterSiswaUntukGrup() {
     document.getElementById('grupSiswaCounter').value = `${filtered.length} siswa tersedia`;
 }
 
+function decodeGroupStudentIds(raw) { if (Array.isArray(raw)) return raw; try { const ids=JSON.parse(raw || '[]'); return Array.isArray(ids) ? ids : []; } catch { return []; } }
+
 window.tambahGrup = async function() {
     const nama = document.getElementById('newGrupNama').value;
     const jId = document.getElementById('newGrupJadwal').value;
@@ -2750,7 +2782,7 @@ window.tambahGrup = async function() {
         const res = await fetch(`${API_BASE}/api/grup`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({nama, jadwalId: parseInt(jId), asistenId: aId, siswaIds: JSON.stringify(sIds)})
+            body: JSON.stringify({nama, jadwalId: parseInt(jId), asistenId: aId, siswaIds: sIds})
         });
         if(res.ok) { showToast('✅ Grup disimpan!'); await loadGrupTable(); document.getElementById('grupFormContainer').classList.add('hidden'); }
     } catch (e) { console.error(e); showToast('⚠️ Terjadi kesalahan sistem.'); }
@@ -2761,7 +2793,7 @@ async function loadGrupTable() {
     if(res.ok) {
         let data = await res.json();
         data = getSortedData(data);
-        document.getElementById('grupTableBody').innerHTML = data.map((g, i) => `<tr><td>${i+1}</td><td>${escapeHtml(g.nama)}</td><td>${escapeHtml(g.tanggal)} - ${escapeHtml(g.namaSekolah)}</td><td>${escapeHtml(g.asistenId)}</td><td>${JSON.parse(g.siswaIds).length} Siswa</td><td>
+        document.getElementById('grupTableBody').innerHTML = data.map((g, i) => `<tr><td>${i+1}</td><td>${escapeHtml(g.nama)}</td><td>${escapeHtml(g.tanggal)} - ${escapeHtml(g.namaSekolah)}</td><td>${escapeHtml(g.asistenId)}</td><td>${decodeGroupStudentIds(g.siswaIds).length} Siswa</td><td>
             <div class="action-group">
                 <button class="btn-action btn-delete-alt" onclick="deleteData('grup', ${g.id}, loadGrupTable)"><i class="fas fa-trash"></i></button>
             </div>
@@ -2861,7 +2893,7 @@ window.previewPrintSiswa = async function() {
             const grups = await grupRes.json();
             const selectedGrup = grups.find(g => g.id == gId);
             if (selectedGrup) {
-                const sIds = JSON.parse(selectedGrup.siswaIds);
+                const sIds = decodeGroupStudentIds(selectedGrup.siswaIds);
                 students = students.filter(s => sIds.includes(s.id));
             }
         }
@@ -3374,7 +3406,7 @@ window.executePrintSiswa = function() {
                     const grups = await grupRes.json();
                         const selectedGrup = grups.find(g => g.id == gId);
                     if (selectedGrup) {
-                        const sIds = JSON.parse(selectedGrup.siswaIds);
+                        const sIds = decodeGroupStudentIds(selectedGrup.siswaIds);
                         students = students.filter(s => sIds.includes(s.id));
                     }
                 }
@@ -3408,7 +3440,7 @@ window.executePrintSiswa = function() {
                     const grups = await grupRes.json();
                     const selectedGrup = grups.find(g => g.id == gId);
                     if (selectedGrup) {
-                        const sIds = JSON.parse(selectedGrup.siswaIds);
+                        const sIds = decodeGroupStudentIds(selectedGrup.siswaIds);
                         students = students.filter(s => sIds.includes(s.id));
                     }
                 }
@@ -3988,27 +4020,34 @@ window.executePrintSiswa = function() {
             }
         };
 
+        const certLegacyFieldIds = {kesiapan:'certKesiapan',fokus:'certFokus',respons:'certRespons',kemandirian:'certKemandirian',ketekunan:'certKetekunan',emosional:'certEmosional',minat:'certMinat'};
+        let certComponentDefs = [];
+        window.loadCertComponents = async function() {
+            const response=await fetch(`${API_BASE}/api/reflection/components?type=kegiatan_wlc`);
+            if(!response.ok) throw new Error('Rubrik observasi gagal dimuat');
+            certComponentDefs=await response.json(); const root=document.getElementById('certDynamicComponents'); root.replaceChildren();
+            certComponentDefs.forEach(component=>{let options=component.options;if(typeof options==='string')options=JSON.parse(options);const wrap=document.createElement('div');wrap.className='form-group';const label=document.createElement('label');label.className='form-label';label.textContent=component.name;const select=document.createElement('select');select.className='form-input';select.id=certLegacyFieldIds[component.key]||`certScore_${component.key}`;select.add(new Option('-- Belum Diobservasi --',''));Object.entries(options||{}).forEach(([value,name])=>select.add(new Option(name,value)));wrap.append(label,select);root.append(wrap);});
+        };
+        window.loadCertComponents().catch(error=>console.error(error));
+
         window.previewCertificate = async function() {
             const siswaId = document.getElementById('certSiswaIdSingle').value;
             const certDate = document.getElementById('certDateSingle').value || new Date().toISOString().split('T')[0];
             const wlc_tipe = document.getElementById('certWlcTipeSingle').value;
             if (!siswaId) { showToast('⚠️ Pilih siswa terlebih dahulu'); return; }
 
+            const scores = {};
+            certComponentDefs.forEach(component=>{const field=document.getElementById(certLegacyFieldIds[component.key]||`certScore_${component.key}`);scores[component.key]=field?.value||'';});
             const payload = {
                 siswaId: parseInt(siswaId),
                 wlc_tipe: parseInt(wlc_tipe),
                 tanggal: certDate,
                 org_name: document.getElementById('certOrgNameSingle').value || appSettings.app_name || 'Kumon Wahidin',
-                kesiapan: document.getElementById('certKesiapan').value,
-                fokus: document.getElementById('certFokus').value,
-                respons: document.getElementById('certRespons').value,
-                kemandirian: document.getElementById('certKemandirian').value,
-                ketekunan: document.getElementById('certKetekunan').value,
-                emosional: document.getElementById('certEmosional').value,
-                minat: document.getElementById('certMinat').value
+                ...scores,
+                scores
             };
 
-            if (!payload.kesiapan || !payload.fokus || !payload.respons || !payload.kemandirian || !payload.ketekunan || !payload.emosional || !payload.minat) {
+            if (!certComponentDefs.length || Object.values(scores).some(value=>!value)) {
                 showToast('⚠️ Data observasi belum lengkap. Harap lengkapi semua komponen sebelum mencetak sertifikat!');
                 return;
             }
