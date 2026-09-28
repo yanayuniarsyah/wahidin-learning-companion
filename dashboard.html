@@ -2603,6 +2603,10 @@ window.saveNewSoal = async function() {
                     document.body.classList.add('has-sidebar');
                     document.getElementById('ownerSidebar')?.classList.remove('hidden');
                     document.getElementById('sidebarToggle')?.classList.remove('hidden');
+                if (role === 'owner') {
+                    if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
+                    if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
+                }
                 }
                 
                 const activeNav = sessionStorage.getItem('wlc_active_nav');
@@ -4443,6 +4447,7 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
 
 
 
