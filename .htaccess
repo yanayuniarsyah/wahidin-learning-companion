@@ -1,5 +1,5 @@
 # Protect sensitive files from direct HTTP access on Apache/cPanel
-<FilesMatch "(^\.(jwt_secret|ftp_credentials)$|\.(db(-wal|-shm)?|json|bat|md|git|sh|log)$)">
+<FilesMatch "(^\.(jwt_secret|ftp_credentials)$|\.(db(-wal|-shm)?|bat|md|git|sh|log)$|^(?!manifest\.json$).+\.json$)">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

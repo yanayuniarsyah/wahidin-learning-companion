@@ -512,7 +512,7 @@ function initDatabase($db) {
 }
 
 // Run DB Auto-init
-initDatabase($db);
+// initDatabase($db);
 
 // Helper function to get all headers (for compatibility across environments)
 if (!function_exists('getallheaders')) {

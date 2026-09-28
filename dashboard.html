@@ -1756,6 +1756,7 @@ if (typeof endpoint === 'string') {
             // Hide and clean up sidebar
             document.body.classList.remove('has-sidebar');
             document.body.classList.remove('sidebar-collapsed');
+            const role = localStorage.getItem('wlc_role');
             if (role === 'owner') {
                 if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
                 if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
