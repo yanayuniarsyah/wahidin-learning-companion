@@ -363,8 +363,8 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <li><a href="#" onclick="viewReports();return false;" data-nav="viewReportsDashboard"><i class="fas fa-chart-bar"></i> <span class="nav-text">Laporan Observasi</span></a></li>
 <li><a href="#" onclick="analyticsOverview();return false;" data-nav="analyticsDashboard"><i class="fas fa-chart-pie"></i> <span class="nav-text">Analitik Siswa</span></a></li>
 <li><span class="sidebar-group-label">WLC</span></li>
-<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> <span class="nav-text">WLC Kids</span></a></li>
-<li><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> <span class="nav-text">WLC Teen (Reports)</span></a></li>
+<li id="navWlcKids"><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> <span class="nav-text">WLC Kids</span></a></li>
+<li id="navWlcTeen"><a href="#" onclick="openWlcTeenReports();return false;" data-nav="wlcTeenDashboard"><i class="fas fa-user-graduate"></i> <span class="nav-text">WLC Teen (Reports)</span></a></li>
 <li><a href="#" onclick="openGrowthCheck();return false;" data-nav="growthCheckDashboard"><i class="fas fa-chart-line"></i> <span class="nav-text">Growth Check</span></a></li>
 <li><a href="#" onclick="openParentReflections();return false;" data-nav="parentReflectionsDashboard"><i class="fas fa-hands-helping"></i> <span class="nav-text">Refleksi Ortu</span></a></li>
 <li><a href="#" onclick="manageJadwal();return false;" data-nav="manageJadwalDashboard"><i class="fas fa-calendar-alt"></i> <span class="nav-text">Jadwal</span></a></li>
@@ -1751,6 +1751,13 @@ if (typeof endpoint === 'string') {
             // Hide and clean up sidebar
             document.body.classList.remove('has-sidebar');
             document.body.classList.remove('sidebar-collapsed');
+            if (role === 'owner') {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
+            } else {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'block';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'block';
+            }
             const sidebar = document.getElementById('ownerSidebar');
             if (sidebar) {
                 sidebar.classList.add('hidden');
@@ -1773,6 +1780,13 @@ if (typeof endpoint === 'string') {
             // SIDEBAR SELALU ADA SETELAH LOGIN (TETAP ADA DI KONDISI APAPUN)
             document.body.classList.add('has-sidebar');
             document.body.classList.remove('sidebar-collapsed');
+            if (role === 'owner') {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'none';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'none';
+            } else {
+                if (document.getElementById('navWlcKids')) document.getElementById('navWlcKids').style.display = 'block';
+                if (document.getElementById('navWlcTeen')) document.getElementById('navWlcTeen').style.display = 'block';
+            }
             const sidebar = document.getElementById('ownerSidebar');
             if (sidebar) sidebar.classList.remove('hidden');
             const toggleBtn = document.getElementById('sidebarToggle');
@@ -4429,6 +4443,7 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
 
 
 

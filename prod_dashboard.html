@@ -320,7 +320,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <li><a href="#" onclick="manageSiswa();return false;" data-nav="manageSiswaDashboard"><i class="fas fa-user-graduate"></i> Siswa</a></li>
 <li><a href="#" onclick="openManageGrup();return false;" data-nav="manageGrupDashboard"><i class="fas fa-users"></i> Bagi Grup</a></li>
 <li><a href="#" onclick="manageSoal();return false;" data-nav="manageSoalDashboard"><i class="fas fa-book"></i> Komponen Observasi</a></li>
-<li><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> Observasi WLC Kids</a></li>
+<li id="navWlcKids"><a href="#" onclick="openWlcKids();return false;" data-nav="wlcKidsDashboard"><i class="fas fa-child"></i> Observasi WLC Kids</a></li>
 <li><a href="#" onclick="openManageCert();return false;" data-nav="manageCertDashboard"><i class="fas fa-certificate"></i> Sertifikat WLC</a></li>
 <li><a href="#" onclick="openContohSertifikat();return false;"><i class="fas fa-file-pdf"></i> Contoh Sertifikat</a></li>
 <li><a href="#" onclick="openPrintSiswa();return false;" data-nav="printSiswaDashboard"><i class="fas fa-print"></i> Cetak Siswa</a></li>
@@ -4096,6 +4096,7 @@ window.executePrintSiswa = function() {
 <script src="wlc_kids.js"></script>
 </body>
 </html>
+
 
 
 
