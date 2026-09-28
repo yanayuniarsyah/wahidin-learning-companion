@@ -99,55 +99,100 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* Navbar */
+        /* Navbar - Floating Glass Pill (Anti-mainstream) */
         .navbar {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            padding: 1.25rem 5%;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(12px);
+            padding: 0.75rem 1.25rem 0.75rem 2rem;
+            background: rgba(15, 16, 20, 0.65);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             position: fixed;
-            top: 0;
-            width: 100%;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 1100px;
             z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(209, 176, 115, 0.2);
+            border-radius: 50px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), inset 0 0 15px rgba(209, 176, 115, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .navbar:hover {
+            background: rgba(15, 16, 20, 0.85);
+            border-color: rgba(209, 176, 115, 0.4);
+            box-shadow: 0 25px 50px -10px rgba(0,0,0,0.8), inset 0 0 25px rgba(209, 176, 115, 0.15);
         }
 
         .nav-links {
             display: flex;
-            gap: 2.5rem;
+            gap: 2rem;
             align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-brand:hover {
+            transform: scale(1.05);
         }
 
         .btn-nav {
             text-decoration: none;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
             transition: var(--transition);
             background: transparent;
             border: none;
-            box-shadow: none;
+            position: relative;
         }
 
         .btn-nav-outline {
             color: var(--text-muted);
         }
 
+        .btn-nav-outline::after {
+            content: '';
+            position: absolute;
+            bottom: 2px; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
         .btn-nav-outline:hover {
             color: #ffffff;
-            background: transparent;
+        }
+        
+        .btn-nav-outline:hover::after {
+            width: 70%;
         }
 
         .btn-nav-solid {
-            color: var(--primary);
-            font-weight: 600;
+            color: #0a0a0a;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            font-weight: 700;
+            border-radius: 30px;
+            padding: 0.7rem 1.8rem;
+            border: 1px solid var(--primary-light);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.25);
         }
 
         .btn-nav-solid:hover {
-            color: var(--primary-light);
-            background: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+            border-color: #fff;
         }
 
         /* Antimainstream Premium Hero */
@@ -742,12 +787,22 @@
     </style>
 </head>
 <body>
-    <!-- Main Navbar -->
+    <!-- Anti-Mainstream Floating Navbar -->
     <nav class="navbar">
+        <a href="#hero" class="nav-brand">
+            <img src="logo_wahidin.png?v=20260923" alt="WLC Logo" style="height: 38px; filter: drop-shadow(0 0 12px rgba(212,175,55,0.6));">
+        </a>
         <div class="nav-links">
             <a href="#hero" class="btn-nav btn-nav-outline">Beranda</a>
             <a href="#features" class="btn-nav btn-nav-outline">Fitur</a>
-            <a href="dashboard.html" class="btn-nav btn-nav-solid">Masuk <i class="fas fa-sign-in-alt"></i></a>
+            <a href="reflection.html" class="btn-nav btn-nav-outline">Refleksi</a>
+            <a href="share.html" class="btn-nav btn-nav-outline">Verifikasi</a>
+            <a href="#faq" class="btn-nav btn-nav-outline">FAQ</a>
+        </div>
+        <div class="nav-action">
+            <a href="dashboard.html" class="btn-nav btn-nav-solid">
+                Portal Akses <i class="fas fa-lock" style="margin-left: 5px; font-size: 0.8rem;"></i>
+            </a>
         </div>
     </nav>
 
@@ -990,7 +1045,7 @@
     </section>
 
     <!-- Exclusive FAQ Section -->
-    <section class="features" style="background: transparent; border-top: 1px solid var(--border);">
+    <section id="faq" class="features" style="background: transparent; border-top: 1px solid var(--border);">
         <div class="section-header">
             <h2 style="color: var(--primary);">Pertanyaan Eksklusif</h2>
             <p>Eksplorasi lebih dalam mengenai inovasi pendampingan WLC yang tak biasa.</p>
@@ -1149,10 +1204,10 @@
             </div>
             
             <div class="footer-copyright">
-                <div class="footer-brand">
+                <a href="#hero" class="footer-brand" style="text-decoration: none;">
                     <img src="logo_wahidin.png?v=20260923" alt="WLC Logo" class="footer-logo">
                     <span style="font-weight: 600; color: #fff; letter-spacing: 1px;">WAHIDIN LEARNING COMPANION</span>
-                </div>
+                </a>
                 <div class="copyright-text">
                     &copy; 2026 WLC Wahidin Cilacap. All rights reserved.
                 </div>
