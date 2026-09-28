@@ -991,6 +991,7 @@ const rubrikSkoring = {
             if (!sidebar) return;
             sidebar.classList.remove('open');
             if (overlay) overlay.classList.remove('open');
+            if (window.matchMedia('(min-width: 1025px)').matches) document.body.classList.add('sidebar-collapsed');
         };
         document.getElementById('ownerSidebar')?.addEventListener('click', event => {
             if (event.target.closest('.sidebar-nav a')) window.closeSidebarAfterNavigation();
@@ -4334,7 +4335,7 @@ window.executePrintSiswa = function() {
             document.getElementById('setAppLogo').value = logo;
             
             const preview = document.getElementById('setLogoPreview');
-            if (logo) preview.innerHTML = `<img src="${escapeHtml(logo)}" style="width:100%;height:100%;object-fit:contain;">`;
+            preview.innerHTML = ''; if (logo) { const img = document.createElement('img'); img.src = logo; img.style.cssText = 'width:100%;height:100%;object-fit:contain;'; preview.appendChild(img); }
             else preview.innerHTML = `<i class="fas fa-image" style="font-size:2rem; color:var(--border);"></i>`;
         };
 
@@ -4412,3 +4413,6 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
+
+
