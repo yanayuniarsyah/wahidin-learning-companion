@@ -53,7 +53,7 @@ body{background-color:var(--background);color:var(--text-main);min-height:100vh;
 .sidebar-nav{list-style:none;padding:0;margin:0;flex:1;overflow-y:auto;}
 .sidebar-nav a{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;color:var(--text-muted);text-decoration:none;font-weight:500;font-size:0.9rem;transition:all 0.2s ease;border-left:3px solid transparent;}
 .sidebar-nav a:hover,.sidebar-nav a.active{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);}
-.sidebar-toggle{position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:998;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
+.sidebar-toggle{position:fixed;top:1rem;left:1rem;right:auto;bottom:auto;width:52px;height:52px;border-radius:12px;background:var(--primary);color:white;border:none;box-shadow:var(--shadow-lg);cursor:pointer;z-index:1002;font-size:1.25rem;display:none;align-items:center;justify-content:center;}
 @media(max-width:1024px){.sidebar-toggle{display:flex;}.container{margin-left:0!important;max-width:100%!important;}}
 @media(min-width:1025px){
   body.has-sidebar .sidebar { left: 0; width: 260px; }
@@ -377,7 +377,7 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 </div>
 </nav>
 <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-<button id="sidebarToggle" class="sidebar-toggle hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<button id="sidebarToggle" class="sidebar-toggle hidden" type="button" aria-controls="ownerSidebar" aria-expanded="false" aria-label="Buka menu navigasi" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 <div id="loginScreen" class="login-screen">
 <div class="login-card">
 <div style="background:transparent;width:105px;height:105px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;cursor:pointer;" onclick="window.location.href='index.html#hero';">
@@ -977,11 +977,18 @@ const rubrikSkoring = {
                 const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
                 if (isDesktop) {
                     document.body.classList.toggle('sidebar-collapsed');
-                    sidebar.classList.toggle('open', !document.body.classList.contains('sidebar-collapsed'));
+                    const isOpen = !document.body.classList.contains('sidebar-collapsed');
+                    sidebar.classList.toggle('open', isOpen);
+                    const toggle = document.getElementById('sidebarToggle');
+                    toggle?.setAttribute('aria-expanded', String(isOpen));
+                    toggle?.setAttribute('aria-label', isOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi');
                     return;
                 }
                 const isOpen = sidebar.classList.toggle('open');
                 overlay.classList.toggle('open', isOpen);
+                const toggle = document.getElementById('sidebarToggle');
+                toggle?.setAttribute('aria-expanded', String(isOpen));
+                toggle?.setAttribute('aria-label', isOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi');
             }
         };
 
@@ -991,7 +998,9 @@ const rubrikSkoring = {
             if (!sidebar) return;
             sidebar.classList.remove('open');
             if (overlay) overlay.classList.remove('open');
-            if (window.matchMedia('(min-width: 1025px)').matches) document.body.classList.add('sidebar-collapsed');
+            const toggle = document.getElementById('sidebarToggle');
+            toggle?.setAttribute('aria-expanded', 'false');
+            toggle?.setAttribute('aria-label', 'Buka menu navigasi');
         };
         document.getElementById('ownerSidebar')?.addEventListener('click', event => {
             if (event.target.closest('.sidebar-nav a')) window.closeSidebarAfterNavigation();
