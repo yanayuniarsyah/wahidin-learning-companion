@@ -501,8 +501,11 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <header class="panel-header"><h1>Owner Panel</h1><button class="btn btn-secondary" onclick="logout()">Logout</button></header>
 
 <!-- DATA SECTION -->
-<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-database"></i> Data</h3>
+<h3 style="color:var(--primary); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fas fa-database"></i> Data & Laporan</h3>
 <div class="menu-buttons" style="margin-top: 1rem;">
+<button class="menu-btn" onclick="viewReports()"><i class="fas fa-chart-bar"></i> Lihat Laporan Observasi</button>
+<button class="menu-btn" onclick="analyticsOverview()"><i class="fas fa-chart-pie"></i> Analitik Siswa</button>
+<button class="menu-btn" onclick="exportAllReports()"><i class="fas fa-download"></i> Export Data CSV</button>
 <button class="menu-btn" onclick="manageSiswa()"><i class="fas fa-user-graduate"></i> Siswa</button>
 <button class="menu-btn" onclick="manageSekolah()"><i class="fas fa-school"></i> Sekolah & Kelas</button>
 <button class="menu-btn" onclick="openManageGrup()"><i class="fas fa-users"></i> Group</button>
@@ -4425,6 +4428,7 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
 
 
 
