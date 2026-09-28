@@ -1122,7 +1122,7 @@ if (typeof endpoint === 'string') {
             }
             try {
                 const res = await originalFetch(finalUrl.toString(), options);
-                if ((res.status === 401 || res.status === 403) && !endpoint.includes('/api/login')) {
+                if ((res.status === 401 || res.status === 403) && endpoint.includes('/api/') && !endpoint.includes('/api/login')) {
                     localStorage.removeItem('wlc_token');
                     localStorage.removeItem('wlc_role');
                     localStorage.removeItem('wlc_user');
@@ -4433,6 +4433,7 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
 
 
 
