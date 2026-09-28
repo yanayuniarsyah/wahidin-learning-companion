@@ -365,6 +365,11 @@ function initDatabase($db) {
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
     try { $db->exec('ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0'); } catch (Exception $e) {}
+    try { $db->exec('ALTER TABLE users ADD COLUMN email TEXT UNIQUE'); } catch (Exception $e) {}
+    try { $db->exec('ALTER TABLE users ADD COLUMN otp_hash TEXT'); } catch (Exception $e) {}
+    try { $db->exec('ALTER TABLE users ADD COLUMN otp_expires INTEGER'); } catch (Exception $e) {}
+    try { $db->exec('ALTER TABLE users ADD COLUMN otp_attempts INTEGER DEFAULT 0'); } catch (Exception $e) {}
+    try { $db->exec('ALTER TABLE users ADD COLUMN otp_last_request INTEGER DEFAULT 0'); } catch (Exception $e) {}
     try { $db->exec('ALTER TABLE kegiatan_wlc ADD COLUMN share_token TEXT'); } catch (Exception $e) {}
     // Backfill unguessable share keys for certificates that predate this migration.
     $db->exec("UPDATE kegiatan_wlc SET share_token = lower(hex(randomblob(32))) WHERE share_token IS NULL OR share_token = ''");
@@ -705,7 +710,7 @@ if ($uri === '/api/users') {
             echo json_encode(['error' => 'Unauthorized']);
             exit;
         }
-        $stmt = $db->query('SELECT id, role, username FROM users');
+        $stmt = $db->query('SELECT id, role, username, email FROM users');
         echo json_encode($stmt->fetchAll() ?: []);
         exit;
     } elseif ($method === 'POST') {
@@ -718,6 +723,7 @@ if ($uri === '/api/users') {
         $role = $inputBody['role'] ?? null;
         $username = $inputBody['username'] ?? null;
         $password = $inputBody['password'] ?? null;
+        $email = $inputBody['email'] ?? null;
 
         if (!$role || !$username || !$password) {
             http_response_code(400);
@@ -726,8 +732,8 @@ if ($uri === '/api/users') {
         }
         $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
         try {
-            $stmt = $db->prepare('INSERT INTO users (role, username, password) VALUES (?, ?, ?)');
-            $stmt->execute([$role, $username, $hashed]);
+            $stmt = $db->prepare('INSERT INTO users (role, username, password, email) VALUES (?, ?, ?, ?)');
+            $stmt->execute([$role, $username, $hashed, $email]);
             echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
         } catch (Exception $e) {
             http_response_code(400);
@@ -1674,3 +1680,4 @@ if (preg_match('#^/api/([^/]+)/([0-9]+)$#', $uri, $matches)) {
 // 404 Route Fallback
 http_response_code(404);
 echo json_encode(['error' => 'Endpoint not found']);
+
