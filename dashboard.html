@@ -217,7 +217,8 @@ Silakan buka melalui: <a href="http://localhost:3000" style="text-decoration:und
 <!-- FORM CONTAINERS AS TOP-LEVEL MODALS -->
 <div id="usersFormContainer" class="hidden">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;"><h3 style="color:#1e293b;font-family:'Outfit',sans-serif;margin:0;">Buat Akun Baru</h3><button class="btn btn-secondary" style="border-radius:50%;width:40px;height:40px;padding:0;" onclick="document.getElementById('usersFormContainer').classList.add('hidden')"><i class="fas fa-times" style="margin:0;color:#ef4444;"></i></button></div>
-    <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>`r`n    <div class="form-group"><label class="form-label">Email (Untuk Lupa Password)</label><input type="email" class="form-input" id="newUserEmail" placeholder="email@contoh.com"></div>
+    <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newUserUsername" placeholder="Contoh: budi_asisten"></div>
+    <div class="form-group"><label class="form-label">Email (Untuk Lupa Password)</label><input type="email" class="form-input" id="newUserEmail" placeholder="email@contoh.com"></div>
     <div class="form-group" style="position:relative;"><label class="form-label">Password</label><input type="password" class="form-input" id="newUserPassword" placeholder="******" style="padding-right:3rem;"><i class="fas fa-eye" style="position:absolute;right:1rem;top:2.5rem;cursor:pointer;color:var(--text-muted);" onclick="const pwd=document.getElementById('newUserPassword'); if(pwd.type==='password'){pwd.type='text'; this.classList.remove('fa-eye'); this.classList.add('fa-eye-slash');}else{pwd.type='password'; this.classList.remove('fa-eye-slash'); this.classList.add('fa-eye');}"></i></div>
     <div class="form-group"><label class="form-label">Peran (Role)</label><select class="form-input" id="newUserRole"><option value="asisten">Asisten</option><option value="evaluator">Evaluator</option><option value="owner">Owner</option></select></div>
     <button class="btn btn-primary" onclick="saveNewUser()" style="width:100%;margin-top:1rem;"><i class="fas fa-save"></i> Simpan User</button>
@@ -1857,7 +1858,8 @@ if (typeof endpoint === 'string') {
         }
 
         window.saveNewUser = async function() {
-            const username = document.getElementById('newUserUsername').value;`r`n            const email = document.getElementById('newUserEmail').value;
+            const username = document.getElementById('newUserUsername').value;
+            const email = document.getElementById('newUserEmail').value;
             const password = document.getElementById('newUserPassword').value;
             const role = document.getElementById('newUserRole').value;
             if (!username || !password) return showToast('⚠️ Lengkapi form');
@@ -4423,6 +4425,7 @@ window.executePrintSiswa = function() {
 </script>
 </body>
 </html>
+
 
 
 
