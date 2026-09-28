@@ -222,6 +222,22 @@ function seedBankSoal($db) {
     }
 }
 
+function backfillGroupMembership(PDO $db): void {
+    $columns = $db->query('PRAGMA table_info(grup)')->fetchAll(PDO::FETCH_ASSOC);
+    $columnNames = array_column($columns, 'name');
+    if (!in_array('siswaIds', $columnNames, true)) return;
+
+    $legacyGroups = $db->query("SELECT id, siswaIds FROM grup WHERE siswaIds IS NOT NULL AND siswaIds <> ''")->fetchAll();
+    $insert = $db->prepare('INSERT OR IGNORE INTO grup_siswa (grupId, siswaId) SELECT ?, id FROM siswa WHERE id = ?');
+    foreach ($legacyGroups as $group) {
+        $ids = json_decode((string)$group['siswaIds'], true);
+        if (!is_array($ids)) continue;
+        foreach (array_unique(array_map('intval', $ids)) as $studentId) {
+            if ($studentId > 0) $insert->execute([(int)$group['id'], $studentId]);
+        }
+    }
+}
+
 function initDatabase($db) {
     $db->exec("CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
@@ -288,14 +304,8 @@ function initDatabase($db) {
         UNIQUE(grupId, siswaId)
     )");
     $db->exec('CREATE INDEX IF NOT EXISTS idx_grup_siswa_siswa ON grup_siswa(siswaId)');
-    // One-time-compatible backfill: keep legacy JSON for older deployed clients, but relational membership is authoritative.
-    $legacyGroups = $db->query("SELECT id, siswaIds FROM grup WHERE siswaIds IS NOT NULL AND siswaIds <> ''")->fetchAll();
-    $backfill = $db->prepare('INSERT OR IGNORE INTO grup_siswa (grupId, siswaId) SELECT ?, id FROM siswa WHERE id = ?');
-    foreach ($legacyGroups as $legacyGroup) {
-        $legacyIds = json_decode((string)$legacyGroup['siswaIds'], true);
-        if (!is_array($legacyIds)) continue;
-        foreach (array_unique(array_map('intval', $legacyIds)) as $legacyId) if ($legacyId > 0) $backfill->execute([(int)$legacyGroup['id'], $legacyId]);
-    }
+    // Older installs may already have dropped the JSON column; migrate it only when present.
+    backfillGroupMembership($db);
 
     $db->exec("CREATE TABLE IF NOT EXISTS master_komponen (
         id INTEGER PRIMARY KEY AUTOINCREMENT, wlc_tipe TEXT NOT NULL, komponen_key TEXT NOT NULL,
@@ -465,9 +475,15 @@ function initDatabase($db) {
     
     $stmt = $db->query("SELECT COUNT(*) as count FROM grup");
     if ($stmt->fetch()['count'] == 0) {
-        $db->exec("INSERT OR IGNORE INTO grup (nama, jadwalId, asistenId, siswaIds) VALUES 
-          ('Grup A - Kelas 4A', 1, 'asisten1', '[1,2,3,4,5,6,7]'),
-          ('Grup B - Kelas 4B', 1, 'asisten2', '[8,9,10]')");
+        $groupColumns = array_column($db->query('PRAGMA table_info(grup)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+        if (in_array('siswaIds', $groupColumns, true)) {
+            $db->exec("INSERT OR IGNORE INTO grup (nama, jadwalId, asistenId, siswaIds) VALUES
+              ('Grup A - Kelas 4A', 1, 'asisten1', '[1,2,3,4,5,6,7]'),
+              ('Grup B - Kelas 4B', 1, 'asisten2', '[8,9,10]')");
+        } else {
+            $db->exec("INSERT OR IGNORE INTO grup (nama, jadwalId, asistenId) VALUES
+              ('Grup A - Kelas 4A', 1, 'asisten1'), ('Grup B - Kelas 4B', 1, 'asisten2')");
+        }
     }
     
     $stmt = $db->query("SELECT COUNT(*) as count FROM bank_soal");
@@ -491,15 +507,8 @@ function initDatabase($db) {
             $insert->execute([$s['nama'], $s['nisn'], $s['sekolahId'], $s['kelasId']]);
         }
     }
-    // Repeat the membership backfill after the demo/legacy seed blocks, since those
-    // blocks can create groups and students during the same first initialization.
-    $legacyGroups = $db->query("SELECT id, siswaIds FROM grup WHERE siswaIds IS NOT NULL AND siswaIds <> ''")->fetchAll();
-    $backfill = $db->prepare('INSERT OR IGNORE INTO grup_siswa (grupId, siswaId) SELECT ?, id FROM siswa WHERE id = ?');
-    foreach ($legacyGroups as $legacyGroup) {
-        $legacyIds = json_decode((string)$legacyGroup['siswaIds'], true);
-        if (!is_array($legacyIds)) continue;
-        foreach (array_unique(array_map('intval', $legacyIds)) as $legacyId) if ($legacyId > 0) $backfill->execute([(int)$legacyGroup['id'], $legacyId]);
-    }
+    // Run again after seed rows on first startup; INSERT OR IGNORE keeps this idempotent.
+    backfillGroupMembership($db);
 }
 
 // Run DB Auto-init
