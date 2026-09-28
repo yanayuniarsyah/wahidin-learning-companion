@@ -547,7 +547,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
 <div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Total Observasi</h4><p id="statTotalObs" style="font-size:2.5rem;font-weight:800;color:var(--primary);">0</p></div>
 <div class="menu-btn" style="padding:1.5rem;text-align:left;align-items:flex-start;"><h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Rata-rata Skor</h4><p id="statAvgScore" style="font-size:2.5rem;font-weight:800;color:var(--success);">0.0</p></div>
 </div>
-<div style="background:white;padding:2rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:2rem;"><h3 style="margin-bottom:1.5rem;"><i class="fas fa-chart-line"></i> Grafik Progress Skor Murid</h3><canvas id="analyticsChart" height="150"></canvas></div>
+<div style="background:white;padding:2rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:2rem;"><h3 style="margin-bottom:1.5rem;"><i class="fas fa-chart-line"></i> Grafik Progress Skor Murid</h3><div style="position: relative; height: 400px; width: 100%;"><canvas id="analyticsChart"></canvas></div></div>
 </div>
 <div id="manageSekolahDashboard" class="hidden">
 <header class="panel-header"><button class="btn btn-secondary" onclick="exitManageSekolah()"><i class="fas fa-arrow-left"></i> Kembali</button><h1>Sekolah</h1><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary" onclick="document.getElementById('sekolahFormContainer').classList.toggle('hidden')"><i class="fas fa-school"></i> Sekolah</button><button class="btn btn-primary" onclick="populateSekolahDropdownKelas().then(() => document.getElementById('kelasFormContainer').classList.toggle('hidden'))"><i class="fas fa-door-open"></i> Kelas</button></div></header>
@@ -4096,6 +4096,7 @@ window.executePrintSiswa = function() {
 <script src="wlc_kids.js"></script>
 </body>
 </html>
+
 
 
 
