@@ -1,0 +1,1 @@
+<?php $db = new PDO('sqlite:wlc.db'); $hashed = password_hash('AdminWLC123!', PASSWORD_BCRYPT, ['cost' => 10]); $db->exec("UPDATE users SET password = '$hashed' WHERE username = 'admin'"); echo 'Password admin di production berhasil direset menjadi: AdminWLC123!';
