@@ -251,28 +251,31 @@
             flex-direction: column;
             justify-content: space-between;
             text-align: center;
-            border: 2px solid #d4af37;
-            outline: 1px solid #d4af37;
+            border: 3px solid #00AEEF;
+            border-radius: 15px;
+            outline: 2px solid #00AEEF;
             outline-offset: -8px;
-            background: #fffdf8;
-            background-image: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
-            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.1);
+            background: #fff;
+            background-image: radial-gradient(circle at center, rgba(0, 174, 239, 0.08) 0%, transparent 60%);
+            box-shadow: inset 0 0 20px rgba(0, 174, 239, 0.1), 0 10px 30px rgba(0,0,0,0.1);
         }
         
         .cert-border-decor {
             position: absolute;
-            top: 3.5mm; left: 3.5mm; right: 3.5mm; bottom: 3.5mm;
-            border: 1px solid rgba(212, 175, 55, 0.5);
+            top: 4.5mm; left: 4.5mm; right: 4.5mm; bottom: 4.5mm;
+            border: 2px dashed rgba(0, 174, 239, 0.3);
+            border-radius: 12px;
             pointer-events: none;
         }
         .cert-border-decor::before, .cert-border-decor::after {
             content: '';
             position: absolute;
             width: 15mm; height: 15mm;
-            border: 3px solid #d4af37;
+            border: 4px solid #FFCD00;
+            border-radius: 8px;
         }
-        .cert-border-decor::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-        .cert-border-decor::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+        .cert-border-decor::before { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+        .cert-border-decor::after { bottom: -3px; right: -3px; border-left: none; border-top: none; }
 
         .wlc-crest {
             display: flex;
@@ -308,21 +311,22 @@
             margin-top: 2mm;
         }
         .cert-main-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Poppins', sans-serif;
             font-size: 2.8rem;
-            color: #d4af37;
+            color: #00AEEF;
             margin: 0;
-            font-weight: 900;
-            letter-spacing: 4px;
-            line-height: 1.1;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            font-weight: 800;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+            text-transform: uppercase;
         }
         .cert-main-subtitle {
             font-family: 'Outfit', sans-serif;
             font-size: 0.95rem;
             font-weight: 700;
-            letter-spacing: 6px;
-            color: #1e3a8a;
+            letter-spacing: 4px;
+            color: #FFCD00;
             margin: 2mm 0 4mm 0;
             text-transform: uppercase;
         }
@@ -415,18 +419,19 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background: #fffdf8;
-            border: 2px solid #d4af37;
-            outline: 1px solid #d4af37;
+            background: #fff;
+            border: 3px solid #00AEEF;
+            border-radius: 15px;
+            outline: 2px solid #00AEEF;
             outline-offset: -6px;
-            box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
+            box-shadow: inset 0 0 15px rgba(0, 174, 239, 0.05);
             position: relative;
         }
         .report-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            border-bottom: 2px solid #d4af37;
+            border-bottom: 2px solid #00AEEF;
             padding-bottom: 2mm;
             margin-bottom: 3mm;
             text-align: left;
@@ -443,7 +448,7 @@
             font-family: 'Outfit', sans-serif;
             font-size: 0.75rem;
             font-weight: 700;
-            color: #d4af37;
+            color: #FFCD00;
             letter-spacing: 4px;
             margin: 1.5mm 0 0 0;
             text-transform: uppercase;
@@ -491,7 +496,7 @@
             font-size: 0.9rem;
             line-height: 1.6;
             color: #334155;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border: 1px solid rgba(0, 174, 239, 0.3);
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .narrative-box {
@@ -500,8 +505,8 @@
         .recommendation-box {
             font-style: italic;
             color: #0a192f;
-            background: rgba(212, 175, 55, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            background: rgba(0, 174, 239, 0.05);
+            border: 1px solid rgba(0, 174, 239, 0.4);
             min-height: 15mm;
         }
         .report-note {
@@ -866,15 +871,13 @@
                                 </div>
                                 
                                 <div class="cert-body-snapshot">
-                                    <h1 class="cert-main-title">LEARNING HABIT PROFILE</h1>
-                                    <h2 class="cert-main-subtitle">WLC ${cert.wlc_tipe ? cert.wlc_tipe : '1'} - WAHIDIN LEARNING COMPANION</h2>
+                                    <h1 class="cert-main-title">Profile Belajar Siswa</h1>
                                     
                                     <p class="recipient-intro">diberikan kepada:</p>
-                                    <h3 class="recipient-name-snapshot">${escapeHtml(siswaName)}</h3>
+                                    <h3 class="recipient-name-snapshot" style="font-family: 'Poppins', sans-serif; color: #1e3a8a;">${escapeHtml(siswaName)}</h3>
                                     
                                     <p class="dedication-text">
-                                        Atas proses dan partisipasi aktif dalam kegiatan Wahidin Learning Companion. 
-                                        Learning Habit Profile ini mendokumentasikan kebiasaan belajar yang dapat diamati selama sesi pendampingan berlangsung.
+                                        Atas proses dan partisipasi aktif dalam kegiatan KUMON Wahidin. Profil Belajar Siswa ini mendokumentasikan kebiasaan belajar yang dapat diamati selama sesi pendampingan berlangsung.
                                     </p>
                                 </div>
                                 
@@ -897,7 +900,7 @@
                                 </div>
                             </div>
                             <div class="sponsor-footer" style="text-align: center; margin-top: 2mm; margin-bottom: 2mm; font-size: 0.65rem; color: #64748b; font-family: 'Outfit', sans-serif;">
-                                Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
+                                KUMON Jl Dr Wahidin Cilacap - 0813-9233-3033 - www.kumonwahidincilacap.com
                             </div>
                         </div>
 
@@ -907,7 +910,7 @@
                                 <div class="report-header">
                                     <div class="header-left">
                                         <h1 class="report-title">OBSERVATION REPORT</h1>
-                                        <h2 class="report-subtitle">WLC ${cert.wlc_tipe ? cert.wlc_tipe : '1'} - ANALYTICAL ASSESSMENT</h2>
+
                                     </div>
                                     <div class="header-right">
                                         <div class="student-name">${escapeHtml(siswaName)}</div>
@@ -937,7 +940,7 @@
                                 </div>
                             </div>
                             <div class="sponsor-footer" style="text-align: center; margin-top: 2mm; margin-bottom: 2mm; font-size: 0.65rem; color: #64748b; font-family: 'Outfit', sans-serif;">
-                                Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
+                                KUMON Jl Dr Wahidin Cilacap - 0813-9233-3033 - www.kumonwahidincilacap.com
                             </div>
                         </div>
                     </div>

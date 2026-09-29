@@ -1805,15 +1805,15 @@ window.executePrintSiswa = function() {
                         </div>
                         
                         <div class="cert-body-snapshot">
-                            <h1 class="cert-main-title">EXECUTIVE OBSERVATION SUMMARY</h1>
-                            <h2 class="cert-main-subtitle">EXCLUSIVE ANALYTICAL ASSESSMENT</h2>
+                            <h1 class="cert-main-title">Profile Belajar Siswa</h1>
                             
-                            <p class="recipient-intro">Diberikan secara eksklusif kepada:</p>
+                            
+                            <p class="recipient-intro">Diberikan kepada:</p>
                             <h3 class="recipient-name-snapshot">${safeSiswa}</h3>
                             
                             <p class="dedication-text">
                                 Atas dedikasi dan pencapaian yang luar biasa dalam kegiatan Wahidin Learning Companion. 
-                                Executive Observation Summary ini merupakan dokumen resmi yang mengakui perkembangan karakter dan kemandirian belajar siswa.
+                                Profile Belajar Siswa ini merupakan dokumen resmi yang mengakui perkembangan karakter dan kemandirian belajar siswa.
                             </p>
                         </div>
                         
@@ -1830,7 +1830,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
+                        KUMON Jl Dr Wahidin Cilacap - 0813-9233-3033 - www.kumonwahidincilacap.com
                     </div>
                 </div>
             `;
@@ -1850,7 +1850,7 @@ window.executePrintSiswa = function() {
                         <div class="report-header">
                             <div class="header-left">
                                 <h1 class="report-title">OBSERVATION REPORT</h1>
-                                <h2 class="report-subtitle">ANALYTICAL ASSESSMENT SERIES</h2>
+
                             </div>
                             <div class="header-right">
                                 <div class="student-name">${safeSiswa}</div>
@@ -1880,7 +1880,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
+                        KUMON Jl Dr Wahidin Cilacap - 0813-9233-3033 - www.kumonwahidincilacap.com
                     </div>
                 </div>
             `;
@@ -2337,8 +2337,8 @@ window.executePrintSiswa = function() {
                                 justify-content: space-between;
                                 text-align: center;
                                 position: relative;
-                                border: 2px solid #d4af37;
-                                outline: 1px solid #d4af37;
+                                border: 3px solid #00AEEF;
+                                outline: 2px solid #00AEEF;
                                 outline-offset: -8px;
                                 background: #fffdf8;
                                 background-image: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
@@ -2354,7 +2354,7 @@ window.executePrintSiswa = function() {
                                 content: '';
                                 position: absolute;
                                 width: 15mm; height: 15mm;
-                                border: 3px solid #d4af37;
+                                border: 4px solid #FFCD00;
                             }
                             .cert-border-decor::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
                             .cert-border-decor::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
@@ -2395,7 +2395,7 @@ window.executePrintSiswa = function() {
                             .cert-main-title {
                                 font-family: 'Playfair Display', serif;
                                 font-size: 2.8rem;
-                                color: #d4af37;
+                                color: #00AEEF;
                                 margin: 0;
                                 font-weight: 900;
                                 letter-spacing: 4px;
@@ -2486,8 +2486,9 @@ window.executePrintSiswa = function() {
                                 flex-direction: column;
                                 justify-content: space-between;
                                 background: #fffdf8;
-                                border: 2px solid #d4af37;
-                                outline: 1px solid #d4af37;
+                                border: 3px solid #00AEEF;
+                                border-radius: 15px;
+                                outline: 2px solid #00AEEF;
                                 outline-offset: -6px;
                                 box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
                                 position: relative;
@@ -2496,7 +2497,7 @@ window.executePrintSiswa = function() {
                                 display: flex;
                                 justify-content: space-between;
                                 align-items: flex-start;
-                                border-bottom: 2px solid #d4af37;
+                                border-bottom: 2px solid #00AEEF;
                                 padding-bottom: 2mm;
                                 margin-bottom: 1mm;
                             }
@@ -2512,7 +2513,7 @@ window.executePrintSiswa = function() {
                                 font-family: 'Outfit', sans-serif;
                                 font-size: 0.75rem;
                                 font-weight: 700;
-                                color: #d4af37;
+                                color: #FFCD00;
                                 letter-spacing: 4px;
                                 margin: 1.5mm 0 0 0;
                                 text-transform: uppercase;
@@ -2559,7 +2560,7 @@ window.executePrintSiswa = function() {
                                 font-size: 0.8rem;
                                 line-height: 1.4;
                                 color: #334155;
-                                border: 1px solid rgba(212, 175, 55, 0.3);
+                                border: 1px solid rgba(0, 174, 239, 0.3);
                                 box-shadow: 0 2px 5px rgba(0,0,0,0.02);
                             }
                             .narrative-box {
@@ -2568,8 +2569,8 @@ window.executePrintSiswa = function() {
                             .recommendation-box {
                                 font-style: italic;
                                 color: #0a192f;
-                                background: rgba(212, 175, 55, 0.05);
-                                border: 1px solid rgba(212, 175, 55, 0.4);
+                                background: rgba(0, 174, 239, 0.05);
+                                border: 1px solid rgba(0, 174, 239, 0.4);
                                 min-height: 15mm;
                             }
                             .report-note {
@@ -2776,11 +2777,11 @@ window.executePrintSiswa = function() {
         };
 
         window.viewSavedCert = function(id) {
-            window.open(`${API_BASE}/share.html?id=${id}&v=${Date.now()}`, '_blank');
+            window.open(`share.html?id=${id}&v=${Date.now()}`, '_blank');
         };
 
         window.shareSavedCert = function(id) {
-            const link = `${API_BASE}/share.html?id=${id}`;
+            const link = `share.html?id=${id}`;
             document.getElementById('qrShareImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
             window.currentShareLink = link;
             document.getElementById('qrShareModal').classList.remove('hidden');
@@ -2855,7 +2856,7 @@ window.executePrintSiswa = function() {
                     const result = await res.json();
                     showToast('✅ Kegiatan WLC disimpan!');
                     await loadCertHistory(siswaId);
-                    window.open(`${API_BASE}/share.html?id=${result.id}&v=${Date.now()}`, '_blank');
+                    window.open(`share.html?id=${result.id}&v=${Date.now()}`, '_blank');
                 } else {
                     showToast('⚠️ Gagal menyimpan kegiatan.');
                 }
@@ -3272,4 +3273,5 @@ window.executePrintSiswa = function() {
                 }
             } catch (e) { showToast('❌ Gagal menyimpan'); }
         };
+
 

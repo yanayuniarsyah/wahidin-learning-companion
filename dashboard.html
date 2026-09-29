@@ -853,7 +853,7 @@ SECURE ACCESS <i class="fas fa-lock" style="margin-left:0.5rem;"></i>
             </div>
             <div class="form-group">
                 <label class="form-label">Nama Instansi/Unit</label>
-                <input type="text" id="certOrgNameSingle" class="form-input" value="">
+                <input type="text" id="certOrgNameSingle" class="form-input" value="KUMON Wahidin">
             </div>
             <div class="form-group">
                 <label class="form-label">Tanggal Sertifikat</label>
@@ -3034,7 +3034,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
+                        KUMON Jl Dr Wahidin Cilacap - 0813-9233-3033 - www.kumonwahidincilacap.com
                     </div>
                 </div>
             `;
@@ -3084,7 +3084,7 @@ window.executePrintSiswa = function() {
                         </div>
                     </div>
                     <div class="sponsor-footer">
-                        Support by KUMON cabang Jl Dr Wahidin Cilacap - www.wlc.kumonwahidincilacap.com
+                        KUMON Jl Dr Wahidin Cilacap - 0813-9233-3033 - www.kumonwahidincilacap.com
                     </div>
                 </div>
             `;
@@ -3980,12 +3980,12 @@ window.executePrintSiswa = function() {
 
         window.viewSavedCert = function(id, key) {
             if (!/^[a-f0-9]{64}$/.test(key || '')) { showToast('⚠️ Kunci sertifikat tidak valid. Muat ulang riwayat.'); return; }
-            window.open(`${API_BASE}/share.html?id=${id}&key=${encodeURIComponent(key)}&v=${Date.now()}`, '_blank');
+            window.open(`share.html?id=${id}&key=${encodeURIComponent(key)}&v=${Date.now()}`, '_blank');
         };
 
         window.shareSavedCert = function(id, key) {
             if (!/^[a-f0-9]{64}$/.test(key || '')) { showToast('⚠️ Kunci sertifikat tidak valid. Muat ulang riwayat.'); return; }
-            const link = `${API_BASE}/share.html?id=${id}&key=${encodeURIComponent(key)}`;
+            const link = `share.html?id=${id}&key=${encodeURIComponent(key)}`;
             document.getElementById('qrShareImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
             window.currentShareLink = link;
             document.getElementById('qrShareModal').classList.remove('hidden');
@@ -4067,7 +4067,7 @@ window.executePrintSiswa = function() {
                     const result = await res.json();
                     showToast('✅ Kegiatan WLC disimpan!');
                     await loadCertHistory(siswaId);
-                    window.open(`${API_BASE}/share.html?id=${result.id}&key=${encodeURIComponent(result.share_token)}&v=${Date.now()}`, '_blank');
+                    window.open(`share.html?id=${result.id}&key=${encodeURIComponent(result.share_token)}&v=${Date.now()}`, '_blank');
                 } else {
                     showToast('⚠️ Gagal menyimpan kegiatan.');
                 }
